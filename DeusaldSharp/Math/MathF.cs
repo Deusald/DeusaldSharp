@@ -24,6 +24,7 @@
 #if NETFRAMEWORK
 
 using System;
+// ReSharper disable InconsistentNaming
 
 namespace DeusaldSharp
 {
@@ -78,6 +79,8 @@ namespace DeusaldSharp
         {
             return (float) Math.Cos(a);
         }
+
+        public const float PI = (float) Math.PI;
     }
 }
 #endif

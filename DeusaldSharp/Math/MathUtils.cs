@@ -27,6 +27,15 @@ namespace DeusaldSharp
 {
     public class MathUtils
     {
+        #region Time
+
+        public static float MinToSec(float minutes)
+        {
+            return minutes * 60f;
+        }
+
+        #endregion Time
+
         #region Float Utils
 
         public static float Clamp(float value, float min, float max)
@@ -72,5 +81,30 @@ namespace DeusaldSharp
         }
 
         #endregion Float Utils
+
+        #region Consts
+
+        public const float DegToRad      = MathF.PI / 180f;
+        public const float RadToDeg      = 180f / MathF.PI;
+        public const float EpsilonSquare = float.Epsilon * float.Epsilon;
+
+        #endregion Consts
+
+        #region Bits
+
+        public static uint NumberOfSetBits(uint mask)
+        {
+            uint count = 0;
+
+            while (mask > 0)
+            {
+                count +=  mask & 1;
+                mask  >>= 1;
+            }
+
+            return count;
+        }
+
+        #endregion Bits
     }
 }
