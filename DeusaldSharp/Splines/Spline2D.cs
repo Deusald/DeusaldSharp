@@ -21,38 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedType.Global
+
 namespace DeusaldSharp
 {
     using System;
     using System.Collections.Generic;
 
+    /// <summary> This class represents the 2D spline. </summary>
     public class Spline2D
     {
         #region Types
 
         private readonly struct DistanceToT
         {
-            public readonly float distance;
-            public readonly float t;
-            public readonly int   index;
+            public readonly float Distance;
+            public readonly float T;
+            public readonly int   Index;
 
             public DistanceToT(float distance, float t, int index)
             {
-                this.distance = distance;
-                this.t        = t;
-                this.index    = index;
+                Distance = distance;
+                T        = t;
+                Index    = index;
             }
         }
 
         private readonly struct Segment
         {
-            public readonly int   segIndex;
-            public readonly float rest;
+            public readonly int   SegIndex;
+            public readonly float Rest;
 
             public Segment(int segIndex, float rest)
             {
-                this.segIndex = segIndex;
-                this.rest     = rest;
+                SegIndex = segIndex;
+                Rest     = rest;
             }
         }
 
@@ -74,9 +79,7 @@ namespace DeusaldSharp
 
         #region Properties
 
-        /// <summary>
-        /// Is the spline closed. In closed spline the first point is also the last.
-        /// </summary>
+        /// <summary> Is the spline closed. In closed spline the first point is also the last. </summary>
         public bool IsClosed
         {
             get => _Closed;
@@ -88,9 +91,7 @@ namespace DeusaldSharp
             }
         }
 
-        /// <summary>
-        /// The amount of the curvature in the spline.
-        /// </summary>
+        /// <summary> The amount of the curvature in the spline. </summary>
         public float Curvature
         {
             get => _Curvature;
@@ -102,9 +103,7 @@ namespace DeusaldSharp
             }
         }
 
-        /// <summary>
-        /// The accuracy of sampling curve in calculating its length
-        /// </summary>
+        /// <summary> The accuracy of sampling curve in calculating its length. </summary>
         public int LengthSamplesPerSegment
         {
             get => _LengthSamplesPerSegment;
@@ -115,14 +114,10 @@ namespace DeusaldSharp
             }
         }
 
-        /// <summary>
-        /// Number of control points
-        /// </summary>
+        /// <summary> Number of control points. </summary>
         public int Count => _Points.Count;
 
-        /// <summary>
-        /// The approximate length of the curve.
-        /// </summary>
+        /// <summary> The approximate length of the curve. </summary>
         public float Length
         {
             get
@@ -135,7 +130,7 @@ namespace DeusaldSharp
                 if (count == 0)
                     return 0f;
 
-                return _Distances[count - 1].distance;
+                return _Distances[count - 1].Distance;
             }
         }
 
@@ -173,6 +168,7 @@ namespace DeusaldSharp
 
         #region Points Management
 
+        /// <summary> Add single point at the end of spline. </summary>
         public void AddPoint(Vector2 point)
         {
             _Points.Add(point);
@@ -180,6 +176,7 @@ namespace DeusaldSharp
             _LengthSamplesDirty = true;
         }
 
+        /// <summary> Add single point at the end of spline and remove the first point of spline. </summary>
         public void AddPointScroll(Vector2 point)
         {
             if (_Closed)
@@ -198,6 +195,7 @@ namespace DeusaldSharp
             AddPoint(point);
         }
 
+        /// <summary> Add range of the points at the end of spline. </summary>
         public void AddPoints(List<Vector2> points)
         {
             _Points.AddRange(points);
@@ -205,6 +203,7 @@ namespace DeusaldSharp
             _LengthSamplesDirty = true;
         }
 
+        /// <summary> Replace range of points starting from index. </summary>
         public void ReplacePoints(List<Vector2> points, int fromIndex = 0)
         {
             _Points.RemoveRange(fromIndex, Count - fromIndex);
@@ -213,6 +212,7 @@ namespace DeusaldSharp
             _LengthSamplesDirty = true;
         }
 
+        /// <summary> Set point at index to given value. </summary>
         public void SetPoint(int index, Vector2 point)
         {
             _Points[index]      = point;
@@ -220,13 +220,15 @@ namespace DeusaldSharp
             _LengthSamplesDirty = true;
         }
 
-        public void RemovePoint(int index, Vector2 point)
+        /// <summary> Remove point at index. </summary>
+        public void RemovePoint(int index)
         {
             _Points.RemoveAt(index);
             _TangentsDirty      = true;
             _LengthSamplesDirty = true;
         }
 
+        /// <summary> Insert point at index. </summary>
         public void InsertPoint(int index, Vector2 point)
         {
             _Points.Insert(index, point);
@@ -234,6 +236,7 @@ namespace DeusaldSharp
             _LengthSamplesDirty = true;
         }
 
+        /// <summary> Clear all spline points. </summary>
         public void Clear()
         {
             _Points.Clear();
@@ -241,6 +244,7 @@ namespace DeusaldSharp
             _LengthSamplesDirty = true;
         }
 
+        /// <summary> Get point at index. </summary>
         public Vector2 GetPoint(int index)
         {
             return _Points[index];
@@ -250,35 +254,26 @@ namespace DeusaldSharp
 
         #region Interpolate
 
-        /// <summary>
-        /// Interpolate position on given percent on the entire curve.
-        /// </summary>
-        /// <param name="t">Percent of the curve. Should be from 0.0f to 1.0f</param>
-        /// <returns></returns>
+        /// <summary> Interpolate position on given percent on the entire curve. </summary>
+        /// <param name="t"> Percent of the curve. Should be from 0.0f to 1.0f. </param>
         public Vector2 Interpolate(float t)
         {
             RecalculateTangents();
             Segment segment = GetSegment(t);
-            return Interpolate(segment.segIndex, segment.rest);
+            return Interpolate(segment.SegIndex, segment.Rest);
         }
 
-        /// <summary>
-        /// Interpolate position based on given distance.
-        /// </summary>
-        /// <param name="distance">The distance on which we want to get the position</param>
-        /// <returns></returns>
+        /// <summary> Interpolate position based on given distance. </summary>
+        /// <param name="distance"> The distance on which we want to get the position. </param>
         public Vector2 InterpolateDistance(float distance)
         {
             return Interpolate(DistanceToLinearT(distance));
         }
 
-        /// <summary>
-        /// Interpolate position on the curve. The interpolated position is between "fromIndex" and the next one.
-        /// The "t" represents percentage between these two points.
-        /// </summary>
-        /// <param name="fromIndex">First index of interpolated position. The next one is next to this one.</param>
-        /// <param name="t">Percentage between "fromIndex" and its successor. Should be from 0.0f to 1.0f</param>
-        /// <returns></returns>
+        /// <summary> Interpolate position on the curve. The interpolated position is between "fromIndex" and the next one.
+        /// The "t" represents percentage between these two points. </summary>
+        /// <param name="fromIndex"> First index of interpolated position. The next one is next to this one.</param>
+        /// <param name="t"> Percentage between "fromIndex" and its successor. Should be from 0.0f to 1.0f. </param>
         public Vector2 Interpolate(int fromIndex, float t)
         {
             RecalculateTangents();
@@ -323,35 +318,26 @@ namespace DeusaldSharp
 
         #region Derivative
 
-        /// <summary>
-        /// Get derivative at position on given percent on the entire curve.
-        /// </summary>
-        /// <param name="t">Percent of the curve. Should be from 0.0f to 1.0f</param>
-        /// <returns></returns>
+        /// <summary> Get derivative at position on given percent on the entire curve. </summary>
+        /// <param name="t"> Percent of the curve. Should be from 0.0f to 1.0f. </param>
         public Vector2 Derivative(float t)
         {
             RecalculateTangents();
             Segment segment = GetSegment(t);
-            return Derivative(segment.segIndex, segment.rest);
+            return Derivative(segment.SegIndex, segment.Rest);
         }
 
-        /// <summary>
-        /// Get derivative at position based on given distance.
-        /// </summary>
-        /// <param name="distance">The distance on which we want to get the derivative.</param>
-        /// <returns></returns>
+        /// <summary> Get derivative at position based on given distance. </summary>
+        /// <param name="distance"> The distance on which we want to get the derivative. </param>
         public Vector2 DerivativeDistance(float distance)
         {
             return Derivative(DistanceToLinearT(distance));
         }
 
-        /// <summary>
-        /// Get derivative at position on the curve. The point of derivative is between "fromIndex" and the next one.
-        /// The "t" represents percentage between these two points.
-        /// </summary>
-        /// <param name="fromIndex">First index of position of derivative. The next one is next to this one.</param>
-        /// <param name="t">Percentage between "fromIndex" and its successor. Should be from 0.0f to 1.0f</param>
-        /// <returns></returns>
+        /// <summary> Get derivative at position on the curve. The point of derivative is between "fromIndex" and the next one.
+        /// The "t" represents percentage between these two points. </summary>
+        /// <param name="fromIndex"> First index of position of derivative. The next one is next to this one. </param>
+        /// <param name="t"> Percentage between "fromIndex" and its successor. Should be from 0.0f to 1.0f. </param>
         public Vector2 Derivative(int fromIndex, float t)
         {
             RecalculateTangents();
@@ -389,11 +375,8 @@ namespace DeusaldSharp
 
         #region Distance
 
-        /// <summary>
-        /// Approximate the distance of the curve at the given index
-        /// </summary>
-        /// <param name="index">Index point for distance approximation</param>
-        /// <returns></returns>
+        /// <summary> Approximate the distance of the curve at the given index. </summary>
+        /// <param name="index"> Index point for distance approximation. </param>
         public float DistanceAtPoint(int index)
         {
             if (index == 0)
@@ -401,15 +384,12 @@ namespace DeusaldSharp
 
             RecalculateTangents();
             RecalculateLength();
-            return _Distances[index * _LengthSamplesPerSegment - 1].distance;
+            return _Distances[index * _LengthSamplesPerSegment - 1].Distance;
         }
 
-        /// <summary>
-        /// Convert the distance to a linear [0f, 1f] "t" position on the curve.
-        /// Because distance is approximate the "t" value will also be approximated.
-        /// </summary>
-        /// <param name="distance">The distance on which we want to get linear "t"</param>
-        /// <returns></returns>
+        /// <summary> Convert the distance to a linear [0f, 1f] "t" position on the curve.
+        /// Because distance is approximate the "t" value will also be approximated. </summary>
+        /// <param name="distance"> The distance on which we want to get linear "t". </param>
         public float DistanceToLinearT(float distance)
         {
             RecalculateTangents();
@@ -428,18 +408,18 @@ namespace DeusaldSharp
                     return 1f;
             }
 
-            if (_PreviousSearchedDistance.distance < distance ||
-                (_PreviousSearchedDistance.index != 0 && _Distances[_PreviousSearchedDistance.index - 1].distance > distance))
+            if (_PreviousSearchedDistance.Distance < distance ||
+                (_PreviousSearchedDistance.Index != 0 && _Distances[_PreviousSearchedDistance.Index - 1].Distance > distance))
                 _PreviousSearchedDistance = new DistanceToT(0f, 0f, 0);
 
-            for (int i = _PreviousSearchedDistance.index; i < _Distances.Count; ++i)
+            for (int i = _PreviousSearchedDistance.Index; i < _Distances.Count; ++i)
             {
                 DistanceToT distToT = _Distances[i];
 
-                if (distance < distToT.distance)
+                if (distance < distToT.Distance)
                 {
-                    float distanceT = MathUtils.InverseLerp(_PreviousSearchedDistance.distance, distToT.distance, distance);
-                    return MathUtils.Lerp(_PreviousSearchedDistance.t, distToT.t, distanceT);
+                    float distanceT = MathUtils.InverseLerp(_PreviousSearchedDistance.Distance, distToT.Distance, distance);
+                    return MathUtils.Lerp(_PreviousSearchedDistance.T, distToT.T, distanceT);
                 }
 
                 _PreviousSearchedDistance = distToT;
@@ -449,6 +429,16 @@ namespace DeusaldSharp
         }
 
         #endregion Distance
+
+        #region Operators
+
+        public Vector2 this[int key]
+        {
+            get => GetPoint(key);
+            set => SetPoint(key, value);
+        }
+
+        #endregion Operators
 
         #endregion Public Methods
 
