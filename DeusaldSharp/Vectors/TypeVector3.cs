@@ -33,7 +33,7 @@ namespace DeusaldSharp
 
     public struct TypeVector3<T> : IEnumerable<T>
     {
-        #region Public Variables
+        #region Variables
 
         /// <summary> X component of the vector. </summary>
         public T X;
@@ -44,7 +44,7 @@ namespace DeusaldSharp
         /// <summary> Z component of the vector. </summary>
         public T Z;
 
-        #endregion Public Variables
+        #endregion Variables
 
         #region Public Methods
 

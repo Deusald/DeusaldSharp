@@ -34,7 +34,7 @@ namespace DeusaldSharp
     /// <summary> A two-element array in the form of a vector.  </summary>
     public struct TypeVector2<T> : IEnumerable<T>
     {
-        #region Public Variables
+        #region Variables
 
         /// <summary> X component of the vector. </summary>
         public T X;
@@ -42,7 +42,7 @@ namespace DeusaldSharp
         /// <summary> Y component of the vector. </summary>
         public T Y;
 
-        #endregion Public Variables
+        #endregion Variables
 
         #region Public Methods
 
