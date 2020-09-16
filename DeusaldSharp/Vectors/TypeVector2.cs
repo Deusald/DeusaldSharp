@@ -21,18 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedType.Global
+
 namespace DeusaldSharp
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
 
+    /// <summary> A two-element array in the form of a vector.  </summary>
     public struct TypeVector2<T> : IEnumerable<T>
     {
         #region Public Variables
 
-        public T x;
-        public T y;
+        /// <summary> X component of the vector. </summary>
+        public T X;
+        
+        /// <summary> Y component of the vector. </summary>
+        public T Y;
 
         #endregion Public Variables
 
@@ -42,8 +50,8 @@ namespace DeusaldSharp
 
         public IEnumerator<T> GetEnumerator()
         {
-            yield return x;
-            yield return y;
+            yield return X;
+            yield return Y;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -62,9 +70,9 @@ namespace DeusaldSharp
                 switch (key)
                 {
                     case 0:
-                        return x;
+                        return X;
                     case 1:
-                        return y;
+                        return Y;
                     default:
                         throw new IndexOutOfRangeException();
                 }
@@ -75,12 +83,12 @@ namespace DeusaldSharp
                 {
                     case 0:
                     {
-                        x = value;
+                        X = value;
                         break;
                     }
                     case 1:
                     {
-                        y = value;
+                        Y = value;
                         break;
                     }
                     default:

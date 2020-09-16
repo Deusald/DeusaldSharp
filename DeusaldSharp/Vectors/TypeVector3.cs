@@ -21,6 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedType.Global
+
 namespace DeusaldSharp
 {
     using System;
@@ -31,9 +35,14 @@ namespace DeusaldSharp
     {
         #region Public Variables
 
-        public T x;
-        public T y;
-        public T z;
+        /// <summary> X component of the vector. </summary>
+        public T X;
+        
+        /// <summary> Y component of the vector. </summary>
+        public T Y;
+        
+        /// <summary> Z component of the vector. </summary>
+        public T Z;
 
         #endregion Public Variables
 
@@ -43,9 +52,9 @@ namespace DeusaldSharp
 
         public IEnumerator<T> GetEnumerator()
         {
-            yield return x;
-            yield return y;
-            yield return z;
+            yield return X;
+            yield return Y;
+            yield return Z;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -64,11 +73,11 @@ namespace DeusaldSharp
                 switch (key)
                 {
                     case 0:
-                        return x;
+                        return X;
                     case 1:
-                        return y;
+                        return Y;
                     case 2:
-                        return z;
+                        return Z;
                     default:
                         throw new IndexOutOfRangeException();
                 }
@@ -79,17 +88,17 @@ namespace DeusaldSharp
                 {
                     case 0:
                     {
-                        x = value;
+                        X = value;
                         break;
                     }
                     case 1:
                     {
-                        y = value;
+                        Y = value;
                         break;
                     }
                     case 2:
                     {
-                        z = value;
+                        Z = value;
                         break;
                     }
                     default:
