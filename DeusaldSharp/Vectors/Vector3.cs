@@ -109,7 +109,7 @@ namespace DeusaldSharp
             }
         }
 
-        /// <summary> Checks if all vector values are not infinity (Read Only). </summary>
+        /// <summary> Checks if all vector components are not infinity (Read Only). </summary>
         public bool IsValid => !float.IsInfinity(X) && !float.IsInfinity(Y) && !float.IsInfinity(Z);
 
         #endregion Properties
@@ -135,16 +135,16 @@ namespace DeusaldSharp
         /// <summary> Creates a new vector where x and y components are taken from given Vector2 and z component is given. </summary>
         public Vector3(Vector2 value, float z)
         {
-            X = value.x;
-            Y = value.y;
+            X = value.X;
+            Y = value.Y;
             Z = z;
         }
 
         /// <summary> Creates a new vector with given x, y components from Vector2 and sets z to zero. </summary>
         public Vector3(Vector2 value)
         {
-            X = value.x;
-            Y = value.y;
+            X = value.X;
+            Y = value.Y;
             Z = 0f;
         }
         
@@ -476,7 +476,7 @@ namespace DeusaldSharp
 
         public static implicit operator Vector3(Vector2 vector2)
         {
-            return new Vector3(vector2.x, vector2.y, 0f);
+            return new Vector3(vector2.X, vector2.Y, 0f);
         }
 
         public float this[int key]
