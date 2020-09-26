@@ -28,7 +28,7 @@
 using System;
 using System.Linq;
 
-namespace DeusaldSharp.Extensions
+namespace DeusaldSharp
 {
     /// <summary> Extensions for enums. </summary>
     public static class EnumExtensions
