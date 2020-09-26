@@ -70,7 +70,7 @@ namespace DeusaldSharp
             return a + (b - a) * t;
         }
 
-        /// <summary> Calculates the linear parameter t that produces the interpolant value within the range [a, b]. </summary>
+        /// <summary> Calculates the linear parameter t that produces the interpolated value within the range [a, b]. </summary>
         /// <param name="a"> Start value. </param>
         /// <param name="b"> End value. </param>
         /// <param name="value"> Value between start and end. </param>
