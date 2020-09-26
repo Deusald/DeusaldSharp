@@ -1,6 +1,6 @@
 // MIT License
 
-// SharpBox2D:
+// DeusaldSharp:
 // Copyright (c) 2020 Adam "Deusald" Orliński
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
