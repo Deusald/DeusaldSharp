@@ -23,6 +23,9 @@
 
 namespace DeusaldSharp
 {
+    /// <summary> CoTag is a tag to mark group of logically connected CoRoutines.
+    /// The CoTag can be later used to pause or kill all CoRoutines marked with specific tag.
+    /// WARNING: CoTag 0 is reserved for default CoTag. </summary>
     public readonly struct CoTag
     {
         private readonly uint _Tag;

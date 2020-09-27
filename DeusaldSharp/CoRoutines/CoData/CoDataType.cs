@@ -21,20 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 namespace DeusaldSharp
 {
-    /// <summary> Enum that specifies the type of CoRoutine.
-    /// Type specifying in which clock tick CoRoutine will be executed. </summary>
-    public enum CoSegment : byte
+    /// <summary> Type of next CoRoutine execution order. </summary>
+    internal enum CoDataType : byte
     {
-        /// <summary> CoRoutines in this type will be executed at normal engine tick. </summary>
-        Normal,
+        /// <summary> CoRoutine will be hold for one tick. </summary>
+        WaitOneTick,
+        
+        /// <summary> CoRoutine will be hold for certain amount of seconds. </summary>
+        WaitForSeconds,
+        
+        /// <summary> CoRoutine will be hold until the other CoRoutine is alive. </summary>
+        WaitUntilDone,
 
-        /// <summary> CoRoutines in this type will be executed at engine physics ticks. </summary>
-        Physics,
-
-        /// <summary> CoRoutines in this type will be executed at normal engine tick even if engine time modifier would change normal tick pace.
-        /// This segment is useful when we want to pause main logic (Normal & Physics) but some elements should not be affected (UnscaledNormal). </summary>
-        UnscaledNormal
+        /// <summary> CoRoutine will be hold until the given condition is false. </summary>
+        WaitUntilTrue,
+        
+        /// <summary> CoRoutine will be hold until the given condition is true. </summary>
+        WaitUntilFalse,
     }
 }

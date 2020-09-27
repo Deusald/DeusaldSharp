@@ -23,18 +23,16 @@
 
 namespace DeusaldSharp
 {
-    /// <summary> Enum that specifies the type of CoRoutine.
-    /// Type specifying in which clock tick CoRoutine will be executed. </summary>
-    public enum CoSegment : byte
+    /// <inheritdoc />
+    internal readonly struct CoDataWaitForSeconds : ICoData
     {
-        /// <summary> CoRoutines in this type will be executed at normal engine tick. </summary>
-        Normal,
+        CoDataType ICoData.Type => CoDataType.WaitForSeconds;
 
-        /// <summary> CoRoutines in this type will be executed at engine physics ticks. </summary>
-        Physics,
+        internal readonly float SecondsToWait;
 
-        /// <summary> CoRoutines in this type will be executed at normal engine tick even if engine time modifier would change normal tick pace.
-        /// This segment is useful when we want to pause main logic (Normal & Physics) but some elements should not be affected (UnscaledNormal). </summary>
-        UnscaledNormal
+        internal CoDataWaitForSeconds(float secondsToWait)
+        {
+            SecondsToWait = secondsToWait;
+        }
     }
 }

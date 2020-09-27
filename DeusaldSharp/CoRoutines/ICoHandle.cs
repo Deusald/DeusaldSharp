@@ -23,14 +23,26 @@
 
 namespace DeusaldSharp
 {
+    /// <summary> Interface for getting information about RoCoroutine and interacting with it. </summary>
     public interface ICoHandle
     {
-        uint      Id        { get; }
+        /// <summary> CoSegment of this CoRoutine. </summary>
         CoSegment CoSegment { get; }
-        CoTag     CoTag     { get; }
-        bool      IsAlive   { get; }
-        bool      IsPaused  { get; set; }
 
+        /// <summary> Assigned CoTag for this CoRoutine. </summary>
+        CoTag CoTag { get; }
+        
+        /// <summary> Assigned bitwise mask for this CoRoutine. </summary>
+        uint CoMask { get; }
+
+        /// <summary> Returns true if CoRoutine is still processing otherwise false. </summary>
+        bool IsAlive { get; }
+
+        /// <summary> Returns true if executing coroutine is currently on hold otherwise false.
+        /// Set true to pause execution CoRoutine, set false to unpause. </summary>
+        bool IsPaused { get; set; }
+
+        /// <summary> Call to end execution of this CoRoutine. </summary>
         void Kill();
     }
 }
