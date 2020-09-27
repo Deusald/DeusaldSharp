@@ -67,6 +67,12 @@ namespace DeusaldSharp
             return MathUtils.HasAnyBitOn(value.GetHashCode(), check.GetHashCode());
         }
 
+        /// <summary> Checks if the [Flag] enum value has set all flags from check argument. </summary>
+        public static bool HasAllFlags(this Enum value, Enum check)
+        {
+            return MathUtils.HasAllBitsOn(value.GetHashCode(), check.GetHashCode());
+        }
+
         #endregion Public Methods
     }
 }
