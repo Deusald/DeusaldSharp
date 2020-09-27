@@ -108,7 +108,7 @@ namespace DeusaldSharp
         
         #region Bits
 
-        /// <summary> Check how many individual bits are set in the given value. </summary>
+        /// <summary> Check how many individual bits are set in the given mask. </summary>
         public static uint NumberOfSetBits(uint mask)
         {
             uint count = 0;
@@ -122,7 +122,7 @@ namespace DeusaldSharp
             return count;
         }
         
-        /// <summary> Check how many individual bits are set in the given value. </summary>
+        /// <summary> Check how many individual bits are set in the given mask. </summary>
         public static uint NumberOfSetBits(int mask)
         {
             int count = 0;
@@ -136,28 +136,40 @@ namespace DeusaldSharp
             return (uint) count;
         }
 
-        /// <summary> Checks if the value has only one bit set. </summary>
+        /// <summary> Checks if the mask has only one bit set. </summary>
         public static bool IsSingleBitOn(uint mask)
         {
             return mask != 0 && (mask & (mask - 1)) == 0;
         }
         
-        /// <summary> Checks if the value has only one bit set. </summary>
+        /// <summary> Checks if the mask has only one bit set. </summary>
         public static bool IsSingleBitOn(int mask)
         {
             return mask != 0 && (mask & (mask - 1)) == 0;
         }
 
-        /// <summary> Checks if the value has set any flag from check argument. </summary>
+        /// <summary> Checks if the mask has set any flag from check argument. </summary>
         public static bool HasAnyBitOn(uint mask, uint check)
         {
             return (mask & check) != 0;
         }
         
-        /// <summary> Checks if the value has set any flag from check argument. </summary>
+        /// <summary> Checks if the mask has set any flag from check argument. </summary>
         public static bool HasAnyBitOn(int mask, int check)
         {
             return (mask & check) != 0;
+        }
+
+        /// <summary> Checks if the mask has set all flags from check argument. </summary>
+        public static bool HasAllBitsOn(uint mask, uint check)
+        {
+            return (mask & check) == check;
+        }
+        
+        /// <summary> Checks if the mask has set all flags from check argument. </summary>
+        public static bool HasAllBitsOn(int mask, int check)
+        {
+            return (mask & check) == check;
         }
 
         #endregion Bits
