@@ -22,8 +22,6 @@
 // SOFTWARE.
 
 // ReSharper disable NonReadonlyMemberInGetHashCode
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedMember.Global
 
 using System;
 using System.Text;
