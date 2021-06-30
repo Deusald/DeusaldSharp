@@ -216,29 +216,29 @@ namespace DeusaldSharpTests
             // Act
 
             // Assert
-            Assert.AreEqual(1f, one.X);
-            Assert.AreEqual(1f, one.Y);
-            Assert.AreEqual(1f, one.Z);
+            Assert.AreEqual(1f, one.x);
+            Assert.AreEqual(1f, one.y);
+            Assert.AreEqual(1f, one.z);
 
-            Assert.AreEqual(5f, two.X);
-            Assert.AreEqual(5f, two.Y);
-            Assert.AreEqual(5f, two.Z);
+            Assert.AreEqual(5f, two.x);
+            Assert.AreEqual(5f, two.y);
+            Assert.AreEqual(5f, two.z);
 
-            Assert.AreEqual(1f, three.X);
-            Assert.AreEqual(2f, three.Y);
-            Assert.AreEqual(3f, three.Z);
+            Assert.AreEqual(1f, three.x);
+            Assert.AreEqual(2f, three.y);
+            Assert.AreEqual(3f, three.z);
 
-            Assert.AreEqual(6f, four.X);
-            Assert.AreEqual(7f, four.Y);
-            Assert.AreEqual(0f, four.Z);
+            Assert.AreEqual(6f, four.x);
+            Assert.AreEqual(7f, four.y);
+            Assert.AreEqual(0f, four.z);
 
-            Assert.AreEqual(4f, five.X);
-            Assert.AreEqual(2f, five.Y);
-            Assert.AreEqual(0f, five.Z);
+            Assert.AreEqual(4f, five.x);
+            Assert.AreEqual(2f, five.y);
+            Assert.AreEqual(0f, five.z);
 
-            Assert.AreEqual(8f, six.X);
-            Assert.AreEqual(2f, six.Y);
-            Assert.AreEqual(1f, six.Z);
+            Assert.AreEqual(8f, six.x);
+            Assert.AreEqual(2f, six.y);
+            Assert.AreEqual(1f, six.z);
         }
 
         [Test]

@@ -34,13 +34,13 @@ namespace DeusaldSharp
         #region Variables
 
         /// <summary> X component of the vector. </summary>
-        public float X;
+        public float x;
 
         /// <summary> Y component of the vector. </summary>
-        public float Y;
+        public float y;
 
         /// <summary> Z component of the vector. </summary>
-        public float Z;
+        public float z;
 
         #endregion Variables
 
@@ -90,7 +90,7 @@ namespace DeusaldSharp
         {
             get
             {
-                var normal = new Vector3(X, Y, Z);
+                var normal = new Vector3(x, y, z);
                 normal.Normalize();
                 return normal;
             }
@@ -101,14 +101,14 @@ namespace DeusaldSharp
         {
             get
             {
-                var negate = new Vector3(X, Y, Z);
+                var negate = new Vector3(x, y, z);
                 negate.Negate();
                 return negate;
             }
         }
 
         /// <summary> Checks if all vector components are not infinity (Read Only). </summary>
-        public bool IsValid => !float.IsInfinity(X) && !float.IsInfinity(Y) && !float.IsInfinity(Z);
+        public bool IsValid => !float.IsInfinity(x) && !float.IsInfinity(y) && !float.IsInfinity(z);
 
         #endregion Properties
 
@@ -117,49 +117,49 @@ namespace DeusaldSharp
         /// <summary> Creates a new vector with given x, y, z components. </summary>
         public Vector3(float x, float y, float z)
         {
-            X = x;
-            Y = y;
-            Z = z;
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
 
         /// <summary> Creates a new vector with all x, y, z components set to value. </summary>
         public Vector3(float value)
         {
-            X = value;
-            Y = value;
-            Z = value;
+            x = value;
+            y = value;
+            z = value;
         }
 
         /// <summary> Creates a new vector where x and y components are taken from given Vector2 and z component is given. </summary>
         public Vector3(Vector2 value, float z)
         {
-            X = value.X;
-            Y = value.Y;
-            Z = z;
+            x      = value.x;
+            y      = value.y;
+            this.z = z;
         }
 
         /// <summary> Creates a new vector with given x, y components from Vector2 and sets z to zero. </summary>
         public Vector3(Vector2 value)
         {
-            X = value.X;
-            Y = value.Y;
-            Z = 0f;
+            x = value.x;
+            y = value.y;
+            z = 0f;
         }
         
         /// <summary> Creates a new vector with given x, y components and sets z to zero. </summary>
         public Vector3(float x, float y)
         {
-            X = x;
-            Y = y;
-            Z = 0f;
+            this.x = x;
+            this.y = y;
+            z      = 0f;
         }
 
         /// <summary> Creates a new vector3 based on given Vector3. </summary>
         public Vector3(Vector3 value)
         {
-            X = value.X;
-            Y = value.Y;
-            Z = value.Z;
+            x = value.x;
+            y = value.y;
+            z = value.z;
         }
 
         #endregion Init Methods
@@ -171,17 +171,17 @@ namespace DeusaldSharp
         /// <summary> Set x, y and z components of an existing Vector3. </summary>
         public void Set(float newX, float newY, float newZ)
         {
-            X = newX;
-            Y = newY;
-            Z = newZ;
+            x = newX;
+            y = newY;
+            z = newZ;
         }
 
         /// <summary> Set x, y and z components of an existing Vector3 to 0. </summary>
         public void SetZero()
         {
-            X = 0f;
-            Y = 0f;
-            Z = 0f;
+            x = 0f;
+            y = 0f;
+            z = 0f;
         }
 
         #endregion Setters
@@ -191,52 +191,52 @@ namespace DeusaldSharp
         /// <summary> Adds two vectors component-wise. </summary>
         public static Vector3 Add(Vector3 a, Vector3 b)
         {
-            return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+            return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
         }
 
         /// <summary> Subtracts two vectors component-wise. </summary>
         public static Vector3 Subtract(Vector3 a, Vector3 b)
         {
-            return new Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+            return new Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
         }
 
         /// <summary> Multiplies two vectors component-wise. </summary>
         public static Vector3 Multiply(Vector3 a, Vector3 b)
         {
-            return new Vector3(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+            return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
         }
 
         /// <summary> Multiplies every component of this vector by the same component of scale. </summary>
         public static Vector3 Multiply(Vector3 a, float s)
         {
-            return new Vector3(a.X * s, a.Y * s, a.Z * s);
+            return new Vector3(a.x * s, a.y * s, a.z * s);
         }
 
         /// <summary> Divides two vectors component-wise. </summary>
         public static Vector3 Divide(Vector3 a, Vector3 b)
         {
-            return new Vector3(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
+            return new Vector3(a.x / b.x, a.y / b.y, a.z / b.z);
         }
 
         /// <summary> Divides every component of this vector by the same component of scale. </summary>
         public static Vector3 Divide(Vector3 a, float s)
         {
             var factor = 1f / s;
-            return new Vector3(a.X * factor, a.Y * factor, a.Z * factor);
+            return new Vector3(a.x * factor, a.y * factor, a.z * factor);
         }
 
         /// <summary> Returns negated version of this vector. </summary>
         public static Vector3 GetNegated(Vector3 a)
         {
-            return new Vector3(-a.X, -a.Y, -a.Z);
+            return new Vector3(-a.x, -a.y, -a.z);
         }
 
         /// <summary> Negates this vector. </summary>
         public void Negate()
         {
-            X = -X;
-            Y = -Y;
-            Z = -Z;
+            x = -x;
+            y = -y;
+            z = -z;
         }
 
         #endregion Basic Math
@@ -263,9 +263,9 @@ namespace DeusaldSharp
             if (MathUtils.IsFloatZero(length)) return;
 
             var invLength = 1f / length;
-            X *= invLength;
-            Y *= invLength;
-            Z *= invLength;
+            x *= invLength;
+            y *= invLength;
+            z *= invLength;
         }
 
         /// <summary> Returns given vector with a magnitude of 1. </summary>
@@ -279,9 +279,9 @@ namespace DeusaldSharp
         /// <summary> Cross Product of two vectors. </summary>
         public static Vector3 Cross(Vector3 a, Vector3 b)
         {
-            var x = a.Y * b.Z - a.Z * b.Y;
-            var y = a.Z * b.X - a.X * b.Z;
-            var z = a.X * b.Y - a.Y * b.X;
+            var x = a.y * b.z - a.z * b.y;
+            var y = a.z * b.x - a.x * b.z;
+            var z = a.x * b.y - a.y * b.x;
 
             return new Vector3(x, y, z);
         }
@@ -320,7 +320,7 @@ namespace DeusaldSharp
         /// <summary> Dot Product of two vectors. </summary>
         public static float Dot(Vector3 a, Vector3 b)
         {
-            return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+            return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
         /// <summary> Dot Product of this vector and vector b. </summary>
@@ -337,9 +337,9 @@ namespace DeusaldSharp
             var dot = Dot(inDir, normal);
             var result = new Vector3
             {
-                X = inDir.X - 2f * dot * normal.X,
-                Y = inDir.Y - 2f * dot * normal.Y,
-                Z = inDir.Z - 2f * dot * normal.Z
+                x = inDir.x - 2f * dot * normal.x,
+                y = inDir.y - 2f * dot * normal.y,
+                z = inDir.z - 2f * dot * normal.z
             };
 
             return result;
@@ -360,9 +360,9 @@ namespace DeusaldSharp
         public static Vector3 Clamp(Vector3 a, Vector3 min, Vector3 max)
         {
             return new Vector3(
-                MathUtils.Clamp(a.X, min.X, max.X),
-                MathUtils.Clamp(a.Y, min.Y, max.Y),
-                MathUtils.Clamp(a.Z, min.Z, max.Z));
+                MathUtils.Clamp(a.x, min.x, max.x),
+                MathUtils.Clamp(a.y, min.y, max.y),
+                MathUtils.Clamp(a.z, min.z, max.z));
         }
 
         /// <summary> Linearly interpolates between two points. </summary>
@@ -372,27 +372,27 @@ namespace DeusaldSharp
         public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
         {
             return new Vector3(
-                MathUtils.Lerp(a.X, b.X, t),
-                MathUtils.Lerp(a.Y, b.Y, t),
-                MathUtils.Lerp(a.Z, b.Z, t));
+                MathUtils.Lerp(a.x, b.x, t),
+                MathUtils.Lerp(a.y, b.y, t),
+                MathUtils.Lerp(a.z, b.z, t));
         }
 
         /// <summary> Returns vector where each component is max value from both vectors. </summary>
         public static Vector3 Max(Vector3 a, Vector3 b)
         {
             return new Vector3(
-                MathF.Max(a.X, b.X),
-                MathF.Max(a.Y, b.Y),
-                MathF.Max(a.Z, b.Z));
+                MathF.Max(a.x, b.x),
+                MathF.Max(a.y, b.y),
+                MathF.Max(a.z, b.z));
         }
 
         /// <summary> Returns vector where each component is min value from both vectors. </summary>
         public static Vector3 Min(Vector3 a, Vector3 b)
         {
             return new Vector3(
-                MathF.Min(a.X, b.X),
-                MathF.Min(a.Y, b.Y),
-                MathF.Min(a.Z, b.Z));
+                MathF.Min(a.x, b.x),
+                MathF.Min(a.y, b.y),
+                MathF.Min(a.z, b.z));
         }
 
         #endregion Other Math
@@ -402,7 +402,7 @@ namespace DeusaldSharp
         /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
         public bool Equals(Vector3 other)
         {
-            return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
+            return x.Equals(other.x) && y.Equals(other.y) && z.Equals(other.z);
         }
 
         /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
@@ -413,7 +413,7 @@ namespace DeusaldSharp
 
         public override int GetHashCode()
         {
-            return Tuple.Create(X, Y, Z).GetHashCode();
+            return Tuple.Create(x, y, z).GetHashCode();
         }
 
         #endregion Equals
@@ -422,9 +422,9 @@ namespace DeusaldSharp
 
         public static bool operator ==(Vector3 a, Vector3 b)
         {
-            return MathUtils.AreFloatsEquals(a.X, b.X)
-                && MathUtils.AreFloatsEquals(a.Y, b.Y)
-                && MathUtils.AreFloatsEquals(a.Z, b.Z);
+            return MathUtils.AreFloatsEquals(a.x, b.x)
+                && MathUtils.AreFloatsEquals(a.y, b.y)
+                && MathUtils.AreFloatsEquals(a.z, b.z);
         }
 
         public static bool operator !=(Vector3 a, Vector3 b)
@@ -474,7 +474,7 @@ namespace DeusaldSharp
 
         public static implicit operator Vector3(Vector2 vector2)
         {
-            return new Vector3(vector2.X, vector2.Y, 0f);
+            return new Vector3(vector2.x, vector2.y, 0f);
         }
 
         public float this[int key]
@@ -484,11 +484,11 @@ namespace DeusaldSharp
                 switch (key)
                 {
                     case 0:
-                        return X;
+                        return x;
                     case 1:
-                        return Y;
+                        return y;
                     case 2:
-                        return Z;
+                        return z;
                     default:
                         throw new IndexOutOfRangeException();
                 }
@@ -500,17 +500,17 @@ namespace DeusaldSharp
                 {
                     case 0:
                     {
-                        X = value;
+                        x = value;
                         break;
                     }
                     case 1:
                     {
-                        Y = value;
+                        y = value;
                         break;
                     }
                     case 2:
                     {
-                        Z = value;
+                        z = value;
                         break;
                     }
                     default:
@@ -525,11 +525,11 @@ namespace DeusaldSharp
         {
             var sb = new StringBuilder(32);
             sb.Append("{X:");
-            sb.Append(X);
+            sb.Append(x);
             sb.Append(" Y:");
-            sb.Append(Y);
+            sb.Append(y);
             sb.Append(" Z:");
-            sb.Append(Z);
+            sb.Append(z);
             sb.Append("}");
             return sb.ToString();
         }

@@ -32,13 +32,13 @@ namespace DeusaldSharp
         #region Variables
 
         /// <summary> X component of the vector. </summary>
-        public T X;
+        public T x;
         
         /// <summary> Y component of the vector. </summary>
-        public T Y;
+        public T y;
         
         /// <summary> Z component of the vector. </summary>
-        public T Z;
+        public T z;
 
         #endregion Variables
 
@@ -48,9 +48,9 @@ namespace DeusaldSharp
 
         public IEnumerator<T> GetEnumerator()
         {
-            yield return X;
-            yield return Y;
-            yield return Z;
+            yield return x;
+            yield return y;
+            yield return z;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -69,11 +69,11 @@ namespace DeusaldSharp
                 switch (key)
                 {
                     case 0:
-                        return X;
+                        return x;
                     case 1:
-                        return Y;
+                        return y;
                     case 2:
-                        return Z;
+                        return z;
                     default:
                         throw new IndexOutOfRangeException();
                 }
@@ -84,17 +84,17 @@ namespace DeusaldSharp
                 {
                     case 0:
                     {
-                        X = value;
+                        x = value;
                         break;
                     }
                     case 1:
                     {
-                        Y = value;
+                        y = value;
                         break;
                     }
                     case 2:
                     {
-                        Z = value;
+                        z = value;
                         break;
                     }
                     default:

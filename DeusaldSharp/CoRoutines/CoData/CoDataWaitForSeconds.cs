@@ -28,7 +28,7 @@ namespace DeusaldSharp
     {
         CoDataType ICoData.Type => CoDataType.WaitForSeconds;
 
-        internal readonly float SecondsToWait;
+        internal float SecondsToWait { get; }
 
         internal CoDataWaitForSeconds(float secondsToWait)
         {

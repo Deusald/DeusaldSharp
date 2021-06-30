@@ -37,9 +37,9 @@ namespace DeusaldSharp
 
         private readonly struct DistanceToT
         {
-            public readonly float Distance;
-            public readonly float T;
-            public readonly int   Index;
+            public float Distance { get; }
+            public float T        { get; }
+            public int   Index    { get; }
 
             public DistanceToT(float distance, float t, int index)
             {
@@ -51,8 +51,8 @@ namespace DeusaldSharp
 
         private readonly struct Segment
         {
-            public readonly int   SegIndex;
-            public readonly float Rest;
+            public int   SegIndex { get; }
+            public float Rest     { get; }
 
             public Segment(int segIndex, float rest)
             {

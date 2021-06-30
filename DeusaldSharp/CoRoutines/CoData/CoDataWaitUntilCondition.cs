@@ -28,7 +28,7 @@ namespace DeusaldSharp
     {
         CoDataType ICoData.Type => _Type;
 
-        internal readonly CoRoutinesController.WaitUntilCondition Condition;
+        internal CoRoutinesController.WaitUntilCondition Condition { get; }
         
         private readonly CoDataType _Type;
 

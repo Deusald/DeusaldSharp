@@ -34,10 +34,10 @@ namespace DeusaldSharp
         #region Variables
 
         /// <summary> X component of the vector. </summary>
-        public float X;
+        public float x;
         
         /// <summary> Y component of the vector. </summary>
-        public float Y;
+        public float y;
 
         #endregion Variables
 
@@ -72,7 +72,7 @@ namespace DeusaldSharp
         {
             get
             {
-                var normal = new Vector2(X, Y);
+                var normal = new Vector2(x, y);
                 normal.Normalize();
                 return normal;
             }
@@ -83,18 +83,18 @@ namespace DeusaldSharp
         {
             get
             {
-                var negate = new Vector2(X, Y);
+                var negate = new Vector2(x, y);
                 negate.Negate();
                 return negate;
             }
         }
 
         /// <summary> Checks if all vector components are not infinity (Read Only). </summary>
-        public bool IsValid => !float.IsInfinity(X) && !float.IsInfinity(Y);
+        public bool IsValid => !float.IsInfinity(x) && !float.IsInfinity(y);
 
         /// <summary> Get the skew vector such that dot(skew_vec, other) == cross(vec, other)
         /// https://brilliant.org/wiki/3d-coordinate-geometry-skew-lines/ </summary>
-        public Vector2 Skew => new Vector2(-Y, X);
+        public Vector2 Skew => new Vector2(-y, x);
 
         #endregion Properties
 
@@ -103,29 +103,29 @@ namespace DeusaldSharp
         /// <summary> Creates a new vector with given x, y components. </summary>
         public Vector2(float x, float y)
         {
-            X = x;
-            Y = y;
+            this.x = x;
+            this.y = y;
         }
 
         /// <summary> Creates a new vector with all x, y components set to value. </summary>
         public Vector2(float value)
         {
-            X = value;
-            Y = value;
+            x = value;
+            y = value;
         }
 
         /// <summary> Creates a new vector with given x, y components from Vector2. </summary>
         public Vector2(Vector2 value)
         {
-            X = value.X;
-            Y = value.Y;
+            x = value.x;
+            y = value.y;
         }
 
         /// <summary> Creates a new vector with given x, y components from Vector3 ignoring z component. </summary>
         public Vector2(Vector3 value)
         {
-            X = value.X;
-            Y = value.Y;
+            x = value.x;
+            y = value.y;
         }
 
         #endregion Init Methods
@@ -137,15 +137,15 @@ namespace DeusaldSharp
         /// <summary> Set x and y components of an existing Vector2. </summary>
         public void Set(float newX, float newY)
         {
-            X = newX;
-            Y = newY;
+            x = newX;
+            y = newY;
         }
 
         /// <summary> Set x and y components of an existing Vector2 to 0. </summary>
         public void SetZero()
         {
-            X = 0f;
-            Y = 0f;
+            x = 0f;
+            y = 0f;
         }
 
         #endregion Setters
@@ -155,51 +155,51 @@ namespace DeusaldSharp
         /// <summary> Adds two vectors component-wise. </summary>
         public static Vector2 Add(Vector2 a, Vector2 b)
         {
-            return new Vector2(a.X + b.X, a.Y + b.Y);
+            return new Vector2(a.x + b.x, a.y + b.y);
         }
 
         /// <summary> Subtracts two vectors component-wise. </summary>
         public static Vector2 Subtract(Vector2 a, Vector2 b)
         {
-            return new Vector2(a.X - b.X, a.Y - b.Y);
+            return new Vector2(a.x - b.x, a.y - b.y);
         }
 
         /// <summary> Multiplies two vectors component-wise. </summary>
         public static Vector2 Multiply(Vector2 a, Vector2 b)
         {
-            return new Vector2(a.X * b.X, a.Y * b.Y);
+            return new Vector2(a.x * b.x, a.y * b.y);
         }
 
         /// <summary> Multiplies every component of this vector by the same component of scale. </summary>
         public static Vector2 Multiply(Vector2 a, float s)
         {
-            return new Vector2(a.X * s, a.Y * s);
+            return new Vector2(a.x * s, a.y * s);
         }
 
         /// <summary> Divides two vectors component-wise. </summary>
         public static Vector2 Divide(Vector2 a, Vector2 b)
         {
-            return new Vector2(a.X / b.X, a.Y / b.Y);
+            return new Vector2(a.x / b.x, a.y / b.y);
         }
 
         /// <summary> Divides every component of this vector by the same component of scale. </summary>
         public static Vector2 Divide(Vector2 a, float s)
         {
             var factor = 1f / s;
-            return new Vector2(a.X * factor, a.Y * factor);
+            return new Vector2(a.x * factor, a.y * factor);
         }
 
         /// <summary> Returns negated version of this vector. </summary>
         public static Vector2 GetNegated(Vector2 a)
         {
-            return new Vector2(-a.X, -a.Y);
+            return new Vector2(-a.x, -a.y);
         }
 
         /// <summary> Negates this vector. </summary>
         public void Negate()
         {
-            X = -X;
-            Y = -Y;
+            x = -x;
+            y = -y;
         }
 
         #endregion Basic Math
@@ -226,14 +226,14 @@ namespace DeusaldSharp
             if (MathUtils.IsFloatZero(length)) return;
 
             var invLength = 1f / length;
-            X *= invLength;
-            Y *= invLength;
+            x *= invLength;
+            y *= invLength;
         }
 
         /// <summary> Returns given vector with a magnitude of 1. </summary>
         public static Vector2 GetNormalized(Vector2 a)
         {
-            var normalized = new Vector2(a.X, a.Y);
+            var normalized = new Vector2(a.x, a.y);
             normalized.Normalize();
             return normalized;
         }
@@ -241,7 +241,7 @@ namespace DeusaldSharp
         /// <summary> Cross Product of two vectors. </summary>
         public static float Cross(Vector2 a, Vector2 b)
         {
-            return a.X * b.Y - a.Y * b.X;
+            return a.x * b.y - a.y * b.x;
         }
 
         /// <summary> Cross Product of this vector and vector b. </summary>
@@ -253,13 +253,13 @@ namespace DeusaldSharp
         /// <summary> Cross Product of Vector and scalar. </summary>
         public static Vector2 Cross(Vector2 a, float s)
         {
-            return new Vector2(s * a.Y, -s * a.X);
+            return new Vector2(s * a.y, -s * a.x);
         }
 
         /// <summary> Cross Product of scalar and Vector. </summary>
         public static Vector2 Cross(float s, Vector2 a)
         {
-            return new Vector2(-s * a.Y, s * a.X);
+            return new Vector2(-s * a.y, s * a.x);
         }
 
         /// <summary> Returns the distance between a and b. </summary>
@@ -290,7 +290,7 @@ namespace DeusaldSharp
         /// <summary> Dot Product of two vectors. </summary>
         public static float Dot(Vector2 a, Vector2 b)
         {
-            return a.X * b.X + a.Y * b.Y;
+            return a.x * b.x + a.y * b.y;
         }
 
         /// <summary> Dot Product of this vector and vector b. </summary>
@@ -305,8 +305,8 @@ namespace DeusaldSharp
             var dot = Dot(inDir, normal);
             var result = new Vector2
             {
-                X = inDir.X - 2f * dot * normal.X,
-                Y = inDir.Y - 2f * dot * normal.Y
+                x = inDir.x - 2f * dot * normal.x,
+                y = inDir.y - 2f * dot * normal.y
             };
 
             return result;
@@ -326,8 +326,8 @@ namespace DeusaldSharp
         public static Vector2 Clamp(Vector2 a, Vector2 min, Vector2 max)
         {
             return new Vector2(
-                MathUtils.Clamp(a.X, min.X, max.X),
-                MathUtils.Clamp(a.Y, min.Y, max.Y));
+                MathUtils.Clamp(a.x, min.x, max.x),
+                MathUtils.Clamp(a.y, min.y, max.y));
         }
 
         /// <summary> Linearly interpolates between two points. </summary>
@@ -337,30 +337,30 @@ namespace DeusaldSharp
         public static Vector2 Lerp(Vector2 a, Vector2 b, float t)
         {
             return new Vector2(
-                MathUtils.Lerp(a.X, b.X, t),
-                MathUtils.Lerp(a.Y, b.Y, t));
+                MathUtils.Lerp(a.x, b.x, t),
+                MathUtils.Lerp(a.y, b.y, t));
         }
 
         /// <summary> Returns vector where each component is max value from both vectors. </summary>
         public static Vector2 Max(Vector2 a, Vector2 b)
         {
             return new Vector2(
-                MathF.Max(a.X, b.X),
-                MathF.Max(a.Y, b.Y));
+                MathF.Max(a.x, b.x),
+                MathF.Max(a.y, b.y));
         }
 
         /// <summary> Returns vector where each component is min value from both vectors. </summary>
         public static Vector2 Min(Vector2 a, Vector2 b)
         {
             return new Vector2(
-                MathF.Min(a.X, b.X),
-                MathF.Min(a.Y, b.Y));
+                MathF.Min(a.x, b.x),
+                MathF.Min(a.y, b.y));
         }
 
         /// <summary> Returns vector where each component is an absolute value. </summary>
         public static Vector2 Abs(Vector2 a)
         {
-            return new Vector2(MathF.Abs(a.X), MathF.Abs(a.Y));
+            return new Vector2(MathF.Abs(a.x), MathF.Abs(a.y));
         }
 
         /// <summary> Rounds the vector component to given decimal point. </summary>
@@ -368,8 +368,8 @@ namespace DeusaldSharp
         {
             var decimalPow = MathF.Pow(10f, decimalPoint);
             this =  this * decimalPow;
-            X    =  MathF.Round(X);
-            Y    =  MathF.Round(Y);
+            x    =  MathF.Round(x);
+            y    =  MathF.Round(y);
             this /= decimalPow;
         }
 
@@ -380,7 +380,7 @@ namespace DeusaldSharp
         {
             var sin = MathF.Sin(angle);
             var cos = MathF.Cos(angle);
-            return new Vector2(cos * v.X - sin * v.Y, sin * v.X + cos * v.Y);
+            return new Vector2(cos * v.x - sin * v.y, sin * v.x + cos * v.y);
         }
         
         /// <summary> Inverse rotate a vector by angle. </summary>
@@ -390,7 +390,7 @@ namespace DeusaldSharp
         {
             var sin = MathF.Sin(angle);
             var cos = MathF.Cos(angle);
-            return new Vector2(cos * v.X + sin * v.Y, -sin * v.X + cos * v.Y);
+            return new Vector2(cos * v.x + sin * v.y, -sin * v.x + cos * v.y);
         }
 
         /// <summary> Reduce length of the vector by reductionLength value. </summary>
@@ -424,7 +424,7 @@ namespace DeusaldSharp
         /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
         public bool Equals(Vector2 other)
         {
-            return X.Equals(other.X) && Y.Equals(other.Y);
+            return x.Equals(other.x) && y.Equals(other.y);
         }
 
         /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
@@ -435,7 +435,7 @@ namespace DeusaldSharp
 
         public override int GetHashCode()
         {
-            return Tuple.Create(X, Y).GetHashCode();
+            return Tuple.Create(x, y).GetHashCode();
         }
 
         #endregion Equals
@@ -444,7 +444,7 @@ namespace DeusaldSharp
 
         public static bool operator ==(Vector2 a, Vector2 b)
         {
-            return MathUtils.AreFloatsEquals(a.X, b.X) && MathUtils.AreFloatsEquals(a.Y, b.Y);
+            return MathUtils.AreFloatsEquals(a.x, b.x) && MathUtils.AreFloatsEquals(a.y, b.y);
         }
 
         public static bool operator !=(Vector2 a, Vector2 b)
@@ -494,7 +494,7 @@ namespace DeusaldSharp
 
         public static implicit operator Vector2(Vector3 vector3)
         {
-            return new Vector2(vector3.X, vector3.Y);
+            return new Vector2(vector3.x, vector3.y);
         }
 
         public float this[int key]
@@ -504,9 +504,9 @@ namespace DeusaldSharp
                 switch (key)
                 {
                     case 0:
-                        return X;
+                        return x;
                     case 1:
-                        return Y;
+                        return y;
                     default:
                         throw new IndexOutOfRangeException();
                 }
@@ -518,12 +518,12 @@ namespace DeusaldSharp
                 {
                     case 0:
                     {
-                        X = value;
+                        x = value;
                         break;
                     }
                     case 1:
                     {
-                        Y = value;
+                        y = value;
                         break;
                     }
                     default:
@@ -538,9 +538,9 @@ namespace DeusaldSharp
         {
             var sb = new StringBuilder(24);
             sb.Append("{X:");
-            sb.Append(X);
+            sb.Append(x);
             sb.Append(" Y:");
-            sb.Append(Y);
+            sb.Append(y);
             sb.Append("}");
             return sb.ToString();
         }

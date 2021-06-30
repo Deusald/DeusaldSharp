@@ -28,7 +28,7 @@ namespace DeusaldSharp
     {
         CoDataType ICoData.Type => CoDataType.WaitUntilDone;
 
-        internal readonly ICoHandle CoRoutineToWaitFor;
+        internal ICoHandle CoRoutineToWaitFor { get; }
 
         internal CoDataWaitUntilDone(ICoHandle coRoutineToWaitFor)
         {
