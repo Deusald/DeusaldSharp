@@ -1335,21 +1335,21 @@ namespace DeusaldSharpTests
         public void PEATS()
         {
             // Arrange
-            Vector3 one = new Vector3(1f, 1f, 1f);
-            Vector3 two = new Vector3(7f, 8f, 9f);
+            Vector2 one = new Vector2(1f, 1f);
+            Vector2 two = new Vector2(7f, 8f);
 
             // Act
-            Vector2 newOne = one;
-            Vector2 newTwo = two;
+            Vector3 newOne = one;
+            Vector3 newTwo = two;
 
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector2(1,  1f), newOne);
-                Assert.AreEqual(new Vector2(7f, 8f), newTwo);
+                Assert.AreEqual(new Vector3(1,  1f, 0f), newOne);
+                Assert.AreEqual(new Vector3(7f, 8f, 0f), newTwo);
 
-                Assert.AreEqual(new Vector3(1f, 1f, 1f), one);
-                Assert.AreEqual(new Vector3(7f, 8f, 9f), two);
+                Assert.AreEqual(new Vector2(1f, 1f), one);
+                Assert.AreEqual(new Vector2(7f, 8f), two);
             });
         }
         
