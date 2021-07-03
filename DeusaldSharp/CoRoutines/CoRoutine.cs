@@ -43,14 +43,13 @@ namespace DeusaldSharp
 
         #region Variables
 
-        private CoRoutinesController.WaitUntilCondition _Condition;
+        private CoRoCtrl.WaitUntilCondition _Condition;
         private ICoHandle                               _WaitUntilDone;
         private float                                   _SecondsToWait;
         private CoState                                 _CoState;
 
         private readonly uint                 _CoId;
         private readonly IEnumerator<ICoData> _Enumerator;
-        private readonly CoRoutinesController _CoRoutinesController;
 
         #endregion Variables
 
@@ -68,16 +67,15 @@ namespace DeusaldSharp
 
         #region Init Methods
 
-        internal CoRoutine(CoRoutinesController controller, IEnumerator<ICoData> enumerator, uint coId, CoSegment coSegment, CoTag coTag, uint coMask)
+        internal CoRoutine(IEnumerator<ICoData> enumerator, uint coId, CoSegment coSegment, CoTag coTag, uint coMask)
         {
-            CoSegment             = coSegment;
-            CoTag                 = coTag;
-            CoMask                = coMask;
-            _SecondsToWait        = 0f;
-            _CoId                 = coId;
-            _Enumerator           = enumerator;
-            _CoRoutinesController = controller;
-            _CoState              = CoState.Running;
+            CoSegment      = coSegment;
+            CoTag          = coTag;
+            CoMask         = coMask;
+            _SecondsToWait = 0f;
+            _CoId          = coId;
+            _Enumerator    = enumerator;
+            _CoState       = CoState.Running;
             
             Register();
         }
@@ -141,8 +139,8 @@ namespace DeusaldSharp
         
         public void UnRegister()
         {
-            _CoRoutinesController.OrderToCoRoutinesViaCoTag -= OrderToCoRoutinesViaCoTag;
-            _CoRoutinesController.OrderToCoRoutinesViaCoMask  -= OrderToCoRoutinesViaCoMask;
+            CoRoCtrl.OrderToCoRoutinesViaCoTag  -= OrderToCoRoutinesViaCoTag;
+            CoRoCtrl.OrderToCoRoutinesViaCoMask -= OrderToCoRoutinesViaCoMask;
         }
 
         #region Equals
@@ -229,29 +227,29 @@ namespace DeusaldSharp
 
         private void Register()
         {
-            _CoRoutinesController.OrderToCoRoutinesViaCoTag += OrderToCoRoutinesViaCoTag;
-            _CoRoutinesController.OrderToCoRoutinesViaCoMask  += OrderToCoRoutinesViaCoMask;
+            CoRoCtrl.OrderToCoRoutinesViaCoTag  += OrderToCoRoutinesViaCoTag;
+            CoRoCtrl.OrderToCoRoutinesViaCoMask += OrderToCoRoutinesViaCoMask;
         }
 
-        private void OrderToCoRoutinesViaCoTag(CoRoutinesController.CallbackOrder order, CoTag coTag)
+        private void OrderToCoRoutinesViaCoTag(CoRoCtrl.CallbackOrder order, CoTag coTag)
         {
             if (coTag != CoTag) return;
             
             switch (order)
             {
-                case CoRoutinesController.CallbackOrder.Kill:
+                case CoRoCtrl.CallbackOrder.Kill:
                 {
                     _CoState = CoState.End;
                     return;
                 }
 
-                case CoRoutinesController.CallbackOrder.Pause:
+                case CoRoCtrl.CallbackOrder.Pause:
                 {
                     IsPaused = true;
                     return;
                 }
 
-                case CoRoutinesController.CallbackOrder.Unpause:
+                case CoRoCtrl.CallbackOrder.Unpause:
                 {
                     IsPaused = false;
                     return;
@@ -259,26 +257,26 @@ namespace DeusaldSharp
             }
         }
 
-        private void OrderToCoRoutinesViaCoMask(CoRoutinesController.CallbackOrder order, uint coMask, CoRoutinesController.MaskType maskType)
+        private void OrderToCoRoutinesViaCoMask(CoRoCtrl.CallbackOrder order, uint coMask, CoRoCtrl.MaskType maskType)
         {
-            if (maskType == CoRoutinesController.MaskType.All && !MathUtils.HasAllBitsOn(CoMask, coMask)) return;
-            if (maskType == CoRoutinesController.MaskType.Any && !MathUtils.HasAnyBitOn(CoMask, coMask)) return;
+            if (maskType == CoRoCtrl.MaskType.All && !MathUtils.HasAllBitsOn(CoMask, coMask)) return;
+            if (maskType == CoRoCtrl.MaskType.Any && !MathUtils.HasAnyBitOn(CoMask, coMask)) return;
 
             switch (order)
             {
-                case CoRoutinesController.CallbackOrder.Kill:
+                case CoRoCtrl.CallbackOrder.Kill:
                 {
                     _CoState = CoState.End;
                     return;
                 }
 
-                case CoRoutinesController.CallbackOrder.Pause:
+                case CoRoCtrl.CallbackOrder.Pause:
                 {
                     IsPaused = true;
                     return;
                 }
 
-                case CoRoutinesController.CallbackOrder.Unpause:
+                case CoRoCtrl.CallbackOrder.Unpause:
                 {
                     IsPaused = false;
                     return;

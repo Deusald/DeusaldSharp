@@ -28,11 +28,11 @@ namespace DeusaldSharp
     {
         CoDataType ICoData.Type => _Type;
 
-        internal CoRoutinesController.WaitUntilCondition Condition { get; }
+        internal CoRoCtrl.WaitUntilCondition Condition { get; }
         
         private readonly CoDataType _Type;
 
-        internal CoDataWaitUntilCondition(bool waitFor, CoRoutinesController.WaitUntilCondition condition)
+        internal CoDataWaitUntilCondition(bool waitFor, CoRoCtrl.WaitUntilCondition condition)
         {
             _Type     = waitFor ? CoDataType.WaitUntilTrue : CoDataType.WaitUntilFalse;
             Condition = condition;

@@ -32,119 +32,117 @@ namespace DeusaldSharpTests
 {
     public class CoRoutinesTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            CoRoCtrl.Reset();
+        }
+        
         /// <summary> Testing standard coRoutine flow and waitForOneTick state. </summary>
         [Test]
-        [TestOf(nameof(CoRoutinesController))]
+        [TestOf(nameof(CoRoCtrl))]
         public void XWTMN()
         {
             // Arrange
-            CoRoutinesController coRoutinesController = new CoRoutinesController();
-
             int value = 0;
             
             IEnumerator<ICoData> TestMethod()
             {
                 value = 1;
-                yield return coRoutinesController.WaitForOneTick();
+                yield return CoRoCtrl.WaitForOneTick();
                 value = 2;
-                yield return coRoutinesController.WaitForOneTick();
+                yield return CoRoCtrl.WaitForOneTick();
                 value = 3;
             }
 
             // Act & Assert
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
             Assert.AreEqual(0, value);
-            coRoutinesController.RunCoRoutine(TestMethod());
+            CoRoCtrl.RunCoRoutine(TestMethod());
             Assert.AreEqual(1, value);
-            coRoutinesController.Update();
+            CoRoCtrl.Update();
             Assert.AreEqual(1, value);
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
-            coRoutinesController.Update();
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.Update();
             Assert.AreEqual(2, value);
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
-            coRoutinesController.Update();
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.Update();
             Assert.AreEqual(3, value);
         }
         
         /// <summary> Testing coRoutine in coRoutine and WaitUntilDone state. </summary>
         [Test]
-        [TestOf(nameof(CoRoutinesController))]
+        [TestOf(nameof(CoRoCtrl))]
         public void GWTZL()
         {
             // Arrange
-            CoRoutinesController coRoutinesController = new CoRoutinesController();
-
             int value = 0;
             
             IEnumerator<ICoData> TestMethod()
             {
                 value = 1;
-                yield return coRoutinesController.WaitUntilDone(coRoutinesController.RunCoRoutine(TestMethodTwo()));
+                yield return CoRoCtrl.WaitUntilDone(CoRoCtrl.RunCoRoutine(TestMethodTwo()));
                 value = 4;
             }
             
             IEnumerator<ICoData> TestMethodTwo()
             {
                 value = 2;
-                yield return coRoutinesController.WaitForOneTick();
+                yield return CoRoCtrl.WaitForOneTick();
                 value = 3;
             }
 
             // Act & Assert
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
             Assert.AreEqual(0, value);
-            coRoutinesController.RunCoRoutine(TestMethod());
+            CoRoCtrl.RunCoRoutine(TestMethod());
             Assert.AreEqual(2, value);
-            coRoutinesController.Update();
+            CoRoCtrl.Update();
             Assert.AreEqual(2, value);
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
-            coRoutinesController.Update();
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.Update();
             Assert.AreEqual(3, value);
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
-            coRoutinesController.Update();
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.Update();
             Assert.AreEqual(4, value);
         }
         
         /// <summary> Testing standard coRoutine flow and waitForSeconds state. </summary>
         [Test]
-        [TestOf(nameof(CoRoutinesController))]
+        [TestOf(nameof(CoRoCtrl))]
         public void BELZH()
         {
             // Arrange
-            CoRoutinesController coRoutinesController = new CoRoutinesController();
-
             int value = 0;
             
             IEnumerator<ICoData> TestMethod()
             {
                 value = 1;
-                yield return coRoutinesController.WaitForSeconds(0.5f);
+                yield return CoRoCtrl.WaitForSeconds(0.5f);
                 value = 2;
             }
 
             // Act & Assert
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
             Assert.AreEqual(0, value);
-            coRoutinesController.RunCoRoutine(TestMethod());
+            CoRoCtrl.RunCoRoutine(TestMethod());
             Assert.AreEqual(1, value);
-            coRoutinesController.Update();
+            CoRoCtrl.Update();
             Assert.AreEqual(1, value);
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
-            coRoutinesController.Update();
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.Update();
             Assert.AreEqual(1, value);
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
-            coRoutinesController.Update();
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.Update();
             Assert.AreEqual(2, value);
         }
         
         /// <summary> Testing standard coRoutine flow and waitForCondition state. </summary>
         [Test]
-        [TestOf(nameof(CoRoutinesController))]
+        [TestOf(nameof(CoRoCtrl))]
         public void SMKEE()
         {
             // Arrange
-            CoRoutinesController coRoutinesController = new CoRoutinesController();
-
             int  value = 0;
             bool pass  = false;
             
@@ -152,23 +150,23 @@ namespace DeusaldSharpTests
             {
                 value = 1;
                 // ReSharper disable once AccessToModifiedClosure
-                yield return coRoutinesController.WaitUntilTrue(() => pass);
+                yield return CoRoCtrl.WaitUntilTrue(() => pass);
                 value = 2;
             }
 
             // Act & Assert
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
             Assert.AreEqual(0, value);
-            coRoutinesController.RunCoRoutine(TestMethod());
+            CoRoCtrl.RunCoRoutine(TestMethod());
             Assert.AreEqual(1, value);
-            coRoutinesController.Update();
+            CoRoCtrl.Update();
             Assert.AreEqual(1, value);
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
-            coRoutinesController.Update();
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.Update();
             Assert.AreEqual(1, value);
             pass = true;
-            coRoutinesController.SetNextCoState(CoSegment.Normal, 0.33f);
-            coRoutinesController.Update();
+            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
+            CoRoCtrl.Update();
             Assert.AreEqual(2, value);
         }
     }
