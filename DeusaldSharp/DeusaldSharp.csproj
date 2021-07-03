@@ -5,4 +5,10 @@
         <LangVersion>8</LangVersion>
     </PropertyGroup>
 
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>DeusaldSharpTests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+    
 </Project>
