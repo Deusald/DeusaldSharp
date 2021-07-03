@@ -100,6 +100,12 @@ namespace DeusaldSharp
             return (float) Math.Cos(a);
         }
 
+        /// <summary> Rounds a value to the given decimal point using defined rounding. </summary>
+        public static float Round(float value, int decimalPoint, MidpointRounding midpointRounding)
+        {
+            return (float) Math.Round(value, decimalPoint, midpointRounding);
+        }
+
         #endregion Public Methods
     }
 }

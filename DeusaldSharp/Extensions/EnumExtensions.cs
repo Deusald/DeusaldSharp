@@ -61,16 +61,16 @@ namespace DeusaldSharp
             return matching[next(0, matching.Length)];
         }
         
-        /// <summary> Checks if the [Flag] enum value has set any flag from check argument. </summary>
-        public static bool HasAnyFlag(this Enum value, Enum check)
+        /// <summary> Checks if the [Flag] enum value has set any flag from mask argument. </summary>
+        public static bool HasAnyFlag(this Enum value, Enum mask)
         {
-            return MathUtils.HasAnyBitOn(value.GetHashCode(), check.GetHashCode());
+            return MathUtils.HasAnyBitOn(value.GetHashCode(), mask.GetHashCode());
         }
 
-        /// <summary> Checks if the [Flag] enum value has set all flags from check argument. </summary>
-        public static bool HasAllFlags(this Enum value, Enum check)
+        /// <summary> Checks if the [Flag] enum value has set all flags from mask argument. </summary>
+        public static bool HasAllFlags(this Enum value, Enum mask)
         {
-            return MathUtils.HasAllBitsOn(value.GetHashCode(), check.GetHashCode());
+            return MathUtils.HasAllBitsOn(value.GetHashCode(), mask.GetHashCode());
         }
 
         #endregion Public Methods

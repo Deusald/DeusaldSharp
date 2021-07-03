@@ -31,8 +31,17 @@ namespace DeusaldSharp
     {
         #region Variables
 
+        /// <summary> Multiply seconds by this value to calculate value in milliseconds. </summary>
+        public const int SecToMilliseconds = 1000;
+        
         /// <summary> Multiply minutes by this value to calculate value in seconds. </summary>
-        public const float MinToSec      = 60f;
+        public const int MinToSec      = 60;
+        
+        /// <summary> Multiply hours by this value to calculate value in minutes. </summary>
+        public const int HoursToMin = 60;
+        
+        /// <summary> Multiply days by this value to calculate value in hours. </summary>
+        public const int DaysToHours = 24;
         
         /// <summary> Multiply degrees by this value to calculate value in radians. </summary>
         public const float DegToRad      = MathF.PI / 180f;
@@ -85,11 +94,7 @@ namespace DeusaldSharp
         /// <summary> Rounds the value component to given decimal point. </summary>
         public static float RoundToDecimal(float value, int decimalPoint)
         {
-            float decimalPow = MathF.Pow(10f, decimalPoint);
-            value =  value * decimalPow;
-            value =  MathF.Round(value);
-            value /= decimalPow;
-            return value;
+            return MathF.Round(value, decimalPoint, MidpointRounding.ToEven);
         }
 
         /// <summary> Check that the given value is zero by comparing it to the epsilon float value. </summary>
@@ -108,68 +113,68 @@ namespace DeusaldSharp
         
         #region Bits
 
-        /// <summary> Check how many individual bits are set in the given mask. </summary>
-        public static uint NumberOfSetBits(uint mask)
+        /// <summary> Check how many individual bits are set in the given value. </summary>
+        public static uint NumberOfSetBits(uint value)
         {
             uint count = 0;
 
-            while (mask > 0)
+            while (value > 0)
             {
-                count +=  mask & 1;
-                mask  >>= 1;
+                count +=  value & 1;
+                value  >>= 1;
             }
 
             return count;
         }
         
-        /// <summary> Check how many individual bits are set in the given mask. </summary>
-        public static uint NumberOfSetBits(int mask)
+        /// <summary> Check how many individual bits are set in the given value. </summary>
+        public static uint NumberOfSetBits(int value)
         {
             int count = 0;
 
-            while (mask > 0)
+            while (value > 0)
             {
-                count +=  mask & 1;
-                mask  >>= 1;
+                count +=  value & 1;
+                value  >>= 1;
             }
 
             return (uint) count;
         }
 
-        /// <summary> Checks if the mask has only one bit set. </summary>
-        public static bool IsSingleBitOn(uint mask)
+        /// <summary> Checks if the value has only one bit set. </summary>
+        public static bool IsSingleBitOn(uint value)
         {
-            return mask != 0 && (mask & (mask - 1)) == 0;
+            return value != 0 && (value & (value - 1)) == 0;
         }
         
-        /// <summary> Checks if the mask has only one bit set. </summary>
-        public static bool IsSingleBitOn(int mask)
+        /// <summary> Checks if the value has only one bit set. </summary>
+        public static bool IsSingleBitOn(int value)
         {
-            return mask != 0 && (mask & (mask - 1)) == 0;
+            return value != 0 && (value & (value - 1)) == 0;
         }
 
-        /// <summary> Checks if the mask has set any flag from check argument. </summary>
-        public static bool HasAnyBitOn(uint mask, uint check)
+        /// <summary> Checks if the value has set any flag from mask argument. </summary>
+        public static bool HasAnyBitOn(uint value, uint mask)
         {
-            return (mask & check) != 0;
+            return (value & mask) != 0;
         }
         
-        /// <summary> Checks if the mask has set any flag from check argument. </summary>
-        public static bool HasAnyBitOn(int mask, int check)
+        /// <summary> Checks if the value has set any flag from mask argument. </summary>
+        public static bool HasAnyBitOn(int value, int mask)
         {
-            return (mask & check) != 0;
+            return (value & mask) != 0;
         }
 
-        /// <summary> Checks if the mask has set all flags from check argument. </summary>
-        public static bool HasAllBitsOn(uint mask, uint check)
+        /// <summary> Checks if the value has set all flags from mask argument. </summary>
+        public static bool HasAllBitsOn(uint value, uint mask)
         {
-            return (mask & check) == check;
+            return (value & mask) == mask;
         }
         
-        /// <summary> Checks if the mask has set all flags from check argument. </summary>
-        public static bool HasAllBitsOn(int mask, int check)
+        /// <summary> Checks if the value has set all flags from mask argument. </summary>
+        public static bool HasAllBitsOn(int value, int mask)
         {
-            return (mask & check) == check;
+            return (value & mask) == mask;
         }
 
         #endregion Bits
