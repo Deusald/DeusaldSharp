@@ -25,11 +25,11 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedType.Global
 
+using System;
+using System.Collections.Generic;
+
 namespace DeusaldSharp
 {
-    using System;
-    using System.Collections.Generic;
-
     /// <summary> This class represents the 2D spline. </summary>
     public class Spline2D
     {
