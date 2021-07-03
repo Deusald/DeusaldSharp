@@ -54,8 +54,6 @@ namespace DeusaldSharpTests
             }
             
             [MessageSlot]
-            // ReSharper disable once UnusedMember.Local
-            // ReSharper disable once UnusedParameter.Local
             public void Receive(ExampleMsg message)
             {
                 ++ReceivedMessages;

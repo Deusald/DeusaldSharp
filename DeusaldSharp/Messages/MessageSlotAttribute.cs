@@ -22,11 +22,13 @@
 // SOFTWARE.
 
 using System;
+using JetBrains.Annotations;
 
 namespace DeusaldSharp.Messages
 {
     /// <summary> Attribute that marks method for receiving messages. </summary>
     [AttributeUsage(AttributeTargets.Method)]
+    [MeansImplicitUse]
     public class MessageSlotAttribute : Attribute
     {
         #region Properites
