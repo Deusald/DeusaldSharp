@@ -156,3 +156,4 @@ packages
 
 # Ignore project specific:
 SharpBox2D/SharpBox2D/Test.cs
+!UnityPackage/*
