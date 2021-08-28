@@ -1,5 +1,5 @@
 ## Deusald C# .gitignore
-## Version: 1.0.0
+## Version: 1.0.1
 
 # User-specific files
 *.suo
@@ -40,7 +40,6 @@ build/
 *.vssscc
 .builds
 *.pidb
-*.log
 *.scc
 
 # Visual C++ cache files
