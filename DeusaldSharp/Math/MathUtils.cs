@@ -31,6 +31,9 @@ namespace DeusaldSharp
     {
         #region Variables
 
+        /// <summary> Multiply milliseconds by this value to calculate seconds. </summary>
+        public const double MillisecondsToSec = 1d / 1000d;
+        
         /// <summary> Multiply seconds by this value to calculate value in milliseconds. </summary>
         public const int SecToMilliseconds = 1000;
 
