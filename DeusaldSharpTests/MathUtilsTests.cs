@@ -137,9 +137,9 @@ namespace DeusaldSharpTests
             // Arrange
 
             // Act
-            float clamp      = MathUtils.Clamp(10.5f, 15.1f, 20f);
-            int   clampTwo   = MathUtils.Clamp(4,     2,     3);
-            int   clampThree = MathUtils.Clamp(5,     2,     10);
+            float clamp      = 10.5f.Clamp(15.1f, 20f);
+            int   clampTwo   = 4.Clamp(2, 3);
+            int   clampThree = 5.Clamp(2, 10);
 
             // Assert
             Assert.Multiple(() =>
@@ -200,9 +200,9 @@ namespace DeusaldSharpTests
             // Arrange
 
             // Act
-            float roundToDecimal      = MathUtils.RoundToDecimal(7.451587f, 6);
-            float roundToDecimalTwo   = MathUtils.RoundToDecimal(7.451587f, 3);
-            float roundToDecimalThree = MathUtils.RoundToDecimal(7.451587f, 0);
+            float roundToDecimal      = 7.451587f.RoundToDecimal(6);
+            float roundToDecimalTwo   = 7.451587f.RoundToDecimal(3);
+            float roundToDecimalThree = 7.451587f.RoundToDecimal(0);
 
             // Assert
             Assert.Multiple(() =>
@@ -221,9 +221,9 @@ namespace DeusaldSharpTests
             // Arrange
 
             // Act
-            bool isFloatZero      = MathUtils.IsFloatZero(0);
-            bool isFloatZeroTwo   = MathUtils.IsFloatZero(1);
-            bool isFloatZeroThree = MathUtils.IsFloatZero(0.1f);
+            bool isFloatZero      = 0f.IsFloatZero();
+            bool isFloatZeroTwo   = 1f.IsFloatZero();
+            bool isFloatZeroThree = 0.1f.IsFloatZero();
 
             // Assert
             Assert.Multiple(() =>
@@ -242,9 +242,9 @@ namespace DeusaldSharpTests
             // Arrange
 
             // Act
-            bool areFloatsEquals      = MathUtils.AreFloatsEquals(1.55f,  1.55f);
-            bool areFloatsEqualsTwo   = MathUtils.AreFloatsEquals(5.123f, 10.234f);
-            bool areFloatsEqualsThree = MathUtils.AreFloatsEquals(1.55f,  1.56f);
+            bool areFloatsEquals      = 1.55f.AreFloatsEquals(1.55f);
+            bool areFloatsEqualsTwo   = 5.123f.AreFloatsEquals(10.234f);
+            bool areFloatsEqualsThree = 1.55f.AreFloatsEquals(1.56f);
 
             // Assert
             Assert.Multiple(() =>
@@ -252,6 +252,28 @@ namespace DeusaldSharpTests
                 Assert.IsTrue(areFloatsEquals);
                 Assert.IsFalse(areFloatsEqualsTwo);
                 Assert.IsFalse(areFloatsEqualsThree);
+            });
+        }
+
+        /// <summary> Providing data and expecting mathematically correct result. </summary>
+        [Test]
+        [TestOf(nameof(MathUtils.MarkBit))]
+        public void RKXXS()
+        {
+            // Arrange
+
+            // Act
+            uint one = 7;
+            int  two = 10;
+
+            uint markedBitOne = one.MarkBit(2, false);
+            int  markedBitTwo = two.MarkBit(4, true);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(5, markedBitOne);
+                Assert.AreEqual(14, markedBitTwo);
             });
         }
 
@@ -266,8 +288,8 @@ namespace DeusaldSharpTests
             uint one = 467456;
             int  two = 598465;
 
-            uint numberOfSetBits    = MathUtils.NumberOfSetBits(one);
-            uint numberOfSetBitsTwo = MathUtils.NumberOfSetBits(two);
+            uint numberOfSetBits    = one.NumberOfSetBits();
+            uint numberOfSetBitsTwo = two.NumberOfSetBits();
 
             // Assert
             Assert.Multiple(() =>
@@ -290,10 +312,10 @@ namespace DeusaldSharpTests
             uint three = 1024;
             int  four  = 1024;
 
-            bool isSingleBitOn      = MathUtils.IsSingleBitOn(one);
-            bool isSingleBitOnTwo   = MathUtils.IsSingleBitOn(two);
-            bool isSingleBitOnThree = MathUtils.IsSingleBitOn(three);
-            bool isSingleBitOnFour  = MathUtils.IsSingleBitOn(four);
+            bool isSingleBitOn      = one.IsSingleBitOn();
+            bool isSingleBitOnTwo   = two.IsSingleBitOn();
+            bool isSingleBitOnThree = three.IsSingleBitOn();
+            bool isSingleBitOnFour  = four.IsSingleBitOn();
 
             // Assert
             Assert.Multiple(() =>
@@ -318,10 +340,10 @@ namespace DeusaldSharpTests
             uint three = 0;
             int  four  = 0;
 
-            bool hasAnyBitOn      = MathUtils.HasAnyBitOn(one,   uint.MaxValue);
-            bool hasAnyBitOnTwo   = MathUtils.HasAnyBitOn(two,   int.MaxValue);
-            bool hasAnyBitOnThree = MathUtils.HasAnyBitOn(three, uint.MaxValue);
-            bool hasAnyBitOnFour  = MathUtils.HasAnyBitOn(four,  int.MaxValue);
+            bool hasAnyBitOn      = one.HasAnyBitOn(uint.MaxValue);
+            bool hasAnyBitOnTwo   = two.HasAnyBitOn(int.MaxValue);
+            bool hasAnyBitOnThree = three.HasAnyBitOn(uint.MaxValue);
+            bool hasAnyBitOnFour  = four.HasAnyBitOn(int.MaxValue);
 
             // Assert
             Assert.Multiple(() =>
@@ -346,10 +368,10 @@ namespace DeusaldSharpTests
             uint three = uint.MaxValue;
             int  four  = int.MaxValue;
 
-            bool hasAllBitsOn      = MathUtils.HasAllBitsOn(one, uint.MaxValue);
-            bool hasAllBitsOnTwo   = MathUtils.HasAllBitsOn(two, int.MaxValue);
+            bool hasAllBitsOn      = MathUtils.HasAllBitsOn(one,   uint.MaxValue);
+            bool hasAllBitsOnTwo   = MathUtils.HasAllBitsOn(two,   int.MaxValue);
             bool hasAllBitsOnThree = MathUtils.HasAllBitsOn(three, uint.MaxValue);
-            bool hasAllBitsOnFour  = MathUtils.HasAllBitsOn(four, int.MaxValue);
+            bool hasAllBitsOnFour  = MathUtils.HasAllBitsOn(four,  int.MaxValue);
 
             // Assert
             Assert.Multiple(() =>
