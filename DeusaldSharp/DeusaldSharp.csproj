@@ -4,7 +4,7 @@
         <LangVersion>8</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>DeusaldSharp</PackageId>
-        <PackageVersion>5.0.1</PackageVersion>
+        <PackageVersion>5.0.2</PackageVersion>
         <Title>DeusaldSharp</Title>
         <Authors>Adam "Deusald" Orliński</Authors>
         <Description>C# utils that I usually need in my C# projects.</Description>
@@ -14,8 +14,8 @@
         <RepositoryUrl>https://github.com/Deusald/DeusaldSharp</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageTags>C# Tools Utils</PackageTags>
-        <PackageReleaseNotes>Initial version</PackageReleaseNotes>
-        <TargetFrameworks>net48;netcoreapp3.1;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>net48;netcoreapp3.1;netstandard2.0</TargetFrameworks>
+        <AssemblyVersion>5.0.2</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,5 +27,10 @@
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2021.2.0" />
     </ItemGroup>
+
+    <Target Name="CopyToUnityPackage" AfterTargets="AfterBuild">
+        <Copy SourceFiles="$(ProjectDir)bin/Release/net48/DeusaldSharp.dll" DestinationFolder="$(ProjectDir)/../UnityPackage.Net48" />
+        <Copy SourceFiles="$(ProjectDir)bin/Release/netstandard2.0/DeusaldSharp.dll" DestinationFolder="$(ProjectDir)/../UnityPackage.NetStandard2.0" />
+    </Target>
     
 </Project>
