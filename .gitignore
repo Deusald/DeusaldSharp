@@ -1,4 +1,5 @@
 ## Deusald C# .gitignore
+## Author: Adam "Deusald" Orliński
 ## Version: 1.0.1
 
 # User-specific files
@@ -154,6 +155,3 @@ $RECYCLE.BIN/
 packages
 
 # Ignore project specific:
-SharpBox2D/SharpBox2D/Test.cs
-!UnityPackage.Net48/*
-!UnityPackage.NetStandard2.1/*
