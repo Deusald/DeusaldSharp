@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD2_0
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
