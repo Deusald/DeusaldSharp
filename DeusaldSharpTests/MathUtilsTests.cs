@@ -33,13 +33,13 @@ namespace DeusaldSharpTests
     {
         /// <summary> Testing conversion from minutes to seconds. </summary>
         [Test]
-        [TestOf(nameof(MathUtils.SecToMilliseconds))]
+        [TestOf(nameof(MathUtils.SEC_TO_MILLISECONDS))]
         public void XWTMN()
         {
             // Arrange
 
             // Act
-            int secondsToMilliseconds = 15 * MathUtils.SecToMilliseconds;
+            int secondsToMilliseconds = 15 * MathUtils.SEC_TO_MILLISECONDS;
 
             // Assert
             Assert.AreEqual(15000, secondsToMilliseconds);
@@ -47,13 +47,13 @@ namespace DeusaldSharpTests
 
         /// <summary> Testing conversion from minutes to seconds. </summary>
         [Test]
-        [TestOf(nameof(MathUtils.MinToSec))]
+        [TestOf(nameof(MathUtils.MIN_TO_SEC))]
         public void SCMWP()
         {
             // Arrange
 
             // Act
-            int minutesToSeconds = 15 * MathUtils.MinToSec;
+            int minutesToSeconds = 15 * MathUtils.MIN_TO_SEC;
 
             // Assert
             Assert.AreEqual(900, minutesToSeconds);
@@ -61,13 +61,13 @@ namespace DeusaldSharpTests
 
         /// <summary> Testing conversion from hours to minutes. </summary>
         [Test]
-        [TestOf(nameof(MathUtils.MinToSec))]
+        [TestOf(nameof(MathUtils.HOURS_TO_MIN))]
         public void ARRPH()
         {
             // Arrange
 
             // Act
-            int hoursToMinutes = 15 * MathUtils.HoursToMin;
+            int hoursToMinutes = 15 * MathUtils.HOURS_TO_MIN;
 
             // Assert
             Assert.AreEqual(900, hoursToMinutes);
@@ -75,13 +75,13 @@ namespace DeusaldSharpTests
 
         /// <summary> Testing conversion from days to hours. </summary>
         [Test]
-        [TestOf(nameof(MathUtils.DaysToHours))]
+        [TestOf(nameof(MathUtils.DAYS_TO_HOURS))]
         public void YXMWS()
         {
             // Arrange
 
             // Act
-            int daysToHours = 15 * MathUtils.DaysToHours;
+            int daysToHours = 15 * MathUtils.DAYS_TO_HOURS;
 
             // Assert
             Assert.AreEqual(360, daysToHours);
@@ -95,7 +95,7 @@ namespace DeusaldSharpTests
             // Arrange
 
             // Act
-            int daysToSeconds = 3 * MathUtils.DaysToHours * MathUtils.HoursToMin * MathUtils.MinToSec;
+            int daysToSeconds = 3 * MathUtils.DAYS_TO_HOURS * MathUtils.HOURS_TO_MIN * MathUtils.MIN_TO_SEC;
 
             // Assert
             Assert.AreEqual(259200, daysToSeconds);
@@ -103,13 +103,13 @@ namespace DeusaldSharpTests
 
         /// <summary> Testing conversion from degrees to radians. </summary>
         [Test]
-        [TestOf(nameof(MathUtils.DegToRad))]
+        [TestOf(nameof(MathUtils.DEG_TO_RAD))]
         public void SASTE()
         {
             // Arrange
 
             // Act
-            float radians = 90 * MathUtils.DegToRad;
+            float radians = 90 * MathUtils.DEG_TO_RAD;
 
             // Assert
             Assert.AreEqual(1.57079637f, radians);
@@ -117,13 +117,13 @@ namespace DeusaldSharpTests
 
         /// <summary> Testing conversion from radians to degrees. </summary>
         [Test]
-        [TestOf(nameof(MathUtils.RadToDeg))]
+        [TestOf(nameof(MathUtils.RAD_TO_DEG))]
         public void EKSCS()
         {
             // Arrange
 
             // Act
-            float degrees = 3.1415926536f * MathUtils.RadToDeg;
+            float degrees = 3.1415926536f * MathUtils.RAD_TO_DEG;
 
             // Assert
             Assert.AreEqual(180f, degrees);

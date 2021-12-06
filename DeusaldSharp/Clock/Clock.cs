@@ -64,7 +64,7 @@ namespace DeusaldSharp
             IsAlive         = true;
             _LogEveryXFrame = logEveryXFrame;
             _AutoResetEvent = new AutoResetEvent(true);
-            _DeltaTimeInMs  = (long)(1.0m / ticksPerSecond * MathUtils.SecToMilliseconds);
+            _DeltaTimeInMs  = (long)(1.0m / ticksPerSecond * MathUtils.SEC_TO_MILLISECONDS);
 
             Thread clockThread = new Thread(ClockLoop)
             {
@@ -105,7 +105,7 @@ namespace DeusaldSharp
             {
                 long previousFrameStart = frameStart;
                 frameStart = stopwatch.ElapsedMilliseconds;
-                Tick?.Invoke(frameNumber, (frameStart - previousFrameStart) * MathUtils.MillisecondsToSec);
+                Tick?.Invoke(frameNumber, (frameStart - previousFrameStart) * MathUtils.MILLISECONDS_TO_SECONDS);
                 long frameEnd = stopwatch.ElapsedMilliseconds;
 
                 long frameLenght = frameEnd - frameStart;

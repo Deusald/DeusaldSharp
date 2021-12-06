@@ -32,28 +32,28 @@ namespace DeusaldSharp
         #region Variables
 
         /// <summary> Multiply milliseconds by this value to calculate seconds. </summary>
-        public const double MillisecondsToSec = 1d / 1000d;
+        public const double MILLISECONDS_TO_SECONDS = 1d / 1000d;
         
         /// <summary> Multiply seconds by this value to calculate value in milliseconds. </summary>
-        public const int SecToMilliseconds = 1000;
+        public const int SEC_TO_MILLISECONDS = 1000;
 
         /// <summary> Multiply minutes by this value to calculate value in seconds. </summary>
-        public const int MinToSec = 60;
+        public const int MIN_TO_SEC = 60;
 
         /// <summary> Multiply hours by this value to calculate value in minutes. </summary>
-        public const int HoursToMin = 60;
+        public const int HOURS_TO_MIN = 60;
 
         /// <summary> Multiply days by this value to calculate value in hours. </summary>
-        public const int DaysToHours = 24;
+        public const int DAYS_TO_HOURS = 24;
 
         /// <summary> Multiply degrees by this value to calculate value in radians. </summary>
-        public const float DegToRad = MathF.PI / 180f;
+        public const float DEG_TO_RAD = MathF.PI / 180f;
 
         /// <summary> Multiply radians by this value to calculate value in degrees. </summary>
-        public const float RadToDeg = 180f / MathF.PI;
+        public const float RAD_TO_DEG = 180f / MathF.PI;
 
         /// <summary> Squared float epsilon value. </summary>
-        public const float EpsilonSquare = float.Epsilon * float.Epsilon;
+        public const float EPSILON_SQUARE = float.Epsilon * float.Epsilon;
 
         #endregion Variables
 

@@ -23,7 +23,6 @@
 
 #if NETFRAMEWORK || NETSTANDARD2_0
 
-// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 
 using System;

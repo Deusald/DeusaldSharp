@@ -53,7 +53,7 @@ namespace DeusaldSharpTests
             serverClock.Log  += Console.WriteLine;
 
             // Act
-            await Task.Delay(12 * MathUtils.SecToMilliseconds);
+            await Task.Delay(12 * MathUtils.SEC_TO_MILLISECONDS);
 
             // Assert
             Assert.Multiple(() =>
