@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeusaldSharp", "DeusaldShar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeusaldSharpTests", "DeusaldSharpTests\DeusaldSharpTests.csproj", "{6E055025-E3D0-462A-927A-4DDB21002D33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VersionBumper", "VersionBumper\VersionBumper.csproj", "{E7514FE1-51E6-405A-AB4B-E5E327A1CC0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{6E055025-E3D0-462A-927A-4DDB21002D33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E055025-E3D0-462A-927A-4DDB21002D33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E055025-E3D0-462A-927A-4DDB21002D33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7514FE1-51E6-405A-AB4B-E5E327A1CC0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7514FE1-51E6-405A-AB4B-E5E327A1CC0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7514FE1-51E6-405A-AB4B-E5E327A1CC0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7514FE1-51E6-405A-AB4B-E5E327A1CC0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
