@@ -27,6 +27,6 @@ namespace DeusaldSharp
 {
     public static class DeusaldSharp
     {
-        public static readonly Version Version = new Version(5, 2, 2);
+        public static readonly Version Version = new Version(5, 2, 3);
     }
 }
