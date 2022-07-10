@@ -45,7 +45,7 @@ namespace DeusaldSharp
         /// <summary> Checks if the [Flag] enum value has only one bit set. </summary>
         public static bool IsSingleFlagOn(this Enum value)
         {
-            return MathUtils.IsSingleBitOn(value.GetHashCode());
+            return value.GetHashCode().IsSingleBitOn();
         }
         
         /// <summary> Return value that have set single flag on from those given. </summary>
@@ -64,7 +64,7 @@ namespace DeusaldSharp
         /// <summary> Checks if the [Flag] enum value has set any flag from mask argument. </summary>
         public static bool HasAnyFlag(this Enum value, Enum mask)
         {
-            return MathUtils.HasAnyBitOn(value.GetHashCode(), mask.GetHashCode());
+            return value.GetHashCode().HasAnyBitOn(mask.GetHashCode());
         }
 
         /// <summary> Checks if the [Flag] enum value has set all flags from mask argument. </summary>

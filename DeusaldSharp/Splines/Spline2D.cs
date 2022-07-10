@@ -292,10 +292,10 @@ namespace DeusaldSharp
                     return _Points[count - 1];
             }
 
-            if (MathUtils.AreFloatsEquals(t, 0f))
+            if (t.AreFloatsEquals(0f))
                 return _Points[fromIndex];
 
-            if (MathUtils.AreFloatsEquals(t, 1f))
+            if (t.AreFloatsEquals(1f))
                 return _Points[toIndex];
 
             // Pre-calculate powers

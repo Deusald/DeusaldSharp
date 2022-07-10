@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace DeusaldSharp.Messages
+namespace DeusaldSharp
 {
     internal static class MessagesPool<T> where T : class, new()
     {

@@ -24,7 +24,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace DeusaldSharp.Messages
+namespace DeusaldSharp
 {
     /// <summary> Attribute that marks method for receiving messages. </summary>
     [AttributeUsage(AttributeTargets.Method)]

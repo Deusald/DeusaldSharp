@@ -7,14 +7,14 @@
         <PackageVersion>5.1.1</PackageVersion>
         <Title>DeusaldSharp</Title>
         <Authors>Adam "Deusald" Orliński</Authors>
-        <Description>C# utils that I usually need in my C# projects.</Description>
+        <Description>C# utils that are often useful in game development.</Description>
         <Copyright>Copyright ©Adam "Deusald" Orliński 2020</Copyright>
         <PackageProjectUrl>https://github.com/Deusald/DeusaldSharp</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/Deusald/DeusaldSharp</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageTags>C# Tools Utils</PackageTags>
-        <TargetFrameworks>net48;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
         <AssemblyVersion>5.1.1</AssemblyVersion>
     </PropertyGroup>
 

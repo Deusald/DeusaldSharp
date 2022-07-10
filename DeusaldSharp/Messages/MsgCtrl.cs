@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace DeusaldSharp.Messages
+namespace DeusaldSharp
 {
     /// <summary> Class for controlling messages system. </summary>
     public static class MsgCtrl

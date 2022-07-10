@@ -24,7 +24,7 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 
-using DeusaldSharp.Messages;
+using DeusaldSharp;
 using NUnit.Framework;
 
 namespace DeusaldSharpTests

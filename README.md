@@ -1,2 +1,2 @@
 # DeusaldSharp
-C# utils that I usually need in my C# projects
+C# utils that are often useful in game development.
