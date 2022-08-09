@@ -32,6 +32,8 @@ namespace DeusaldSharpTests
 {
     public class CoRoutinesTests
     {
+        public static CoRoCtrl CoRoCtrl = new CoRoCtrl();
+        
         [SetUp]
         public void Setup()
         {
@@ -56,17 +58,14 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
             Assert.AreEqual(0, value);
             CoRoCtrl.RunCoRoutine(TestMethod());
             Assert.AreEqual(1, value);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(1, value);
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(2, value);
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(3, value);
         }
         
@@ -93,17 +92,14 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
             Assert.AreEqual(0, value);
             CoRoCtrl.RunCoRoutine(TestMethod());
             Assert.AreEqual(2, value);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(2, value);
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(3, value);
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(4, value);
         }
         
@@ -123,17 +119,14 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
             Assert.AreEqual(0, value);
             CoRoCtrl.RunCoRoutine(TestMethod());
             Assert.AreEqual(1, value);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(1, value);
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(1, value);
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(2, value);
         }
         
@@ -155,18 +148,15 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
             Assert.AreEqual(0, value);
             CoRoCtrl.RunCoRoutine(TestMethod());
             Assert.AreEqual(1, value);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(1, value);
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(1, value);
             pass = true;
-            CoRoCtrl.SetNextCoState(CoSegment.Normal, 0.33f);
-            CoRoCtrl.Update();
+            CoRoCtrl.Update(0.33f);
             Assert.AreEqual(2, value);
         }
     }

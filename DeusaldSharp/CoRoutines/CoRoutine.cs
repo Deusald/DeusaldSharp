@@ -44,20 +44,20 @@ namespace DeusaldSharp
         #region Variables
 
         private CoRoCtrl.WaitUntilCondition _Condition;
-        private ICoHandle                               _WaitUntilDone;
-        private float                                   _SecondsToWait;
-        private CoState                                 _CoState;
+        private ICoHandle                   _WaitUntilDone;
+        private float                       _SecondsToWait;
+        private CoState                     _CoState;
 
         private readonly uint                 _CoId;
         private readonly IEnumerator<ICoData> _Enumerator;
+        private readonly CoRoCtrl             _CoRoCtrl;
 
         #endregion Variables
 
         #region Properties
 
         public bool IsAlive => _CoState != CoState.End;
-
-        public CoSegment CoSegment            { get; }
+        
         public CoTag     CoTag                { get; }
         public uint      CoMask               { get; }
         public bool      IsPaused             { get; set; }
@@ -67,16 +67,16 @@ namespace DeusaldSharp
 
         #region Init Methods
 
-        internal CoRoutine(IEnumerator<ICoData> enumerator, uint coId, CoSegment coSegment, CoTag coTag, uint coMask)
+        internal CoRoutine(IEnumerator<ICoData> enumerator, uint coId, CoTag coTag, uint coMask, CoRoCtrl coRoCtrl)
         {
-            CoSegment      = coSegment;
             CoTag          = coTag;
             CoMask         = coMask;
             _SecondsToWait = 0f;
             _CoId          = coId;
             _Enumerator    = enumerator;
             _CoState       = CoState.Running;
-            
+            _CoRoCtrl      = coRoCtrl;
+
             Register();
         }
 
@@ -136,11 +136,11 @@ namespace DeusaldSharp
                 }
             }
         }
-        
+
         public void UnRegister()
         {
-            CoRoCtrl.OrderToCoRoutinesViaCoTag  -= OrderToCoRoutinesViaCoTag;
-            CoRoCtrl.OrderToCoRoutinesViaCoMask -= OrderToCoRoutinesViaCoMask;
+            _CoRoCtrl.OrderToCoRoutinesViaCoTag  -= OrderToCoRoutinesViaCoTag;
+            _CoRoCtrl.OrderToCoRoutinesViaCoMask -= OrderToCoRoutinesViaCoMask;
         }
 
         #region Equals
@@ -150,12 +150,12 @@ namespace DeusaldSharp
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((CoRoutine) obj);
+            return Equals((CoRoutine)obj);
         }
 
         public override int GetHashCode()
         {
-            return (int) _CoId;
+            return (int)_CoId;
         }
 
         public static bool operator ==(CoRoutine left, CoRoutine right)
@@ -198,28 +198,28 @@ namespace DeusaldSharp
                 case CoDataType.WaitForSeconds:
                 {
                     _CoState       = CoState.WaitingForSeconds;
-                    _SecondsToWait = ((CoDataWaitForSeconds) currentState).SecondsToWait;
+                    _SecondsToWait = ((CoDataWaitForSeconds)currentState).SecondsToWait;
                     return;
                 }
 
                 case CoDataType.WaitUntilDone:
                 {
                     _CoState       = CoState.WaitingUntilDone;
-                    _WaitUntilDone = ((CoDataWaitUntilDone) currentState).CoRoutineToWaitFor;
+                    _WaitUntilDone = ((CoDataWaitUntilDone)currentState).CoRoutineToWaitFor;
                     return;
                 }
 
                 case CoDataType.WaitUntilTrue:
                 {
                     _CoState   = CoState.WaitingUntilTrue;
-                    _Condition = ((CoDataWaitUntilCondition) currentState).Condition;
+                    _Condition = ((CoDataWaitUntilCondition)currentState).Condition;
                     return;
                 }
 
                 case CoDataType.WaitUntilFalse:
                 {
                     _CoState   = CoState.WaitingUntilFalse;
-                    _Condition = ((CoDataWaitUntilCondition) currentState).Condition;
+                    _Condition = ((CoDataWaitUntilCondition)currentState).Condition;
                     return;
                 }
             }
@@ -227,14 +227,14 @@ namespace DeusaldSharp
 
         private void Register()
         {
-            CoRoCtrl.OrderToCoRoutinesViaCoTag  += OrderToCoRoutinesViaCoTag;
-            CoRoCtrl.OrderToCoRoutinesViaCoMask += OrderToCoRoutinesViaCoMask;
+            _CoRoCtrl.OrderToCoRoutinesViaCoTag  += OrderToCoRoutinesViaCoTag;
+            _CoRoCtrl.OrderToCoRoutinesViaCoMask += OrderToCoRoutinesViaCoMask;
         }
 
         private void OrderToCoRoutinesViaCoTag(CoRoCtrl.CallbackOrder order, CoTag coTag)
         {
             if (coTag != CoTag) return;
-            
+
             switch (order)
             {
                 case CoRoCtrl.CallbackOrder.Kill:

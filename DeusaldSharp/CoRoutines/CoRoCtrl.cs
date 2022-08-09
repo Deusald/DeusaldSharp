@@ -27,7 +27,7 @@ using System.Collections.Generic;
 namespace DeusaldSharp
 {
     /// <summary> Controller for all CoRoutines actions and logic. </summary>
-    public static class CoRoCtrl
+    public class CoRoCtrl
     {
         #region Types
 
@@ -58,104 +58,49 @@ namespace DeusaldSharp
 
         #region Variables
 
-        internal static event CoTagCallback  OrderToCoRoutinesViaCoTag;
-        internal static event CoMaskCallback OrderToCoRoutinesViaCoMask;
+        internal event CoTagCallback  OrderToCoRoutinesViaCoTag;
+        internal event CoMaskCallback OrderToCoRoutinesViaCoMask;
 
-        private static CoSegment                 _CurrentEngineTickSegment = CoSegment.Normal;
-        private static uint                      _NextCoId = 1;
-        private static float                     _DeltaTime;
-        private static LinkedListNode<CoRoutine> _CurrentExecutedCoRoutine;
+        private uint                      _NextCoId = 1;
+        private float                     _DeltaTime;
+        private LinkedListNode<CoRoutine> _CurrentExecutedCoRoutine;
 
-        private static readonly LinkedList<CoRoutine> _NormalCoRoutines  = new LinkedList<CoRoutine>();
-        private static readonly LinkedList<CoRoutine> _PhysicsCoRoutines = new LinkedList<CoRoutine>();
-        private static readonly LinkedList<CoRoutine> _UnscaledNormalCoRoutines = new LinkedList<CoRoutine>();
+        private readonly LinkedList<CoRoutine> _CoRoutines = new LinkedList<CoRoutine>();
 
         #endregion Variables
 
         #region Properties
 
-        private static uint GetNextCoId => _NextCoId++;
+        private uint GetNextCoId => _NextCoId++;
 
         #endregion Properties
 
         #region Public Methods
-
-        /// <summary> This method needs to be called before every engine tick segment.
-        /// For example before Normal engine tick this method should be called, then engine
-        /// Normal tick, then Update method from this class. </summary>
-        public static void SetNextCoState(CoSegment nextSegment, float deltaTime)
+        
+        /// <summary> Execute all CoRoutines.
+        /// WARNING: You should always execute engine tick first and at the end call this method. </summary>
+        public void Update(float deltaTime)
         {
-            _DeltaTime                = deltaTime;
-            _CurrentEngineTickSegment = nextSegment;
-        }
-
-        /// <summary> Execute all CoRoutines in Normal CoSegment.
-        /// WARNING: You should always execute Normal engine tick first and at the end call this method. </summary>
-        public static void Update()
-        {
-            if (_CurrentEngineTickSegment != CoSegment.Normal)
-            {
-                throw new Exception("Current engine tick segment was not properly set before calling this method.");
-            }
-
-            MoveCoRoutines(_NormalCoRoutines.First, _DeltaTime);
-        }
-
-        /// <summary> Execute all CoRoutines in Unscaled Normal CoSegment.
-        /// WARNING: You should always execute Unscaled Normal engine tick first and at the end call this method. </summary>
-        public static void UpdateUnscaled(float unscaledDeltaTime)
-        {
-            if (_CurrentEngineTickSegment != CoSegment.UnscaledNormal)
-            {
-                throw new Exception("Current engine tick segment was not properly set before calling this method.");
-            }
-
-            MoveCoRoutines(_UnscaledNormalCoRoutines.First, unscaledDeltaTime);
-        }
-
-        /// <summary> Execute all CoRoutines in Physics CoSegment.
-        /// WARNING: You should always execute Physics engine tick first and at the end call this method. </summary>
-        public static void PhysicsUpdate(float fixedDeltaTime)
-        {
-            if (_CurrentEngineTickSegment != CoSegment.Physics)
-            {
-                throw new Exception("Current engine tick segment was not properly set before calling this method.");
-            }
-
-            MoveCoRoutines(_PhysicsCoRoutines.First, fixedDeltaTime);
+            _DeltaTime = deltaTime;
+            MoveCoRoutines(_CoRoutines.First, deltaTime);
         }
 
         /// <summary> Kill all CoRoutines form all segments and clear RoRoutineController for fresh start. </summary>
-        public static void Reset()
+        public void Reset()
         {
-            _CurrentEngineTickSegment = CoSegment.Normal;
             _CurrentExecutedCoRoutine = null;
 
-            for (LinkedListNode<CoRoutine> node = _NormalCoRoutines.First; node != null;)
+            for (LinkedListNode<CoRoutine> node = _CoRoutines.First; node != null;)
             {
                 node.Value.UnRegister();
                 node = node.Next;
             }
 
-            for (LinkedListNode<CoRoutine> node = _UnscaledNormalCoRoutines.First; node != null;)
-            {
-                node.Value.UnRegister();
-                node = node.Next;
-            }
-
-            for (LinkedListNode<CoRoutine> node = _PhysicsCoRoutines.First; node != null;)
-            {
-                node.Value.UnRegister();
-                node = node.Next;
-            }
-
-            _NormalCoRoutines.Clear();
-            _UnscaledNormalCoRoutines.Clear();
-            _PhysicsCoRoutines.Clear();
+            _CoRoutines.Clear();
         }
 
         /// <summary> This method returns current executed CoHandle. This method must be called inside CoRoutine body. </summary>
-        public static ICoHandle GetCurrentCoHandle()
+        public ICoHandle GetCurrentCoHandle()
         {
             if (_CurrentExecutedCoRoutine == null)
             {
@@ -166,91 +111,88 @@ namespace DeusaldSharp
         }
 
         /// <summary> Kill all CoRoutines with given CoTag. </summary>
-        public static void KillCoRoutines(CoTag coTag)
+        public void KillCoRoutines(CoTag coTag)
         {
             OrderToCoRoutinesViaCoTag?.Invoke(CallbackOrder.Kill, coTag);
         }
 
         /// <summary> Kill all CoRoutines with given CoMask. </summary>
-        public static void KillCoRoutines(uint coMask, MaskType maskType)
+        public void KillCoRoutines(uint coMask, MaskType maskType)
         {
             OrderToCoRoutinesViaCoMask?.Invoke(CallbackOrder.Kill, coMask, maskType);
         }
 
         /// <summary> Pause all CoRoutines with given CoTag. </summary>
-        public static void PauseCoRoutines(CoTag coTag)
+        public void PauseCoRoutines(CoTag coTag)
         {
             OrderToCoRoutinesViaCoTag?.Invoke(CallbackOrder.Pause, coTag);
         }
 
         /// <summary> Pause all CoRoutines with given CoMask. </summary>
-        public static void PauseCoRoutines(uint coMask, MaskType maskType)
+        public void PauseCoRoutines(uint coMask, MaskType maskType)
         {
             OrderToCoRoutinesViaCoMask?.Invoke(CallbackOrder.Pause, coMask, maskType);
         }
 
         /// <summary> Unpause all CoRoutines with given CoTag. </summary>
-        public static void UnpauseCoRoutines(CoTag coTag)
+        public void UnpauseCoRoutines(CoTag coTag)
         {
             OrderToCoRoutinesViaCoTag?.Invoke(CallbackOrder.Unpause, coTag);
         }
 
         /// <summary> Unpause all CoRoutines with given CoMask. </summary>
-        public static void UnpauseCoRoutines(uint coMask, MaskType maskType)
+        public void UnpauseCoRoutines(uint coMask, MaskType maskType)
         {
             OrderToCoRoutinesViaCoMask?.Invoke(CallbackOrder.Unpause, coMask, maskType);
         }
 
         #region CoRoutine Yield Api
 
-        /// <summary> Creates new CoRoutine and perform first execution if the CoSegment is the same as current one.  </summary>
-        public static ICoHandle RunCoRoutine(IEnumerator<ICoData> newCoRoutine, CoSegment coSegment = CoSegment.Normal, CoTag coTag = default, uint coMask = 0)
+        /// <summary> Creates new CoRoutine and perform first execution.  </summary>
+        public ICoHandle RunCoRoutine(IEnumerator<ICoData> newCoRoutine, CoTag coTag = default, uint coMask = 0)
         {
-            CoRoutine coRoutine = new CoRoutine(newCoRoutine, GetNextCoId, coSegment, coTag, coMask);
+            CoRoutine coRoutine = new CoRoutine(newCoRoutine, GetNextCoId, coTag, coMask, this);
             AddNewCoRoutine(coRoutine);
 
-            if (_CurrentEngineTickSegment == coSegment || (_CurrentExecutedCoRoutine != null && _CurrentExecutedCoRoutine.Value.CoSegment == coSegment))
-            {
-                coRoutine.MoveCoRoutine(_DeltaTime);
-                coRoutine.InnerCreatedAndMoved = true;
-            }
+            coRoutine.MoveCoRoutine(_DeltaTime);
+            coRoutine.InnerCreatedAndMoved = true;
 
             return coRoutine;
         }
 
         /// <summary> Yield return this to make CoRoutine wait one segment tick. </summary>
-        public static ICoData WaitForOneTick()
+        public ICoData WaitForOneTick()
         {
             return new CoDataWaitForTick();
         }
 
         /// <summary> Yield return this to make CoRoutine wait given number of seconds. </summary>
-        public static ICoData WaitForSeconds(float seconds)
+        public ICoData WaitForSeconds(float seconds)
         {
             return new CoDataWaitForSeconds(seconds);
         }
 
         /// <summary> Yield return this to make CoRoutine wait until the other CoRoutine is alive. </summary>
-        public static ICoData WaitUntilDone(IEnumerator<ICoData> newCoRoutine, CoSegment coSegment = CoSegment.Normal, CoTag coTag = default, uint coMask = 0)
+        public ICoData WaitUntilDone(IEnumerator<ICoData> newCoRoutine, CoTag coTag = default, uint coMask = 0)
         {
-            ICoHandle coRoutine = RunCoRoutine(newCoRoutine, coSegment, coTag, coMask);
+            ICoHandle coRoutine = RunCoRoutine(newCoRoutine, coTag, coMask);
             return new CoDataWaitUntilDone(coRoutine);
         }
 
         /// <summary> Yield return this to make CoRoutine wait until the other CoRoutine is alive. </summary>
-        public static ICoData WaitUntilDone(ICoHandle coRoutine)
+        public ICoData WaitUntilDone(ICoHandle coRoutine)
         {
             return new CoDataWaitUntilDone(coRoutine);
         }
 
         /// <summary> Yield return this to make CoRoutine wait until the condition will be true. </summary>
-        public static ICoData WaitUntilTrue(WaitUntilCondition condition)
+        public ICoData WaitUntilTrue(WaitUntilCondition condition)
         {
             return new CoDataWaitUntilCondition(true, condition);
         }
 
         /// <summary> Yield return this to make CoRoutine wait until the condition will be false. </summary>
-        public static ICoData WaitUntilFalse(WaitUntilCondition condition)
+        public ICoData WaitUntilFalse(WaitUntilCondition condition)
         {
             return new CoDataWaitUntilCondition(false, condition);
         }
@@ -261,7 +203,7 @@ namespace DeusaldSharp
 
         #region Private Methods
 
-        private static void MoveCoRoutines(LinkedListNode<CoRoutine> first, float deltaTime)
+        private void MoveCoRoutines(LinkedListNode<CoRoutine> first, float deltaTime)
         {
             for (LinkedListNode<CoRoutine> node = first; node != null;)
             {
@@ -286,34 +228,15 @@ namespace DeusaldSharp
             _CurrentExecutedCoRoutine = null;
         }
 
-        private static void AddNewCoRoutine(CoRoutine coRoutine)
+        private void AddNewCoRoutine(CoRoutine coRoutine)
         {
-            if (_CurrentExecutedCoRoutine != null && _CurrentExecutedCoRoutine.Value.CoSegment == coRoutine.CoSegment)
+            if (_CurrentExecutedCoRoutine != null)
             {
                 _CurrentExecutedCoRoutine.List!.AddAfter(_CurrentExecutedCoRoutine, coRoutine);
             }
             else
             {
-                switch (coRoutine.CoSegment)
-                {
-                    case CoSegment.Normal:
-                    {
-                        _NormalCoRoutines.AddLast(coRoutine);
-                        break;
-                    }
-
-                    case CoSegment.UnscaledNormal:
-                    {
-                        _UnscaledNormalCoRoutines.AddLast(coRoutine);
-                        break;
-                    }
-
-                    case CoSegment.Physics:
-                    {
-                        _PhysicsCoRoutines.AddLast(coRoutine);
-                        break;
-                    }
-                }
+                _CoRoutines.AddLast(coRoutine);
             }
         }
 

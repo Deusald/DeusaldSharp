@@ -26,9 +26,6 @@ namespace DeusaldSharp
     /// <summary> Interface for getting information about RoCoroutine and interacting with it. </summary>
     public interface ICoHandle
     {
-        /// <summary> CoSegment of this CoRoutine. </summary>
-        CoSegment CoSegment { get; }
-
         /// <summary> Assigned CoTag for this CoRoutine. </summary>
         CoTag CoTag { get; }
         
