@@ -41,26 +41,20 @@ namespace DeusaldSharpTests
         {
             // Arrange
             ulong  lastFrameNumber = 0;
-            double lastDeltaTime   = 0;
 
-            ServerClock serverClock = new ServerClock(60, 60 * 5);
-            serverClock.Tick += (frameNumber, deltaTime) =>
+            ServerClock serverClock = new ServerClock(50);
+            serverClock.Tick += (frameNumber) =>
             {
                 lastFrameNumber = frameNumber;
-                lastDeltaTime   = deltaTime;
                 Thread.Sleep(5);
             };
-            serverClock.Log  += Console.WriteLine;
+            serverClock.TooLongFrame += () => Console.WriteLine("Too long frame");
 
             // Act
-            await Task.Delay(12 * MathUtils.SEC_TO_MILLISECONDS);
+            await Task.Delay(5 * MathUtils.SEC_TO_MILLISECONDS);
 
-            // Assert
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(750, lastFrameNumber);
-                Assert.IsTrue(lastDeltaTime - 1d / 60d < double.Epsilon);
-            });
+            // Assert (50 frames per second * 5 seconds - 2 frames for warmup start)
+            Assert.AreEqual(50*5-2, lastFrameNumber);
         }
     }
 }

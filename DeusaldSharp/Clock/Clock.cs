@@ -22,8 +22,8 @@
 // SOFTWARE.
 
 using System;
-using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DeusaldSharp
 {
@@ -32,7 +32,7 @@ namespace DeusaldSharp
     {
         #region Public Types
 
-        public delegate void TickDelegate(ulong frameNumber, double deltaTime);
+        public delegate void TickDelegate(ulong frameNumber);
 
         #endregion Public Types
 
@@ -48,25 +48,25 @@ namespace DeusaldSharp
         /// <summary> This event will be executed with every tick. </summary>
         public event TickDelegate Tick;
 
-        /// <summary> Used to log information about Clock. </summary>
-        public event Action<string> Log;
-
-        private readonly AutoResetEvent _AutoResetEvent;
-        private readonly long           _DeltaTimeInMs;
-        private readonly ushort         _LogEveryXFrame;
+        /// <summary> This event will be executed if one frame will take more time we can give. </summary>
+        public event Action TooLongFrame;
 
         #endregion Variables
 
         #region Special Methods
 
-        public ServerClock(ushort ticksPerSecond, ushort logEveryXFrame)
+        public ServerClock(ushort ticksPerSecond)
         {
-            IsAlive         = true;
-            _LogEveryXFrame = logEveryXFrame;
-            _AutoResetEvent = new AutoResetEvent(true);
-            _DeltaTimeInMs  = (long)(1.0m / ticksPerSecond * MathUtils.SEC_TO_MILLISECONDS);
+            IsAlive        = true;
 
-            Thread clockThread = new Thread(ClockLoop)
+            if (MathUtils.SEC_TO_MILLISECONDS % ticksPerSecond != 0)
+            {
+                throw new Exception("Number of ticks per second must be factor of 1000.");
+            }
+
+            double millisecondsForFrame = MathUtils.SEC_TO_MILLISECONDS / (double)ticksPerSecond;
+
+            Thread clockThread = new Thread(PrecisionClock(TimeSpan.FromMilliseconds(millisecondsForFrame)).Wait)
             {
                 IsBackground = true,
                 Priority     = ThreadPriority.AboveNormal
@@ -88,54 +88,51 @@ namespace DeusaldSharp
 
         #region Private Methods
 
-        private void ClockLoop()
+        private async Task PrecisionClock(TimeSpan interval)
         {
-            ulong  frameNumber                   = 0;
-            long   nextTick                      = _DeltaTimeInMs;
-            long   frameStart                    = 0;
-            double sumTickLength                 = 0;
-            ulong  framesSinceLastLog            = 0;
-            long   longestTickLenghtSinceLastLog = 0;
-            ulong  longestTickFrameNumber        = 0;
+            ulong frame       = 0;
+            long  stage1Delay = 20;
+            long  stage2Delay = 5 * TimeSpan.TicksPerMillisecond;
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            stopwatch.Start();
+            DateTime target = DateTime.Now + new TimeSpan(0, 0, 0, 0, (int)stage1Delay + 2);
+            bool     warmup = true;
 
             while (IsAlive)
             {
-                long previousFrameStart = frameStart;
-                frameStart = stopwatch.ElapsedMilliseconds;
-                Tick?.Invoke(frameNumber, (frameStart - previousFrameStart) * MathUtils.MILLISECONDS_TO_SECONDS);
-                long frameEnd = stopwatch.ElapsedMilliseconds;
-
-                long frameLenght = frameEnd - frameStart;
-                sumTickLength += frameLenght;
-
-                if (frameLenght > longestTickLenghtSinceLastLog)
+                // Getting closer to 'target' - Lets do the less precise but least cpu intensive wait
+                TimeSpan timeLeft = target - DateTime.Now;
+                
+                if (timeLeft.TotalMilliseconds >= stage1Delay)
                 {
-                    longestTickLenghtSinceLastLog = frameLenght;
-                    longestTickFrameNumber        = frameNumber;
+                    await Task.Delay((int)(timeLeft.TotalMilliseconds - stage1Delay));
                 }
 
-                ++frameNumber;
-                ++framesSinceLastLog;
-
-                if (framesSinceLastLog == _LogEveryXFrame)
+                // Getting closer to 'target' - Lets do the semi-precise but mild cpu intensive wait - Task.Yield()
+                while (DateTime.Now < target - new TimeSpan(stage2Delay))
                 {
-                    Log?.Invoke(
-                        $"Frame {frameNumber}. Average frame length since last log {(sumTickLength / framesSinceLastLog):0.000} ms. Longest tick length {longestTickLenghtSinceLastLog} ms in frame {longestTickFrameNumber}.");
-                    sumTickLength                 = 0;
-                    framesSinceLastLog            = 0;
-                    longestTickLenghtSinceLastLog = 0;
-                    longestTickFrameNumber        = 0;
+                    await Task.Yield();
                 }
 
-                if (stopwatch.ElapsedMilliseconds < nextTick)
+                // Extremely close to 'target' - Lets do the most precise but very cpu/battery intensive 
+                while (DateTime.Now < target)
                 {
-                    _AutoResetEvent.WaitOne((int)(nextTick - stopwatch.ElapsedMilliseconds));
+                    Thread.SpinWait(64);
                 }
 
-                nextTick += _DeltaTimeInMs;
+                if (!warmup)
+                {
+                    Tick?.Invoke(frame++);
+                    target += interval;
+                    
+                    if (DateTime.Now >= target) TooLongFrame?.Invoke();
+                }
+                else
+                {
+                    long start1   = DateTime.Now.Ticks + (long)interval.TotalMilliseconds * TimeSpan.TicksPerMillisecond;
+                    long alignVal = start1 - start1 % ((long)interval.TotalMilliseconds * TimeSpan.TicksPerMillisecond);
+                    target = new DateTime(alignVal);
+                    warmup = false;
+                }
             }
         }
 
