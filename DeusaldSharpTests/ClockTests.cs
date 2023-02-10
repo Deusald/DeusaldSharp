@@ -36,13 +36,13 @@ namespace DeusaldSharpTests
     {
         /// <summary> Testing standard coRoutine flow and waitForOneTick state. </summary>
         [Test]
-        [TestOf(nameof(ServerClock))]
+        [TestOf(nameof(PrecisionClock))]
         public async Task XWTMN()
         {
             // Arrange
             ulong  lastFrameNumber = 0;
 
-            ServerClock serverClock = new ServerClock(50);
+            PrecisionClock serverClock = new PrecisionClock(50);
             serverClock.Tick += (frameNumber) =>
             {
                 lastFrameNumber = frameNumber;

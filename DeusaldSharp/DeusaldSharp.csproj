@@ -4,7 +4,7 @@
         <LangVersion>8</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>DeusaldSharp</PackageId>
-        <PackageVersion>5.3.0</PackageVersion>
+        <PackageVersion>6.0.0</PackageVersion>
         <Title>DeusaldSharp</Title>
         <Authors>Adam "Deusald" Orliński</Authors>
         <Description>C# utils that are often useful in game development.</Description>
@@ -15,7 +15,7 @@
         <RepositoryType>Git</RepositoryType>
         <PackageTags>C# Tools Utils</PackageTags>
         <TargetFrameworks>net48;net6.0;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
-        <AssemblyVersion>5.3.0</AssemblyVersion>
+        <AssemblyVersion>6.0.0</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>

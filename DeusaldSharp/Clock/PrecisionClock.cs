@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 namespace DeusaldSharp
 {
     /// <summary> Clock for multiplayer game servers. </summary>
-    public class ServerClock
+    public class PrecisionClock
     {
         #region Public Types
 
@@ -55,9 +55,9 @@ namespace DeusaldSharp
 
         #region Special Methods
 
-        public ServerClock(ushort ticksPerSecond)
+        public PrecisionClock(ushort ticksPerSecond)
         {
-            IsAlive        = true;
+            IsAlive = true;
 
             if (MathUtils.SEC_TO_MILLISECONDS % ticksPerSecond != 0)
             {
@@ -66,7 +66,7 @@ namespace DeusaldSharp
 
             double millisecondsForFrame = MathUtils.SEC_TO_MILLISECONDS / (double)ticksPerSecond;
 
-            Thread clockThread = new Thread(PrecisionClock(TimeSpan.FromMilliseconds(millisecondsForFrame)).Wait)
+            Thread clockThread = new Thread(ClockStep(TimeSpan.FromMilliseconds(millisecondsForFrame)).Wait)
             {
                 IsBackground = true,
                 Priority     = ThreadPriority.AboveNormal
@@ -88,7 +88,7 @@ namespace DeusaldSharp
 
         #region Private Methods
 
-        private async Task PrecisionClock(TimeSpan interval)
+        private async Task ClockStep(TimeSpan interval)
         {
             ulong frame       = 0;
             long  stage1Delay = 20;
@@ -101,7 +101,7 @@ namespace DeusaldSharp
             {
                 // Getting closer to 'target' - Lets do the less precise but least cpu intensive wait
                 TimeSpan timeLeft = target - DateTime.Now;
-                
+
                 if (timeLeft.TotalMilliseconds >= stage1Delay)
                 {
                     await Task.Delay((int)(timeLeft.TotalMilliseconds - stage1Delay));
@@ -123,7 +123,7 @@ namespace DeusaldSharp
                 {
                     Tick?.Invoke(frame++);
                     target += interval;
-                    
+
                     if (DateTime.Now >= target) TooLongFrame?.Invoke();
                 }
                 else
