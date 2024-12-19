@@ -27,7 +27,7 @@ namespace DeusaldSharp
     using System.Collections;
     using System.Collections.Generic;
 
-    public struct TypeVector3<T> : IEnumerable<T>
+    public struct TVector3<T> : IEnumerable<T>
     {
         #region Variables
 

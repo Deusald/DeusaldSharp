@@ -30,7 +30,7 @@ namespace DeusaldSharp
     using System.Collections.Generic;
 
     /// <summary> A two-element array in the form of a vector.  </summary>
-    public struct TypeVector2<T> : IEnumerable<T>
+    public struct TVector2<T> : IEnumerable<T>
     {
         #region Variables
 

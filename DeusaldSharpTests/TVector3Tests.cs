@@ -30,15 +30,15 @@ using NUnit.Framework;
 
 namespace DeusaldSharpTests
 {
-    public class TypeVector2Tests
+    public class TVector3Tests
     {
         /// <summary> Testing enumerator. </summary>
         [Test]
-        [TestOf(nameof(TypeVector2<int>))]
+        [TestOf(nameof(TVector3<int>))]
         public void SCMWP()
         {
             // Arrange
-            TypeVector2<int> one = new TypeVector2<int> {x = 10, y = 15};
+            TVector3<int> one = new TVector3<int> {x = 10, y = 15, z = 20};
 
             // Act
             using IEnumerator<int> enumerator = one.GetEnumerator();
@@ -47,9 +47,11 @@ namespace DeusaldSharpTests
             Assert.Multiple(() =>
             {
                 enumerator.MoveNext();
-                Assert.AreEqual(10,  enumerator.Current);
+                Assert.AreEqual(10, enumerator.Current);
                 enumerator.MoveNext();
-                Assert.AreEqual(15,  enumerator.Current);
+                Assert.AreEqual(15, enumerator.Current);
+                enumerator.MoveNext();
+                Assert.AreEqual(20, enumerator.Current);
             });
         }
         
@@ -59,20 +61,23 @@ namespace DeusaldSharpTests
         public void HPRSH()
         {
             // Arrange
-            TypeVector2<int> two = new TypeVector2<int> {x = 7, y  = 8};
-            TypeVector2<int> one = new TypeVector2<int> {x = 1, y = 1};
+            TVector3<int> two = new TVector3<int> {x = 7, y = 8, z = 4};
+            TVector3<int> one = new TVector3<int> {x = 1, y = 1, z = 1};
 
             // Act
             two[0] = 10;
             two[1] = 11;
+            two[2] = 12;
 
             // Assert
             Assert.Multiple(() =>
             {
                 Assert.AreEqual(1,  one[0]);
                 Assert.AreEqual(1,  one[1]);
+                Assert.AreEqual(1,  one[2]);
                 Assert.AreEqual(10, two[0]);
                 Assert.AreEqual(11, two[1]);
+                Assert.AreEqual(12, two[2]);
             });
         }
     }

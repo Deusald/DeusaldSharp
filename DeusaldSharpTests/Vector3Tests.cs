@@ -70,11 +70,11 @@ namespace DeusaldSharpTests
             Vector3 five  = new Vector3(0f,  0f,   0f);
 
             // Act
-            float oneMagnitude   = MathUtils.RoundToDecimal(one.Magnitude,   4);
-            float twoMagnitude   = MathUtils.RoundToDecimal(two.Magnitude,   4);
-            float threeMagnitude = MathUtils.RoundToDecimal(three.Magnitude, 4);
-            float fourMagnitude  = MathUtils.RoundToDecimal(four.Magnitude,  4);
-            float fiveMagnitude  = MathUtils.RoundToDecimal(five.Magnitude,  4);
+            float oneMagnitude   = one.Magnitude.RoundToDecimal(4);
+            float twoMagnitude   = two.Magnitude.RoundToDecimal(4);
+            float threeMagnitude = three.Magnitude.RoundToDecimal(4);
+            float fourMagnitude  = four.Magnitude.RoundToDecimal(4);
+            float fiveMagnitude  = five.Magnitude.RoundToDecimal(4);
 
             // Assert
             Assert.Multiple(() =>
@@ -100,11 +100,11 @@ namespace DeusaldSharpTests
             Vector3 five  = new Vector3(0f,  0f,   0f);
 
             // Act
-            float oneSqrMagnitude   = MathUtils.RoundToDecimal(one.SqrMagnitude,   4);
-            float twoSqrMagnitude   = MathUtils.RoundToDecimal(two.SqrMagnitude,   4);
-            float threeSqrMagnitude = MathUtils.RoundToDecimal(three.SqrMagnitude, 4);
-            float fourSqrMagnitude  = MathUtils.RoundToDecimal(four.SqrMagnitude,  4);
-            float fiveSqrMagnitude  = MathUtils.RoundToDecimal(five.SqrMagnitude,  4);
+            float oneSqrMagnitude   = one.SqrMagnitude.RoundToDecimal(4);
+            float twoSqrMagnitude   = two.SqrMagnitude.RoundToDecimal(4);
+            float threeSqrMagnitude = three.SqrMagnitude.RoundToDecimal(4);
+            float fourSqrMagnitude  = four.SqrMagnitude.RoundToDecimal(4);
+            float fiveSqrMagnitude  = five.SqrMagnitude.RoundToDecimal(4);
 
             // Assert
             Assert.Multiple(() =>
@@ -547,11 +547,11 @@ namespace DeusaldSharpTests
             Vector3 five  = new Vector3(0f,  0f,   0f);
 
             // Act
-            float oneLength   = MathUtils.RoundToDecimal(one.Length(),   4);
-            float twoLength   = MathUtils.RoundToDecimal(two.Length(),   4);
-            float threeLength = MathUtils.RoundToDecimal(three.Length(), 4);
-            float fourLength  = MathUtils.RoundToDecimal(four.Length(),  4);
-            float fiveLength  = MathUtils.RoundToDecimal(five.Length(),  4);
+            float oneLength   = one.Length().RoundToDecimal(4);
+            float twoLength   = two.Length().RoundToDecimal(4);
+            float threeLength = three.Length().RoundToDecimal(4);
+            float fourLength  = four.Length().RoundToDecimal(4);
+            float fiveLength  = five.Length().RoundToDecimal(4);
 
             // Assert
             Assert.Multiple(() =>
@@ -577,11 +577,11 @@ namespace DeusaldSharpTests
             Vector3 five  = new Vector3(0f,  0f,   0f);
 
             // Act
-            float oneLengthSquared   = MathUtils.RoundToDecimal(one.LengthSquared(),   4);
-            float twoLengthSquared   = MathUtils.RoundToDecimal(two.LengthSquared(),   4);
-            float threeLengthSquared = MathUtils.RoundToDecimal(three.LengthSquared(), 4);
-            float fourLengthSquared  = MathUtils.RoundToDecimal(four.LengthSquared(),  4);
-            float fiveLengthSquared  = MathUtils.RoundToDecimal(five.LengthSquared(),  4);
+            float oneLengthSquared   = one.LengthSquared().RoundToDecimal(4);
+            float twoLengthSquared   = two.LengthSquared().RoundToDecimal(4);
+            float threeLengthSquared = three.LengthSquared().RoundToDecimal(4);
+            float fourLengthSquared  = four.LengthSquared().RoundToDecimal(4);
+            float fiveLengthSquared  = five.LengthSquared().RoundToDecimal(4);
 
             // Assert
             Assert.Multiple(() =>
