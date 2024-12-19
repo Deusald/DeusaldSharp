@@ -12,8 +12,7 @@ You can add this library to Unity project in 2 ways:
 
 1. In package manager add library as git repository using format:
    `https://github.com/Deusald/DeusaldSharp.git?path=/UnityPackage.NetStandard2.1#vX.X.X`
-2. Add package using Scoped Register:
-    1. TODO
+2. Add package using Scoped Register: https://openupm.com/packages/com.deusald.deusaldsharp/
 
 ## Features
 
