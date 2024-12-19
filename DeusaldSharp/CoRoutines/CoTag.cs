@@ -21,12 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace DeusaldSharp
 {
     /// <summary> CoTag is a tag to mark group of logically connected CoRoutines.
     /// The CoTag can be later used to pause or kill all CoRoutines marked with specific tag.
     /// WARNING: CoTag 0 is reserved for default CoTag. </summary>
-    public readonly struct CoTag
+    public readonly struct CoTag : IEquatable<CoTag>
     {
         private readonly uint _Tag;
 
@@ -38,6 +40,31 @@ namespace DeusaldSharp
         public static implicit operator uint(CoTag i)
         {
             return i._Tag;
+        }
+
+        public bool Equals(CoTag other)
+        {
+            return _Tag == other._Tag;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is CoTag other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)_Tag;
+        }
+
+        public static bool operator ==(CoTag left, CoTag right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(CoTag left, CoTag right)
+        {
+            return !left.Equals(right);
         }
     }
 }

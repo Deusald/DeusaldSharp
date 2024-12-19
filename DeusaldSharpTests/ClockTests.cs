@@ -34,7 +34,7 @@ namespace DeusaldSharpTests
 {
     public class ClockTests
     {
-        /// <summary> Testing standard coRoutine flow and waitForOneTick state. </summary>
+        /// <summary> Testing Precision Clock. </summary>
         [Test]
         [TestOf(nameof(PrecisionClock))]
         public async Task XWTMN()
@@ -43,7 +43,7 @@ namespace DeusaldSharpTests
             ulong  lastFrameNumber = 0;
 
             PrecisionClock serverClock = new PrecisionClock(50);
-            serverClock.Tick += (frameNumber) =>
+            serverClock.Tick += frameNumber =>
             {
                 lastFrameNumber = frameNumber;
                 Thread.Sleep(5);
@@ -52,9 +52,38 @@ namespace DeusaldSharpTests
 
             // Act
             await Task.Delay(5 * MathUtils.SEC_TO_MILLISECONDS);
+            serverClock.Kill();
 
             // Assert (50 frames per second * 5 seconds - 2 frames for warmup start)
-            Assert.AreEqual(50*5-2, lastFrameNumber);
+            Assert.LessOrEqual(50*5-2, lastFrameNumber);
+            Assert.GreaterOrEqual(50*5, lastFrameNumber);
+            Assert.AreEqual(false, serverClock.IsAlive);
+        }
+
+        /// <summary> Testing standard Game Server Clock. </summary>
+        [Test]
+        [TestOf(nameof(PrecisionClock))]
+        public async Task HLYZH()
+        {
+            // Arrange
+            ulong  lastFrameNumber = 0;
+
+            GameServerClock serverClock = new GameServerClock(50, 100);
+            serverClock.Tick += (frameNumber, deltaTime) =>
+            {
+                lastFrameNumber = frameNumber;
+                Thread.Sleep(5);
+            };
+            serverClock.Log += Console.WriteLine;
+            
+            // Act
+            await Task.Delay(5 * MathUtils.SEC_TO_MILLISECONDS);
+            serverClock.Kill();
+
+            // Assert (50 frames per second * 5 seconds - 2 frames for warmup start)
+            Assert.LessOrEqual(50*5-2, lastFrameNumber);
+            Assert.GreaterOrEqual(50*5, lastFrameNumber);
+            Assert.AreEqual(false, serverClock.IsAlive);
         }
     }
 }

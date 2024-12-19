@@ -159,5 +159,32 @@ namespace DeusaldSharpTests
             CoRoCtrl.Update(0.33f);
             Assert.AreEqual(2, value);
         }
+        
+        /// <summary> Testing coTags and coHandles. </summary>
+        [Test]
+        [TestOf(nameof(CoRoCtrl))]
+        public void ZLSXF()
+        {
+            // Arrange
+            int value = 0;
+            
+            IEnumerator<ICoData> TestMethod()
+            {
+                value = 1;
+                yield return CoRoCtrl.WaitForOneTick();
+                value = 2;
+                yield return CoRoCtrl.WaitForOneTick();
+                value = 3;
+            }
+
+            // Act & Assert
+            Assert.AreEqual(0, value);
+            ICoHandle coHandle = CoRoCtrl.RunCoRoutine(TestMethod(), new CoTag(1));
+            Assert.AreEqual(1, value);
+            CoRoCtrl.Update(0.33f);
+            Assert.AreEqual(new CoTag(1), coHandle.CoTag);
+            coHandle.Kill();
+            Assert.AreEqual(false, coHandle.IsAlive);
+        }
     }
 }
