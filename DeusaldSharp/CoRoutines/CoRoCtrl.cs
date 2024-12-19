@@ -58,12 +58,12 @@ namespace DeusaldSharp
 
         #region Variables
 
-        internal event CoTagCallback  OrderToCoRoutinesViaCoTag;
-        internal event CoMaskCallback OrderToCoRoutinesViaCoMask;
+        internal event CoTagCallback?  OrderToCoRoutinesViaCoTag;
+        internal event CoMaskCallback? OrderToCoRoutinesViaCoMask;
 
-        private uint                      _NextCoId = 1;
-        private float                     _DeltaTime;
-        private LinkedListNode<CoRoutine> _CurrentExecutedCoRoutine;
+        private uint                       _NextCoId = 1;
+        private float                      _DeltaTime;
+        private LinkedListNode<CoRoutine>? _CurrentExecutedCoRoutine;
 
         private readonly LinkedList<CoRoutine> _CoRoutines = new LinkedList<CoRoutine>();
 
@@ -76,7 +76,7 @@ namespace DeusaldSharp
         #endregion Properties
 
         #region Public Methods
-        
+
         /// <summary> Execute all CoRoutines.
         /// WARNING: You should always execute engine tick first and at the end call this method. </summary>
         public void Update(float deltaTime)
@@ -90,7 +90,7 @@ namespace DeusaldSharp
         {
             _CurrentExecutedCoRoutine = null;
 
-            for (LinkedListNode<CoRoutine> node = _CoRoutines.First; node != null;)
+            for (LinkedListNode<CoRoutine>? node = _CoRoutines.First; node != null;)
             {
                 node.Value.UnRegister();
                 node = node.Next;
@@ -203,9 +203,9 @@ namespace DeusaldSharp
 
         #region Private Methods
 
-        private void MoveCoRoutines(LinkedListNode<CoRoutine> first, float deltaTime)
+        private void MoveCoRoutines(LinkedListNode<CoRoutine>? first, float deltaTime)
         {
-            for (LinkedListNode<CoRoutine> node = first; node != null;)
+            for (LinkedListNode<CoRoutine>? node = first; node != null;)
             {
                 _CurrentExecutedCoRoutine = node;
 
@@ -214,7 +214,7 @@ namespace DeusaldSharp
                     node.Value.MoveCoRoutine(deltaTime);
                 }
 
-                LinkedListNode<CoRoutine> next = node.Next;
+                LinkedListNode<CoRoutine>? next = node.Next;
                 node.Value.InnerCreatedAndMoved = false;
 
                 if (!node.Value.IsAlive)

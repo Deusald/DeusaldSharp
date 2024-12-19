@@ -588,49 +588,49 @@ namespace DeusaldSharp
         #region Has all bits on
 
         /// <summary> Checks if the value has set all flags from mask argument. </summary>
-        public static bool HasAllBitsOn(byte value, byte mask)
+        public static bool HasAllBitsOn(this byte value, byte mask)
         {
             return (value & mask) == mask;
         }
         
         /// <summary> Checks if the value has set all flags from mask argument. </summary>
-        public static bool HasAllBitsOn(sbyte value, sbyte mask)
+        public static bool HasAllBitsOn(this sbyte value, sbyte mask)
         {
             return (value & mask) == mask;
         }
         
         /// <summary> Checks if the value has set all flags from mask argument. </summary>
-        public static bool HasAllBitsOn(short value, short mask)
+        public static bool HasAllBitsOn(this short value, short mask)
         {
             return (value & mask) == mask;
         }
         
         /// <summary> Checks if the value has set all flags from mask argument. </summary>
-        public static bool HasAllBitsOn(ushort value, ushort mask)
+        public static bool HasAllBitsOn(this ushort value, ushort mask)
         {
             return (value & mask) == mask;
         }
         
         /// <summary> Checks if the value has set all flags from mask argument. </summary>
-        public static bool HasAllBitsOn(int value, int mask)
+        public static bool HasAllBitsOn(this int value, int mask)
         {
             return (value & mask) == mask;
         }
         
         /// <summary> Checks if the value has set all flags from mask argument. </summary>
-        public static bool HasAllBitsOn(uint value, uint mask)
+        public static bool HasAllBitsOn(this uint value, uint mask)
         {
             return (value & mask) == mask;
         }
         
         /// <summary> Checks if the value has set all flags from mask argument. </summary>
-        public static bool HasAllBitsOn(long value, long mask)
+        public static bool HasAllBitsOn(this long value, long mask)
         {
             return (value & mask) == mask;
         }
         
         /// <summary> Checks if the value has set all flags from mask argument. </summary>
-        public static bool HasAllBitsOn(ulong value, ulong mask)
+        public static bool HasAllBitsOn(this ulong value, ulong mask)
         {
             return (value & mask) == mask;
         }

@@ -26,8 +26,6 @@ VersionBumper.VersionBumper.PathToCsProjFile = "\\DeusaldSharp\\DeusaldSharp.csp
 VersionBumper.VersionBumper.PathToMainCsFile = "\\DeusaldSharp\\DeusaldSharp.cs";
 VersionBumper.VersionBumper.PathsToUnityPackageJsons = new[]
 {
-    "\\UnityPackage.Net48\\package.json",
-    "\\UnityPackage.NetStandard2.0\\package.json",
     "\\UnityPackage.NetStandard2.1\\package.json"
 };
 VersionBumper.VersionBumper.Run();

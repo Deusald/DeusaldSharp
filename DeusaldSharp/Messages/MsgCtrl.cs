@@ -35,8 +35,8 @@ namespace DeusaldSharp
 
         private class Binder
         {
-            public Type     MessageType { get; set; }
-            public Delegate Binding     { get; set; }
+            public Type     MessageType { get; set; } = null!;
+            public Delegate Binding     { get; set; } = null!;
             public int      Priority    { get; set; }
         }
 
@@ -87,7 +87,7 @@ namespace DeusaldSharp
             }
 
             Type messageType = parameters[0].ParameterType;
-            _BindersQueue.Enqueue((true, new Binder {MessageType = messageType, Binding = method, Priority = priority}));
+            _BindersQueue.Enqueue((true, new Binder { MessageType = messageType, Binding = method, Priority = priority }));
 
             if (_State != State.Idle) return;
             ExecuteBinderQueue();
@@ -97,7 +97,7 @@ namespace DeusaldSharp
         public static void Unbind<T>(Action<T> method) where T : class, new()
         {
             Type messageType = typeof(T);
-            _BindersQueue.Enqueue((false, new Binder {MessageType = messageType, Binding = method, Priority = 0}));
+            _BindersQueue.Enqueue((false, new Binder { MessageType = messageType, Binding = method, Priority = 0 }));
 
             if (_State != State.Idle) return;
             ExecuteBinderQueue();
@@ -127,7 +127,7 @@ namespace DeusaldSharp
                 if (!delegateType.IsClass) throw new InvalidOperationException("Trying to bind method with parameter which is not a class.");
 
                 Delegate callback = Delegate.CreateDelegate(delegateType, classObjectToRegister, methodData.Info);
-                _BindersQueue.Enqueue((true, new Binder {MessageType = methodData.MessageType, Binding = callback, Priority = methodData.Priority}));
+                _BindersQueue.Enqueue((true, new Binder { MessageType = methodData.MessageType, Binding = callback, Priority = methodData.Priority }));
             }
 
             if (_State != State.Idle) return;
@@ -139,18 +139,16 @@ namespace DeusaldSharp
         {
             Type classType = classObjectToUnregister.GetType();
 
-            if (!_MethodCache.ContainsKey(classType))
+            if (!_MethodCache.TryGetValue(classType, out List<MethodData>? methodData))
             {
                 throw new InvalidOperationException("Trying to unregister not registered class.");
             }
-
-            List<MethodData> methodData = _MethodCache[classType];
 
             foreach (MethodData method in methodData)
             {
                 Type     delegateType = Expression.GetActionType(method.MessageType);
                 Delegate callback     = Delegate.CreateDelegate(delegateType, classObjectToUnregister, method.Info);
-                _BindersQueue.Enqueue((false, new Binder {MessageType = method.MessageType, Binding = callback, Priority = 0}));
+                _BindersQueue.Enqueue((false, new Binder { MessageType = method.MessageType, Binding = callback, Priority = 0 }));
             }
 
             if (_State != State.Idle) return;
@@ -207,31 +205,21 @@ namespace DeusaldSharp
             MethodInfo[] methods = classType.GetMethods(BindingFlags.Instance | BindingFlags.FlattenHierarchy |
                                                         BindingFlags.Public | BindingFlags.NonPublic);
 
-            for (int i = 0; i < methods.Length; ++i)
+            foreach (MethodInfo method in methods)
             {
-                var method = methods[i];
-
                 if (method.IsAbstract || method.IsConstructor)
                 {
                     continue;
                 }
 
-                var parameters = method.GetParameters();
-                if (parameters.Length != 1)
-                {
-                    continue;
-                }
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length != 1) continue;
 
                 var messageType = parameters[0].ParameterType;
 
-                var attributes = method.GetCustomAttributes(typeof(MessageSlotAttribute), true) as MessageSlotAttribute[];
+                if (!(method.GetCustomAttributes(typeof(MessageSlotAttribute), true) is MessageSlotAttribute[] { Length: 1 } attributes)) continue;
 
-                if (!(attributes is {Length: 1}))
-                {
-                    continue;
-                }
-
-                MethodData methodData = new MethodData {Info = method, MessageType = messageType, Priority = attributes[0].Priority};
+                MethodData methodData = new MethodData { Info = method, MessageType = messageType, Priority = attributes[0].Priority };
                 result.Add(methodData);
             }
 
@@ -277,19 +265,17 @@ namespace DeusaldSharp
 
                 if (add)
                 {
-                    if (_BoundDelegates.Contains(binder.Binding)) continue;
+                    if (!_BoundDelegates.Add(binder.Binding)) continue;
 
-                    _BoundDelegates.Add(binder.Binding);
+                    Binder newBinder = new Binder { MessageType = binder.MessageType, Binding = binder.Binding, Priority = binder.Priority };
 
-                    Binder newBinder = new Binder {MessageType = binder.MessageType, Binding = binder.Binding, Priority = binder.Priority};
-
-                    if (_Bindings.ContainsKey(binder.MessageType))
+                    if (_Bindings.TryGetValue(binder.MessageType, out List<Binder>? binding))
                     {
-                        _Bindings[binder.MessageType].Add(newBinder);
+                        binding.Add(newBinder);
                     }
                     else
                     {
-                        _Bindings[binder.MessageType] = new List<Binder> {newBinder};
+                        _Bindings[binder.MessageType] = new List<Binder> { newBinder };
                     }
                 }
                 else

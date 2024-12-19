@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>8</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>DeusaldSharp</PackageId>
         <PackageVersion>6.0.0</PackageVersion>
@@ -14,7 +13,9 @@
         <RepositoryUrl>https://github.com/Deusald/DeusaldSharp</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageTags>C# Tools Utils</PackageTags>
-        <TargetFrameworks>net48;net6.0;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
+        <LangVersion>9</LangVersion>
+        <Nullable>enable</Nullable>
+        <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
         <AssemblyVersion>6.0.0</AssemblyVersion>
     </PropertyGroup>
 

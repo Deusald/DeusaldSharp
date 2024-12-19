@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 // DeusaldSharp:
 // Copyright (c) 2020 Adam "Deusald" Orliński
@@ -21,50 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
+using System.Threading.Tasks;
 
 namespace DeusaldSharp
 {
-    /// <summary> CoTag is a tag to mark group of logically connected CoRoutines.
-    /// The CoTag can be later used to pause or kill all CoRoutines marked with specific tag.
-    /// WARNING: CoTag 0 is reserved for default CoTag. </summary>
-    public readonly struct CoTag : IEquatable<CoTag>
+    public static class TaskExtensions
     {
-        private readonly uint _Tag;
-
-        public CoTag(uint newTag)
+        public static async void Forget(this Task task)
         {
-            _Tag = newTag;
-        }
-
-        public static implicit operator uint(CoTag i)
-        {
-            return i._Tag;
-        }
-
-        public bool Equals(CoTag other)
-        {
-            return _Tag == other._Tag;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is CoTag other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)_Tag;
-        }
-
-        public static bool operator ==(CoTag left, CoTag right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(CoTag left, CoTag right)
-        {
-            return !left.Equals(right);
+            await task;
         }
     }
 }

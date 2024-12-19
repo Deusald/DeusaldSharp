@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 // DeusaldSharp:
 // Copyright (c) 2020 Adam "Deusald" Orliński
@@ -21,50 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
+// ReSharper disable InconsistentNaming
+// ReSharper disable IdentifierTypo
+// ReSharper disable UnusedMember.Local
 
-namespace DeusaldSharp
+using DeusaldSharp;
+using NUnit.Framework;
+
+namespace DeusaldSharpTests
 {
-    /// <summary> CoTag is a tag to mark group of logically connected CoRoutines.
-    /// The CoTag can be later used to pause or kill all CoRoutines marked with specific tag.
-    /// WARNING: CoTag 0 is reserved for default CoTag. </summary>
-    public readonly struct CoTag : IEquatable<CoTag>
+    public class HelpersTests
     {
-        private readonly uint _Tag;
-
-        public CoTag(uint newTag)
+        private enum TestEnum
         {
-            _Tag = newTag;
+            A = 0,
+            B = 1
         }
 
-        public static implicit operator uint(CoTag i)
+        /// <summary> Providing data and expecting mathematically correct result. </summary>
+        [Test]
+        [TestOf(nameof(Helpers))]
+        public void EAFTF()
         {
-            return i._Tag;
-        }
+            // Arrange
+            string[] args = { "10", "B" };
 
-        public bool Equals(CoTag other)
-        {
-            return _Tag == other._Tag;
-        }
+            // Act
+            int      ten = args.TakeSimpleType(0, 0);
+            TestEnum b   = args.TakeEnum(1, TestEnum.A);
 
-        public override bool Equals(object? obj)
-        {
-            return obj is CoTag other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)_Tag;
-        }
-
-        public static bool operator ==(CoTag left, CoTag right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(CoTag left, CoTag right)
-        {
-            return !left.Equals(right);
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(10,         ten);
+                Assert.AreEqual(TestEnum.B, b);
+            });
         }
     }
 }

@@ -43,10 +43,10 @@ namespace DeusaldSharp
 
         #region Variables
 
-        private CoRoCtrl.WaitUntilCondition _Condition;
-        private ICoHandle                   _WaitUntilDone;
-        private float                       _SecondsToWait;
-        private CoState                     _CoState;
+        private CoRoCtrl.WaitUntilCondition? _Condition;
+        private ICoHandle?                   _WaitUntilDone;
+        private float?                       _SecondsToWait;
+        private CoState?                     _CoState;
 
         private readonly uint                 _CoId;
         private readonly IEnumerator<ICoData> _Enumerator;
@@ -57,11 +57,11 @@ namespace DeusaldSharp
         #region Properties
 
         public bool IsAlive => _CoState != CoState.End;
-        
-        public CoTag     CoTag                { get; }
-        public uint      CoMask               { get; }
-        public bool      IsPaused             { get; set; }
-        public bool      InnerCreatedAndMoved { get; set; }
+
+        public CoTag CoTag                { get; }
+        public uint  CoMask               { get; }
+        public bool  IsPaused             { get; set; }
+        public bool  InnerCreatedAndMoved { get; set; }
 
         #endregion Properties
 
@@ -107,7 +107,7 @@ namespace DeusaldSharp
 
                 case CoState.WaitingUntilDone:
                 {
-                    if (_WaitUntilDone != null && _WaitUntilDone.IsAlive) break;
+                    if (_WaitUntilDone is { IsAlive: true }) break;
 
                     CoRoutineNextStep();
                     break;
@@ -145,7 +145,7 @@ namespace DeusaldSharp
 
         #region Equals
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -188,7 +188,7 @@ namespace DeusaldSharp
 
             ICoData currentState = _Enumerator.Current;
 
-            switch (currentState!.Type)
+            switch (currentState.Type)
             {
                 case CoDataType.WaitOneTick:
                 {
@@ -259,8 +259,8 @@ namespace DeusaldSharp
 
         private void OrderToCoRoutinesViaCoMask(CoRoCtrl.CallbackOrder order, uint coMask, CoRoCtrl.MaskType maskType)
         {
-            if (maskType == CoRoCtrl.MaskType.All && !MathUtils.HasAllBitsOn(CoMask, coMask)) return;
-            if (maskType == CoRoCtrl.MaskType.Any && !MathUtils.HasAnyBitOn(CoMask, coMask)) return;
+            if (maskType == CoRoCtrl.MaskType.All && !CoMask.HasAllBitsOn(coMask)) return;
+            if (maskType == CoRoCtrl.MaskType.Any && !CoMask.HasAnyBitOn(coMask)) return;
 
             switch (order)
             {

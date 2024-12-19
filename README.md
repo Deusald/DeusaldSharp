@@ -19,7 +19,7 @@ You can add this library to Unity project in 2 ways:
 
 * Game Server Clock in two versions: Standard and Precise
 * Clear C# Coroutines system similar to one that is build in Unity Engine
-* Useful Enum Extensions
+* Useful Enum/String/Task/List Extensions and Helpers
 * Useful Math utils
 * Messages system for sending messages to classes that can subscribe for specific messages
 * 2D Spline class
@@ -85,9 +85,9 @@ ICoHandle coHandle = CoRoCtrl.RunCoRoutine(TestMethod2());
 if (coHandle.IsAlive) coHandle.Kill();
 ```
 
-## Enum Extensions
+## Extensions & Helpers
 
-Group of useful enum extensions.
+Group of useful extensions and helper methods.
 
 ```csharp
 [Flags]
@@ -99,6 +99,12 @@ private enum TestFlags
     C    = 1 << 2
 }
 
+private enum TestEnum
+{
+    A = 0,
+    B = 1
+}
+
 // Testing if only one bit is set
 TestFlags flags  = TestFlags.A;
 TestFlags flags2 = TestFlags.A | TestFlags.C;
@@ -108,6 +114,16 @@ Assert.AreEqual(false, flags2.IsSingleFlagOn());
 // Getting random bit from those that are set
 flags.GetRandomFlag((min, max) => new Random().Next(min, max));
 flags.HasAnyFlag(TestFlags.A | TestFlags.C);
+
+// Taking out arguments out of args
+string[] args = { "10", "B" };
+int      ten = args.TakeSimpleType(0, 0);
+TestEnum b   = args.TakeEnum(1, TestEnum.A);
+
+// Shuffle list
+List<int> list = new List<int> { 1, 2, 3 };
+list.Shuffle();
+
 // ... etc.
 ```
 

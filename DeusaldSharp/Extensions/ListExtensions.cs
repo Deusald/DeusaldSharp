@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 // DeusaldSharp:
 // Copyright (c) 2020 Adam "Deusald" Orliński
@@ -21,50 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// ReSharper disable UnusedType.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+
 using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace DeusaldSharp
 {
-    /// <summary> CoTag is a tag to mark group of logically connected CoRoutines.
-    /// The CoTag can be later used to pause or kill all CoRoutines marked with specific tag.
-    /// WARNING: CoTag 0 is reserved for default CoTag. </summary>
-    public readonly struct CoTag : IEquatable<CoTag>
+    public static class ListExtensions
     {
-        private readonly uint _Tag;
-
-        public CoTag(uint newTag)
+        public static IList<T> Shuffle<T>(this IList<T> list)
         {
-            _Tag = newTag;
-        }
+            RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            int                   n   = list.Count;
+            while (n > 1)
+            {
+                byte[] box = new byte[4];
+                rng.GetBytes(box);
+                int randomIndex                  = BitConverter.ToInt32(box, 0);
+                if (randomIndex < 0) randomIndex *= -1;
+                randomIndex %= n;
+                n--;
+                (list[randomIndex], list[n]) = (list[n], list[randomIndex]);
+            }
 
-        public static implicit operator uint(CoTag i)
-        {
-            return i._Tag;
-        }
-
-        public bool Equals(CoTag other)
-        {
-            return _Tag == other._Tag;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is CoTag other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)_Tag;
-        }
-
-        public static bool operator ==(CoTag left, CoTag right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(CoTag left, CoTag right)
-        {
-            return !left.Equals(right);
+            return list;
         }
     }
 }

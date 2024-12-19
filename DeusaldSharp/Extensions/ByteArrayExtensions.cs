@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 // DeusaldSharp:
 // Copyright (c) 2020 Adam "Deusald" Orliński
@@ -22,49 +22,35 @@
 // SOFTWARE.
 
 using System;
+using System.Text;
 
 namespace DeusaldSharp
 {
-    /// <summary> CoTag is a tag to mark group of logically connected CoRoutines.
-    /// The CoTag can be later used to pause or kill all CoRoutines marked with specific tag.
-    /// WARNING: CoTag 0 is reserved for default CoTag. </summary>
-    public readonly struct CoTag : IEquatable<CoTag>
+    public static class ByteArrayExtensions
     {
-        private readonly uint _Tag;
-
-        public CoTag(uint newTag)
+        public static string ByteArrayToHexString(this byte[] ba)
         {
-            _Tag = newTag;
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba) hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
         }
 
-        public static implicit operator uint(CoTag i)
+        public static byte[] HexStringToByteArray(this string hex)
         {
-            return i._Tag;
+            int    numberChars                                    = hex.Length;
+            byte[] bytes                                          = new byte[numberChars / 2];
+            for (int i = 0; i < numberChars; i += 2) bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
         }
 
-        public bool Equals(CoTag other)
+        public static string ByteArrayToBase64String(this byte[] ba)
         {
-            return _Tag == other._Tag;
+            return Convert.ToBase64String(ba);
         }
 
-        public override bool Equals(object? obj)
+        public static byte[] Base64StringToByteArray(this string base64)
         {
-            return obj is CoTag other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)_Tag;
-        }
-
-        public static bool operator ==(CoTag left, CoTag right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(CoTag left, CoTag right)
-        {
-            return !left.Equals(right);
+            return Convert.FromBase64String(base64);
         }
     }
 }

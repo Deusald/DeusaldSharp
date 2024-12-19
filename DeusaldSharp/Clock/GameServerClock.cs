@@ -46,10 +46,10 @@ namespace DeusaldSharp
         #region Variables
 
         /// <summary> This event will be executed with every tick. </summary>
-        public event TickDelegate Tick;
+        public event TickDelegate? Tick;
 
         /// <summary> Used to log information about Clock. </summary>
-        public event Action<string> Log;
+        public event Action<string>? Log;
 
         private readonly AutoResetEvent _AutoResetEvent;
         private readonly long           _DeltaTimeInMs;

@@ -26,7 +26,9 @@
 // ReSharper disable UnusedMember.Global
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace DeusaldSharp
 {
@@ -70,7 +72,35 @@ namespace DeusaldSharp
         /// <summary> Checks if the [Flag] enum value has set all flags from mask argument. </summary>
         public static bool HasAllFlags(this Enum value, Enum mask)
         {
-            return MathUtils.HasAllBitsOn(value.GetHashCode(), mask.GetHashCode());
+            return value.GetHashCode().HasAllBitsOn(mask.GetHashCode());
+        }
+        
+        /// <summary> Iterate all Enum values </summary>
+        public static IEnumerable<T> IterateAllValues<T>() where T : Enum
+        {
+            return Enum.GetValues(typeof(T)).Cast<T>();
+        }
+        
+        /// <summary> Get custom extension that is attached to enum value. </summary>
+        public static T GetCustomExtension<T>(this Enum enumValue) where T : Attribute
+        {
+            return (T)enumValue.GetType().GetMember(enumValue.ToString()).First().GetCustomAttributes(typeof(T)).First();
+        }
+        
+        /// <summary> Get custom extension that is attached to enum value. </summary>
+        public static T GetCustomExtension<T>(this Enum enumValue, T defaultValue) where T : Attribute
+        {
+            MemberInfo? member = enumValue.GetType().GetMember(enumValue.ToString()).FirstOrDefault();
+            if (member == null) return defaultValue;
+            T? attribute = (T?)member.GetCustomAttributes(typeof(T)).FirstOrDefault();
+            if (attribute == null) return defaultValue;
+            return attribute;
+        }
+        
+        /// <summary> Get custom extensions that is attached to enum value. </summary>
+        public static T[] GetCustomExtensions<T>(this Enum enumValue) where T : Attribute
+        {
+            return (T[])enumValue.GetType().GetMember(enumValue.ToString()).First().GetCustomAttributes(typeof(T));
         }
 
         #endregion Public Methods

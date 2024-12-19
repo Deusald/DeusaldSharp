@@ -223,7 +223,7 @@ namespace DeusaldSharp
         {
             var length = Length();
 
-            if (MathUtils.IsFloatZero(length)) return;
+            if (length.IsFloatZero()) return;
 
             var invLength = 1f / length;
             x *= invLength;
@@ -326,8 +326,8 @@ namespace DeusaldSharp
         public static Vector2 Clamp(Vector2 a, Vector2 min, Vector2 max)
         {
             return new Vector2(
-                MathUtils.Clamp(a.x, min.x, max.x),
-                MathUtils.Clamp(a.y, min.y, max.y));
+                a.x.Clamp(min.x, max.x),
+                a.y.Clamp(min.y, max.y));
         }
 
         /// <summary> Linearly interpolates between two points. </summary>
@@ -428,7 +428,7 @@ namespace DeusaldSharp
         }
 
         /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Vector2 other && Equals(other);
         }
@@ -444,7 +444,7 @@ namespace DeusaldSharp
 
         public static bool operator ==(Vector2 a, Vector2 b)
         {
-            return MathUtils.AreFloatsEquals(a.x, b.x) && MathUtils.AreFloatsEquals(a.y, b.y);
+            return a.x.AreFloatsEquals(b.x) && a.y.AreFloatsEquals(b.y);
         }
 
         public static bool operator !=(Vector2 a, Vector2 b)

@@ -46,10 +46,10 @@ namespace DeusaldSharp
         #region Variables
 
         /// <summary> This event will be executed with every tick. </summary>
-        public event TickDelegate Tick;
+        public event TickDelegate? Tick;
 
         /// <summary> This event will be executed if one frame will take more time we can give. </summary>
-        public event Action TooLongFrame;
+        public event Action? TooLongFrame;
 
         #endregion Variables
 
