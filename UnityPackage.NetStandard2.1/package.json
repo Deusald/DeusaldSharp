@@ -1,16 +1,19 @@
 {
   "name": "com.deusald.deusaldsharp",
-  "version": "7.0.1",
   "displayName": "Deusald Sharp",
+  "version": "7.0.2",
   "description": "Deusald Sharp unity package.",
   "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
   "changelogUrl": "https://github.com/Deusald/DeusaldSharp",
   "licensesUrl": "https://github.com/Deusald/DeusaldSharp",
-  "keywords": [],
+  "dependencies": {
+  },
   "author": {
     "name": "Adam Deusald Orlinski",
     "email": "deusald@gmail.com",
     "url": "https://www.deusald.com"
   },
-  "type": "library"
+  "keywords": [
+    "Tools"
+  ]
 }
