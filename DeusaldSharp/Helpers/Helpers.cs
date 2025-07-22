@@ -24,10 +24,12 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using JetBrains.Annotations;
 
 namespace DeusaldSharp
 {
     /// <summary> Collection of helper methods. </summary>
+    [PublicAPI]
     public static class Helpers
     {
         public static bool GetRandomBool()

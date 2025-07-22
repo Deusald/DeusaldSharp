@@ -112,5 +112,17 @@ namespace DeusaldSharp
         {
             return Regex.Replace(text, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])", " $1");
         }
+        
+        /// <summary>Checks if a string is Null or white space</summary>
+        public static bool IsNullOrWhiteSpace(this string? val) => string.IsNullOrWhiteSpace(val);
+
+        /// <summary>Checks if a string is Null or empty</summary>
+        public static bool IsNullOrEmpty(this string? value) => string.IsNullOrEmpty(value);
+
+        /// <summary>Checks if a string contains null, empty or white space.</summary>
+        public static bool IsBlank(this string? val) => val.IsNullOrWhiteSpace() || val.IsNullOrEmpty();
+
+        /// <summary>Checks if a string is null and returns an empty string if it is.</summary>
+        public static string OrEmpty(this string? val) => val ?? string.Empty;
     }
 }

@@ -200,6 +200,18 @@ namespace DeusaldSharp
 
         #endregion Inverse Lerp
 
+        #region Int Utils
+
+        public static bool IsOdd(this int i)  => i % 2 == 1;
+        public static bool IsEven(this int i) => i % 2 == 0;
+        
+        public static int MathMod(this int a, int b)
+        {
+            return (Math.Abs(a * b) + a) % b;
+        }
+
+        #endregion Int Utils
+        
         #region Float Utils
 
         /// <summary> Rounds the value component to given decimal point. </summary>
