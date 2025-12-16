@@ -88,6 +88,21 @@ namespace DeusaldSharp
 
             return true;
         }
+        
+        public static string ComputeHmacSha256Hex(this string message, string key)
+        {
+            ASCIIEncoding encoding = new ASCIIEncoding();
+
+            byte[] textBytes = encoding.GetBytes(message);
+            byte[] keyBytes  = encoding.GetBytes(key);
+
+            byte[] hashBytes;
+
+            using (HMACSHA256 hash = new HMACSHA256(keyBytes))
+                hashBytes = hash.ComputeHash(textBytes);
+
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
 
         public static string Base64Encode(this string text)
         {

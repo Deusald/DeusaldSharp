@@ -309,3 +309,65 @@ Decay (inactivity)
 GlickoData decayed = Glicko.DecayPlayer(a, lastPlayedUtc, out bool didDecay);
 ```
 
+## Binary serializers (BinaryWriter/BinaryReader extensions)
+
+DeusaldSharp includes a set of `BinaryWriter` / `BinaryReader` extension methods for compact, allocation-friendly binary serialization of common types and their `List<T>` variants:
+
+- Primitive lists: `byte`, `sbyte`, `bool`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `float`, `double`, `char`, `string`
+- `Guid`, `DateTime`, `TimeSpan`, `Version` (and their list variants)
+- Serializable enums (zero-boxing, explicit wire type) via `[SerializableEnum]`
+
+### Primitive lists example
+
+```csharp
+using System.Collections.Generic;
+using System.IO;
+using DeusaldSharp;
+
+using MemoryStream ms = new MemoryStream();
+using BinaryWriter bw = new BinaryWriter(ms);
+
+bw.Write(new List<int> { 1, 2, 3 });      // writes count + elements
+bw.Write(new List<string> { "a", null }); // null -> "" (empty string)
+
+bw.Flush();
+ms.Position = 0;
+
+using BinaryReader br = new BinaryReader(ms);
+List<int>    ints    = br.ReadIntList();
+List<string> strings = br.ReadStringList();
+```
+
+### Serializable enums
+Annotate an enum with `[SerializableEnum]` to define the on-the-wire numeric type. This avoids boxing and keeps the binary format explicit and stable.
+
+```csharp
+using System.IO;
+using DeusaldSharp;
+
+[SerializableEnum(SerializableEnumType.Byte)]
+public enum WeaponType : byte
+{
+    Sword = 1,
+    Bow   = 2
+}
+
+using MemoryStream ms = new MemoryStream();
+using BinaryWriter bw = new BinaryWriter(ms);
+
+bw.WriteSerializableEnum(WeaponType.Sword);
+bw.WriteSerializableEnumList(new System.Collections.Generic.List<WeaponType> { WeaponType.Sword, WeaponType.Bow });
+
+bw.Flush();
+ms.Position = 0;
+
+using BinaryReader br = new BinaryReader(ms);
+WeaponType one = br.ReadSerializableEnum<WeaponType>();
+
+System.Collections.Generic.List<WeaponType> many = br.ReadSerializableEnumList<WeaponType>();
+```
+Notes
+* List serialization format is always: int count followed by count elements.
+* Write(List<string>) writes v ?? string.Empty.
+* Serializable enums require the `[SerializableEnum]` attribute; otherwise reading/writing throws.
+
