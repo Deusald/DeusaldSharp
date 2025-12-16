@@ -23,7 +23,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace DeusaldSharp
@@ -91,5 +93,24 @@ namespace DeusaldSharp
         }
 
         #endregion Arguments
+
+        #region Binary Writer/Reader
+
+        public static byte[] SerializeByBinaryWriter(Action<BinaryWriter> writer)
+        {
+            using MemoryStream stream      = new MemoryStream();
+            using BinaryWriter innerWriter = new BinaryWriter(stream, Encoding.UTF8, false);
+            writer(innerWriter);
+            return stream.ToArray();
+        }
+
+        public static void DeserializeFromBinaryReader(byte[] data, Action<BinaryReader> reader)
+        {
+            using MemoryStream stream      = new MemoryStream(data);
+            using BinaryReader innerReader = new BinaryReader(stream, Encoding.UTF8);
+            reader(innerReader);
+        }
+
+        #endregion Binary Writer/Reader
     }
 }

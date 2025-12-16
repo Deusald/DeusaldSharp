@@ -244,3 +244,25 @@ DeusaldSharp contains classes for typed Vector 2 and Vector 3.
 TVector2<int> one = new TVector2<int> {x = 10, y = 15};
 TVector3<int> one = new TVector3<int> {x = 10, y = 15, z = 20};
 ```
+
+## Username Verificator
+
+`UsernameVerificator` is a helper class for validating and cleaning usernames based on:
+- minimum and maximum length,
+- optional whitespace rule (no leading/trailing spaces),
+- allowed character set (provided as a regex character-class).
+
+### Example
+
+```csharp
+using DeusaldSharp;
+
+UsernameVerificator verificator = new UsernameVerificator(
+    minCharacters: 3,
+    maxCharacters: 16,
+    whitespaceRequirement: true,
+    charactersRequirementRegex: @"[A-Za-z0-9 _]"
+);
+
+bool isValid = verificator.CheckUsernameRequirements("Adam_123");
+string cleaned = verificator.CleanUsername("  Ad!am@@ 12_3  "); // "Adam 12_3"
