@@ -371,3 +371,398 @@ Notes
 * Write(List<string>) writes v ?? string.Empty.
 * Serializable enums require the `[SerializableEnum]` attribute; otherwise reading/writing throws.
 
+Below is a **single, detailed README section** you can copy-paste as-is.
+It documents the **design goals, wire format, guarantees, edge cases, and usage patterns** of your Proto module, aligned with the final, fixed implementation and the expanded test suite.
+
+---
+
+## Proto module (ProtoMsg / ProtoModel / ProtoField)
+
+The Proto module is a **lightweight, explicit, binary message system** designed for:
+- deterministic serialization,
+- schema evolution (forward/backward compatibility),
+- zero reflection at runtime,
+- full control over wire format,
+- safe skipping of unknown fields.
+
+It is intentionally **not** Protocol Buffers–compatible; instead, it is optimized for
+game networking, save files, and internal tooling where stability and control matter more than compact varints.
+
+---
+
+### Core types
+
+#### `ProtoMsg<TSelf>`
+Base class for all messages.
+
+Responsibilities:
+- owns a static `ProtoModel<TSelf>` schema
+- provides:
+  - `byte[] Serialize()`
+  - `static TSelf Deserialize(byte[])`
+
+Each message type **must** assign `_model` in its static constructor.
+
+```csharp
+public sealed class MyMsg : ProtoMsg<MyMsg>
+{
+    public int X;
+
+    static MyMsg()
+    {
+        _model = new ProtoModel<MyMsg>(
+            ProtoField.Int<MyMsg>(1, static (ref MyMsg o) => ref o.X)
+        );
+    }
+}
+````
+
+---
+
+#### `ProtoModel<T>`
+
+Defines the schema for a message.
+
+* Holds an ordered list of `ProtoField<T>`
+* Serializes each field independently as:
+
+```
+[ushort fieldId][int payloadLength][payloadBytes]
+```
+
+During deserialization:
+
+* fields are read sequentially until end-of-stream
+* unknown `fieldId`s are **skipped**
+* duplicate `fieldId`s are allowed; **last value wins**
+
+This guarantees:
+
+* backward compatibility (new readers can read old data)
+* forward compatibility (old readers skip new fields)
+
+---
+
+#### `ProtoField`
+
+Factory class for defining fields.
+
+Each field provides:
+
+* a writer `(BinaryWriter, ref T)`
+* a reader `(BinaryReader, ref T)`
+
+Factories are **strongly typed**, explicit, and allocation-aware.
+
+---
+
+## Wire format guarantees
+
+### 1. Length-delimited fields
+
+Every field is length-prefixed.
+
+This means:
+
+* unknown fields can be skipped safely
+* corrupted or truncated payloads throw immediately
+* nested objects and lists are safe
+
+---
+
+### 2. Deterministic serialization
+
+For the same object state:
+
+* `Serialize()` always produces identical byte output
+* field order is stable (schema order)
+
+This is verified by tests and enables:
+
+* hashing
+* caching
+* binary diffs
+* deterministic replays
+
+---
+
+### 3. Duplicate fields
+
+If the same field ID appears multiple times in the stream:
+
+```text
+[id=1][payload=10]
+[id=1][payload=99]
+```
+
+Result:
+
+```csharp
+field == 99
+```
+
+This allows:
+
+* patch-style updates
+* stream merging
+* late overrides
+
+---
+
+## Supported field types
+
+### Primitives
+
+```csharp
+Bool, Byte, SByte,
+Short, UShort,
+Int, UInt,
+Long, ULong,
+Float, Double,
+Char, String
+```
+
+Example:
+
+```csharp
+ProtoField.Int<MyMsg>(1, static (ref MyMsg o) => ref o.Value);
+```
+
+---
+
+### Nullable value types
+
+Serialized as:
+
+```
+[bool hasValue][value?]
+```
+
+Factories:
+
+```csharp
+NullableInt
+NullableGuid
+NullableTimeSpan
+NullableSerializableEnum
+```
+
+Example:
+
+```csharp
+ProtoField.NullableInt<MyMsg>(2, static (ref MyMsg o) => ref o.OptionalValue);
+```
+
+---
+
+### Lists (non-nullable)
+
+Serialized as:
+
+```
+[int count][item][item][item]...
+```
+
+Primitive list factories:
+
+```csharp
+ByteList, SByteList, BoolList,
+ShortList, UShortList,
+IntList, UIntList,
+LongList, ULongList,
+FloatList, DoubleList,
+CharList, StringList
+```
+
+Specialized lists:
+
+```csharp
+GuidList
+DateTimeList
+TimeSpanList
+VersionList
+SerializableEnumList
+```
+
+Example:
+
+```csharp
+ProtoField.IntList<MyMsg>(3, static (ref MyMsg o) => ref o.Values);
+```
+
+---
+
+### Nullable lists
+
+Serialized as:
+
+```
+[bool hasValue]
+  false -> null
+  true  -> [int count][items...]
+```
+
+Factories:
+
+```csharp
+NullableIntList
+NullableStringList
+NullableGuidList
+NullableSerializableEnumList
+...
+```
+
+Example:
+
+```csharp
+ProtoField.NullableStringList<MyMsg>(4, static (ref MyMsg o) => ref o.Tags);
+```
+
+---
+
+### Enums
+
+Enums are serialized using the **SerializableEnum** system.
+
+Requirements:
+
+* enum must be annotated with `[SerializableEnum]`
+* wire type is explicit and stable
+
+```csharp
+[SerializableEnum(SerializableEnumType.SByte)]
+public enum State : sbyte
+{
+    Idle = 0,
+    Active = 1,
+    Disabled = -1
+}
+```
+
+Field usage:
+
+```csharp
+ProtoField.SerializableEnum<MyMsg, State>(5, static (ref MyMsg o) => ref o.State);
+ProtoField.NullableSerializableEnum<MyMsg, State>(6, static (ref MyMsg o) => ref o.OptionalState);
+```
+
+Negative values are fully supported.
+
+---
+
+## Nested messages (objects)
+
+### Single object
+
+Objects are serialized as **length-delimited nested messages**:
+
+```
+[int byteLength][objectBytes]
+```
+
+Factory:
+
+```csharp
+ProtoField.Object<Parent, Child>(7, static (ref Parent o) => ref o.Child);
+```
+
+---
+
+### Nullable object
+
+Serialized as:
+
+```
+[int byteLength]
+  0    -> null
+  >0   -> nested message bytes
+```
+
+Factory:
+
+```csharp
+ProtoField.NullableObject<Parent, Child>(8, static (ref Parent o) => ref o.OptionalChild);
+```
+
+`null` roundtrips as `null`.
+
+---
+
+### Object lists
+
+Serialized as:
+
+```
+[int count]
+  [int len][object bytes]
+  [int len][object bytes]
+  ...
+```
+
+Factories:
+
+```csharp
+ObjectList
+NullableObjectList
+```
+
+This design guarantees:
+
+* no overreads
+* no stream corruption
+* safe partial deserialization
+
+---
+
+## Schema evolution
+
+### Old writer → New reader
+
+New fields default to zero/null.
+
+### New writer → Old reader
+
+Unknown fields are skipped.
+
+### Reordering fields
+
+Safe — field IDs define meaning, not order.
+
+### Removing fields
+
+Safe — reader simply never sees them.
+
+---
+
+## Error handling
+
+* Corrupt payload lengths → `EndOfStreamException`
+* Enum overflow / mismatch → `InvalidOperationException`
+* Missing enum attribute → `InvalidOperationException`
+
+Errors fail fast and loudly.
+
+---
+
+## Design philosophy
+
+This Proto module is intentionally:
+
+* **explicit over magical**
+* **schema-driven**
+* **allocation-aware**
+* **debuggable**
+* **stable over time**
+
+It is especially suitable for:
+
+* multiplayer game protocols
+* save file formats
+* editor tooling
+* deterministic simulations
+
+If you need varints, reflection, or codegen — this is not that.
+If you need control, safety, and long-term stability — this is.
+
+---
+
