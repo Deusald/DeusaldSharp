@@ -41,7 +41,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(Helpers))]
-        public void EAFTF()
+        public void Helpers_ArgumentTaker()
         {
             // Arrange
             string[] args = { "10", "B" };

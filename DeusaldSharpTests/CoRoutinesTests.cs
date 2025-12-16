@@ -43,7 +43,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing standard coRoutine flow and waitForOneTick state. </summary>
         [Test]
         [TestOf(nameof(CoRoCtrl))]
-        public void XWTMN()
+        public void CoRoCtrl_Base()
         {
             // Arrange
             int value = 0;
@@ -72,7 +72,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing coRoutine in coRoutine and WaitUntilDone state. </summary>
         [Test]
         [TestOf(nameof(CoRoCtrl))]
-        public void GWTZL()
+        public void CoRoCtrl_WaitUntilDone()
         {
             // Arrange
             int value = 0;
@@ -106,7 +106,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing standard coRoutine flow and waitForSeconds state. </summary>
         [Test]
         [TestOf(nameof(CoRoCtrl))]
-        public void BELZH()
+        public void CoRoCtrl_WaitForSeconds()
         {
             // Arrange
             int value = 0;
@@ -133,7 +133,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing standard coRoutine flow and waitForCondition state. </summary>
         [Test]
         [TestOf(nameof(CoRoCtrl))]
-        public void SMKEE()
+        public void CoRoCtrl_WaitForCondition()
         {
             // Arrange
             int  value = 0;
@@ -163,7 +163,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing coTags and coHandles. </summary>
         [Test]
         [TestOf(nameof(CoRoCtrl))]
-        public void ZLSXF()
+        public void CoRoCtrl_CoHandles()
         {
             // Arrange
             int value = 0;

@@ -34,7 +34,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing conversion from minutes to seconds. </summary>
         [Test]
         [TestOf(nameof(MathUtils.SEC_TO_MILLISECONDS))]
-        public void XWTMN()
+        public void MathUtils_SEC_TO_MILLISECONDS()
         {
             // Arrange
 
@@ -48,7 +48,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing conversion from minutes to seconds. </summary>
         [Test]
         [TestOf(nameof(MathUtils.MIN_TO_SEC))]
-        public void SCMWP()
+        public void MathUtils_MIN_TO_SEC()
         {
             // Arrange
 
@@ -62,7 +62,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing conversion from hours to minutes. </summary>
         [Test]
         [TestOf(nameof(MathUtils.HOURS_TO_MIN))]
-        public void ARRPH()
+        public void MathUtils_HOURS_TO_MIN()
         {
             // Arrange
 
@@ -76,7 +76,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing conversion from days to hours. </summary>
         [Test]
         [TestOf(nameof(MathUtils.DAYS_TO_HOURS))]
-        public void YXMWS()
+        public void MathUtils_DAYS_TO_HOURS()
         {
             // Arrange
 
@@ -90,7 +90,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing conversion from days to seconds. </summary>
         [Test]
         [TestOf(nameof(MathUtils))]
-        public void APWZT()
+        public void MathUtils_DaysToSeconds()
         {
             // Arrange
 
@@ -104,7 +104,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing conversion from degrees to radians. </summary>
         [Test]
         [TestOf(nameof(MathUtils.DEG_TO_RAD))]
-        public void SASTE()
+        public void MathUtils_DEG_TO_RAD()
         {
             // Arrange
 
@@ -118,7 +118,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing conversion from radians to degrees. </summary>
         [Test]
         [TestOf(nameof(MathUtils.RAD_TO_DEG))]
-        public void EKSCS()
+        public void MathUtils_RAD_TO_DEG()
         {
             // Arrange
 
@@ -132,7 +132,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.Clamp))]
-        public void EAFTF()
+        public void MathUtils_Clamp()
         {
             // Arrange
 
@@ -153,7 +153,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.Lerp))]
-        public void MWPMX()
+        public void MathUtils_Lerp()
         {
             // Arrange
 
@@ -174,7 +174,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.InverseLerp))]
-        public void ZBKKN()
+        public void MathUtils_InverseLerp()
         {
             // Arrange
 
@@ -195,7 +195,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.RoundToDecimal))]
-        public void FLYTW()
+        public void MathUtils_RoundToDecimal()
         {
             // Arrange
 
@@ -216,7 +216,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.IsFloatZero))]
-        public void MWZXA()
+        public void MathUtils_IsFloatZero()
         {
             // Arrange
 
@@ -237,7 +237,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.AreFloatsEquals))]
-        public void FTGTK()
+        public void MathUtils_AreFloatsEquals()
         {
             // Arrange
 
@@ -258,7 +258,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.MarkBit))]
-        public void RKXXS()
+        public void MathUtils_MarkBit()
         {
             // Arrange
 
@@ -280,7 +280,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.NumberOfSetBits))]
-        public void RKXAM()
+        public void MathUtils_NumberOfSetBits()
         {
             // Arrange
 
@@ -302,7 +302,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.IsSingleBitOn))]
-        public void LLAMP()
+        public void MathUtils_IsSingleBitOn()
         {
             // Arrange
 
@@ -330,7 +330,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.HasAnyBitOn))]
-        public void YTDTA()
+        public void MathUtils_HasAnyBitOn()
         {
             // Arrange
 
@@ -358,7 +358,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct result. </summary>
         [Test]
         [TestOf(nameof(MathUtils.HasAllBitsOn))]
-        public void XGRXH()
+        public void MathUtils_HasAllBitsOn()
         {
             // Arrange
 

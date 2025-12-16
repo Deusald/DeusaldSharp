@@ -27,6 +27,7 @@
 
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2021.2.0" />
+      <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
     </ItemGroup>
 
     <Target Name="CopyToUnityPackageNet48" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release' And '$(TargetFramework)' == 'net48'">

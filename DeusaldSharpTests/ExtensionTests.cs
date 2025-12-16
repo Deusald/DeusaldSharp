@@ -46,7 +46,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing IsSingleFlagOn method. </summary>
         [Test]
         [TestOf(nameof(EnumExtensions.IsSingleFlagOn))]
-        public void ZKSAM()
+        public void IsSingleFlagOn_Base()
         {
             // Arrange
             TestFlags flags  = TestFlags.A;
@@ -60,7 +60,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing GetRandomFlag method. </summary>
         [Test]
         [TestOf(nameof(EnumExtensions.GetRandomFlag))]
-        public void ZYMDY()
+        public void GetRandomFlag_Base()
         {
             // Arrange
             TestFlags flags = TestFlags.A | TestFlags.B;
@@ -76,7 +76,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing HasAnyFlag method. </summary>
         [Test]
         [TestOf(nameof(EnumExtensions.HasAnyFlag))]
-        public void LLDZG()
+        public void HasAnyFlag_Base()
         {
             // Arrange
             TestFlags flags = TestFlags.A | TestFlags.B;
@@ -88,7 +88,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing HasAllFlags method. </summary>
         [Test]
         [TestOf(nameof(EnumExtensions.HasAllFlags))]
-        public void SHMRE()
+        public void HasAllFlags_Base()
         {
             // Arrange
             TestFlags flags = TestFlags.A | TestFlags.B;

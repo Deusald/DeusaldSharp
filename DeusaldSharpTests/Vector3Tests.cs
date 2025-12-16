@@ -34,7 +34,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing if all standard Vector3 static values are correct. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void SCMWP()
+        public void Vector3_Base()
         {
             // Arrange
 
@@ -60,7 +60,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Magnitude))]
-        public void KLHDC()
+        public void Vector3_Magnitude()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -90,7 +90,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.SqrMagnitude))]
-        public void GFYGF()
+        public void Vector3_SqrMagnitude()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -121,7 +121,7 @@ namespace DeusaldSharpTests
         /// After getting Normalized vector the original should remain the same. </summary>
         [Test]
         [TestOf(nameof(Vector3.Normalized))]
-        public void YFCBF()
+        public void Vector3_Normalized()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -158,7 +158,7 @@ namespace DeusaldSharpTests
         /// After getting Negated vector the original should remain the same. </summary>
         [Test]
         [TestOf(nameof(Vector3.Negated))]
-        public void FAAMC()
+        public void Vector3_Negated()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -194,7 +194,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.IsValid))]
-        public void TDDBE()
+        public void Vector3_IsValid()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,                     1f,                     1f);
@@ -224,7 +224,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing if all constructors create correct vector. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void HHZWH()
+        public void Vector3_Constructors()
         {
             // Arrange
             Vector3 one   = new Vector3(1f, 1f, 1f);
@@ -268,7 +268,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing if setting values returns correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Set))]
-        public void DKYTL()
+        public void Vector3_Set()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -298,7 +298,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing if setting zero on all axis returns correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.SetZero))]
-        public void WLNHS()
+        public void Vector3_SetZero()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f, 1f);
@@ -313,7 +313,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Add))]
-        public void NEKKT()
+        public void Vector3_Add()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -342,7 +342,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Subtract))]
-        public void BKAXF()
+        public void Vector3_Subtract()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -371,7 +371,7 @@ namespace DeusaldSharpTests
         /// <summary> Multiplying two vectors. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Multiply))]
-        public void CYHKD()
+        public void Vector3_Multiply()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -400,7 +400,7 @@ namespace DeusaldSharpTests
         /// <summary> Multiplying vector and scalar. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Multiply))]
-        public void XRCXS()
+        public void Vector3_MultiplyScalar()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f, 1f);
@@ -427,7 +427,7 @@ namespace DeusaldSharpTests
         /// <summary> Dividing two vectors. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Divide))]
-        public void PAAZZ()
+        public void Vector3_Divide()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -456,7 +456,7 @@ namespace DeusaldSharpTests
         /// <summary> Dividing vector and scalar. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Divide))]
-        public void WAHXS()
+        public void Vector3_DivideScalar()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f, 1f);
@@ -483,7 +483,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.GetNegated))]
-        public void SZLKG()
+        public void Vector3_GetNegated()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -507,7 +507,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Negate))]
-        public void DYKYA()
+        public void Vector3_Negate()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -537,7 +537,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Length))]
-        public void XAPXX()
+        public void Vector3_Length()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -567,7 +567,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.LengthSquared))]
-        public void WXGXM()
+        public void Vector3_LengthSquared()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -597,7 +597,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Normalize))]
-        public void ZFCPN()
+        public void Vector3_Normalize()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -628,7 +628,7 @@ namespace DeusaldSharpTests
         /// After getting Normalized vector the original should remain the same. </summary>
         [Test]
         [TestOf(nameof(Vector3.GetNormalized))]
-        public void MBFYF()
+        public void Vector3_GetNormalized()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -664,7 +664,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Cross))]
-        public void DPBNC()
+        public void Vector3_Cross()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -698,7 +698,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Distance))]
-        public void RBFGP()
+        public void Vector3_Distance()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -732,7 +732,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.DistanceSquared))]
-        public void FCSGK()
+        public void Vector3_DistanceSquared()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -766,7 +766,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Dot))]
-        public void ZRBSY()
+        public void Vector3_Dot()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -800,7 +800,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Reflect))]
-        public void FPTMC()
+        public void Vector3_Reflect()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -834,7 +834,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Clamp))]
-        public void XDPWS()
+        public void Vector3_Clamp()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -863,7 +863,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Lerp))]
-        public void ANPBE()
+        public void Vector3_Lerp()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -897,7 +897,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Lerp))]
-        public void RTZGA()
+        public void Vector3_Lerp2()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -931,7 +931,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Lerp))]
-        public void ZXPPK()
+        public void Vector3_Lerp3()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -965,7 +965,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Max))]
-        public void YLADW()
+        public void Vector3_Max()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -999,7 +999,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Min))]
-        public void XXXTC()
+        public void Vector3_Min()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -1033,7 +1033,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.Equals))]
-        public void CSPNN()
+        public void Vector3_Equals()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -1056,7 +1056,7 @@ namespace DeusaldSharpTests
         /// <summary> Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3.GetHashCode))]
-        public void ZAMCB()
+        public void Vector3_GetHashCode()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -1078,7 +1078,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator ==. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void PMFHA()
+        public void Vector3_Operator_Eq()
         {
             // Arrange
             Vector3 one   = new Vector3(1f, 1f,  1f);
@@ -1102,7 +1102,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator !=. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void NCHSG()
+        public void Vector3_Operator_Neq()
         {
             // Arrange
             Vector3 one   = new Vector3(1f, 1f,  1f);
@@ -1126,7 +1126,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator single -. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void BTFTB()
+        public void Vector3_Operator_SingleMinus()
         {
             // Arrange
             Vector3 one   = new Vector3(1f,  1f,   1f);
@@ -1162,7 +1162,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator +. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void AMHKM()
+        public void Vector3_Operator_Plus()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -1191,7 +1191,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator -. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void EEGTY()
+        public void Vector3_Operator_Minus()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -1220,7 +1220,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator *. Multiplying two vectors. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void TBCME()
+        public void Vector3_Operator_Star()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -1249,7 +1249,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator *. Multiplying vector and scalar. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void PPNHA()
+        public void Vector3_Operator_StarScalar()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f, 1f);
@@ -1276,7 +1276,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator /. Dividing two vectors. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void FFHCA()
+        public void Vector3_Operator_Slash()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f,  1f);
@@ -1305,7 +1305,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing operator /. Dividing vector and scalar. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void FRGXA()
+        public void Vector3_Operator_SlashScalar()
         {
             // Arrange
             Vector3 one = new Vector3(1f, 1f, 1f);
@@ -1332,7 +1332,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing implicit operator from Vector3 to Vector2. Providing data and expecting mathematically correct results. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void PEATS()
+        public void Vector3_Vector2()
         {
             // Arrange
             Vector2 one = new Vector2(1f, 1f);
@@ -1356,7 +1356,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing bracket access operator. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
-        public void HPRSH()
+        public void Vector3_Bracket()
         {
             // Arrange
             Vector3 two = new Vector3(7f, 8f, 9f);

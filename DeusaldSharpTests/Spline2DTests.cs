@@ -35,7 +35,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing length of spline calculations. Providing points and expecting correct length approximation. </summary>
         [Test]
         [TestOf(nameof(Spline2D.Length))]
-        public void SCMWP()
+        public void Spline2D_Length()
         {
             // Arrange
             Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});
@@ -56,7 +56,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing interpolate position on spline. Providing points and expecting correct position approximation. </summary>
         [Test]
         [TestOf(nameof(Spline2D.Interpolate))]
-        public void ARRPH()
+        public void Spline2D_Interpolate()
         {
             // Arrange
             Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});
@@ -77,7 +77,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing interpolate position on spline. Providing points and expecting correct position approximation. </summary>
         [Test]
         [TestOf(nameof(Spline2D.InterpolateDistance))]
-        public void YXMWS()
+        public void Spline2D_InterpolateDistance()
         {
             // Arrange
             Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});
@@ -98,7 +98,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing multiply request of interpolate position on spline. Providing points and expecting correct position approximation. </summary>
         [Test]
         [TestOf(nameof(Spline2D.InterpolateDistance))]
-        public void APWZT()
+        public void Spline2D_InterpolateDistance_Multiply()
         {
             // Arrange
             Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});

@@ -35,7 +35,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing enumerator. </summary>
         [Test]
         [TestOf(nameof(TVector2<int>))]
-        public void SCMWP()
+        public void TVector2_int_()
         {
             // Arrange
             TVector2<int> one = new TVector2<int> {x = 10, y = 15};
@@ -56,7 +56,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing bracket access operator. </summary>
         [Test]
         [TestOf(nameof(Vector2))]
-        public void HPRSH()
+        public void Vector2_Bracket()
         {
             // Arrange
             TVector2<int> two = new TVector2<int> {x = 7, y  = 8};

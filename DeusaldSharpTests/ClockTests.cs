@@ -37,7 +37,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing Precision Clock. </summary>
         [Test]
         [TestOf(nameof(PrecisionClock))]
-        public async Task XWTMN()
+        public async Task PrecisionClock_Base()
         {
             // Arrange
             ulong  lastFrameNumber = 0;
@@ -63,7 +63,7 @@ namespace DeusaldSharpTests
         /// <summary> Testing standard Game Server Clock. </summary>
         [Test]
         [TestOf(nameof(PrecisionClock))]
-        public async Task HLYZH()
+        public async Task PrecisionClock_Standard()
         {
             // Arrange
             ulong  lastFrameNumber = 0;

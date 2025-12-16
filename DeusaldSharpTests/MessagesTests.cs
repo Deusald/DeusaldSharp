@@ -69,7 +69,7 @@ namespace DeusaldSharpTests
         /// <summary> Binding and message send test. </summary>
         [Test]
         [TestOf(nameof(MsgCtrl.Bind))]
-        public void XWTMN()
+        public void MsgCtrl_Bind()
         {
             // Arrange
             int    receivedInt    = 0;
@@ -123,7 +123,7 @@ namespace DeusaldSharpTests
         /// <summary> Binding, unbinding and message send test. </summary>
         [Test]
         [TestOf(nameof(MsgCtrl.Unbind))]
-        public void KBFHM()
+        public void MsgCtrl_Unbind()
         {
             // Arrange
             int    receivedInt    = 0;
@@ -165,7 +165,7 @@ namespace DeusaldSharpTests
         /// <summary> Binding inside receiving message. </summary>
         [Test]
         [TestOf(nameof(MsgCtrl.Bind))]
-        public void ZSKML()
+        public void MsgCtrl_Bind_Inside()
         {
             // Arrange
             int    receivedInt    = 0;
@@ -228,7 +228,7 @@ namespace DeusaldSharpTests
         /// <summary> Priority test. </summary>
         [Test]
         [TestOf(nameof(MsgCtrl.Send))]
-        public void XHMZP()
+        public void MsgCtrl_Send_Priority()
         {
             // Arrange
             string order = "";
@@ -257,7 +257,7 @@ namespace DeusaldSharpTests
         /// <summary> Deallocate test. </summary>
         [Test]
         [TestOf(nameof(MsgCtrl.Send))]
-        public void PDRDZ()
+        public void MsgCtrl_Send_Deallocate()
         {
             // Arrange
             void Receive(ExampleMsg message) { }
@@ -279,7 +279,7 @@ namespace DeusaldSharpTests
         /// <summary> Consume test. </summary>
         [Test]
         [TestOf(nameof(MsgCtrl.Send))]
-        public void RBYAX()
+        public void MsgCtrl_Send_Consume()
         {
             // Arrange
             string order = "";
@@ -309,7 +309,7 @@ namespace DeusaldSharpTests
         /// <summary> Custom attribute register test. </summary>
         [Test]
         [TestOf(nameof(MsgCtrl.Register))]
-        public void YZDMS()
+        public void MsgCtrl_Register()
         {
             // Arrange
             AttributeTest attributeTest = new AttributeTest();
@@ -325,7 +325,7 @@ namespace DeusaldSharpTests
         /// <summary> Custom attribute unregister test. </summary>
         [Test]
         [TestOf(nameof(MsgCtrl.Unregister))]
-        public void DEZSX()
+        public void MsgCtrl_Unregister()
         {
             // Arrange
             AttributeTest attributeTest = new AttributeTest();
