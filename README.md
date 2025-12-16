@@ -266,3 +266,46 @@ UsernameVerificator verificator = new UsernameVerificator(
 
 bool isValid = verificator.CheckUsernameRequirements("Adam_123");
 string cleaned = verificator.CleanUsername("  Ad!am@@ 12_3  "); // "Adam 12_3"
+```
+
+## Glicko (Glicko-2 style rating updates)
+
+`Glicko` is a helper for updating player ratings using a Glicko-2-like system.
+
+### Data structure
+
+```csharp
+using DeusaldSharp;
+
+GlickoData player = new GlickoData
+{
+    Rating     = Glicko.DEFAULT_RATING,
+    Deviation  = Glicko.DEFAULT_DEVIATION,
+    Volatility = Glicko.DEFAULT_VOLATILITY
+};
+
+// 1v1 update
+
+GlickoData a = player;
+GlickoData b = player;
+
+// a wins (score = 1.0). draw = 0.5. loss = 0.0.
+Glicko.Update(a, b, out GlickoData newA, out GlickoData newB, playerAScore: 1.0);
+
+// Update vs multiple opponents
+
+List<(GlickoData, double)> opponents = new()
+{
+    (b, 1.0), // win
+    (b, 0.5), // draw
+};
+
+GlickoData updated = Glicko.Update(a, opponents);
+
+// Win probability
+double p = Glicko.GetWinProbability(a, b);
+
+Decay (inactivity)
+GlickoData decayed = Glicko.DecayPlayer(a, lastPlayedUtc, out bool didDecay);
+```
+
