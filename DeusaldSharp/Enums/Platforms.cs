@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 // DeusaldSharp:
 // Copyright (c) 2020 Adam "Deusald" Orliński
@@ -23,10 +23,26 @@
 
 using System;
 
+// ReSharper disable InconsistentNaming
+
 namespace DeusaldSharp
 {
-    public static class DeusaldSharp
+    [Flags]
+    [SerializableEnum(SerializableEnumType.UInt)]
+    public enum Platforms : uint
     {
-        public static readonly Version Version = new Version(8, 1, 0);
+        None           = 0,
+        All            = UInt32.MaxValue,
+        Windows        = 1 << 0,
+        MacOS          = 1 << 1,
+        Linux          = 1 << 2,
+        iOS            = 1 << 3,
+        Android        = 1 << 4,
+        Xbox           = 1 << 5,
+        PlayStation    = 1 << 6,
+        NintendoSwitch = 1 << 7,
+        Desktop        = Windows | MacOS | Linux,
+        Mobile         = iOS | Android,
+        Console        = Xbox | PlayStation | NintendoSwitch
     }
 }
