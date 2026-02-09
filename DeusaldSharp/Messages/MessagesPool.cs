@@ -59,7 +59,7 @@ namespace DeusaldSharp
 
             foreach (var property in properties)
             {
-                property.SetValue(message, default);
+                property.SetValue(message, null);
             }
 
             _FreeMessages.Add(message);

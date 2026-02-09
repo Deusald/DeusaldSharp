@@ -71,7 +71,7 @@ namespace DeusaldSharp
 
         #region Properties
 
-        private uint GetNextCoId => _NextCoId++;
+        private uint _GetNextCoId => _NextCoId++;
 
         #endregion Properties
 
@@ -151,7 +151,7 @@ namespace DeusaldSharp
         /// <summary> Creates new CoRoutine and perform first execution.  </summary>
         public ICoHandle RunCoRoutine(IEnumerator<ICoData> newCoRoutine, CoTag coTag = default, uint coMask = 0)
         {
-            CoRoutine coRoutine = new CoRoutine(newCoRoutine, GetNextCoId, coTag, coMask, this);
+            CoRoutine coRoutine = new CoRoutine(newCoRoutine, _GetNextCoId, coTag, coMask, this);
             AddNewCoRoutine(coRoutine);
 
             coRoutine.MoveCoRoutine(_DeltaTime);

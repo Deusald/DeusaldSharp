@@ -24,9 +24,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace DeusaldSharp
 {
+    [PublicAPI]
     public static class BinaryWriterReaderExtensions
     {
         #region Primitive Lists

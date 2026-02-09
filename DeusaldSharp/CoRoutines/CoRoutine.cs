@@ -186,7 +186,7 @@ namespace DeusaldSharp
                 return;
             }
 
-            ICoData currentState = _Enumerator.Current;
+            ICoData currentState = _Enumerator.Current!;
 
             switch (currentState.Type)
             {

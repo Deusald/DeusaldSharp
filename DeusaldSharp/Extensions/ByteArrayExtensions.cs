@@ -23,9 +23,11 @@
 
 using System;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace DeusaldSharp
 {
+    [PublicAPI]
     public static class ByteArrayExtensions
     {
         public static string ByteArrayToHexString(this byte[] ba)

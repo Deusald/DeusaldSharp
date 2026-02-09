@@ -21,14 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// ReSharper disable NonReadonlyMemberInGetHashCode
-
 using System;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace DeusaldSharp
 {
     /// <summary> Representation of 2D vectors and points. </summary>
+    [PublicAPI]
     public struct Vector2 : IEquatable<Vector2>
     {
         #region Variables

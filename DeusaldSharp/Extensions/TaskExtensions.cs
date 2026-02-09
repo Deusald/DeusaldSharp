@@ -22,9 +22,13 @@
 // SOFTWARE.
 
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+
+// ReSharper disable AsyncVoidMethod
 
 namespace DeusaldSharp
 {
+    [PublicAPI]
     public static class TaskExtensions
     {
         public static async void Forget(this Task task)

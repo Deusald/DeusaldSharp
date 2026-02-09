@@ -21,14 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// ReSharper disable NonReadonlyMemberInGetHashCode
-
 using System;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace DeusaldSharp
 {
     /// <summary> Representation of 3D vectors and points. </summary>
+    [PublicAPI]
     public struct Vector3 : IEquatable<Vector3>
     {
         #region Variables
@@ -145,7 +145,7 @@ namespace DeusaldSharp
             y = value.y;
             z = 0f;
         }
-        
+
         /// <summary> Creates a new vector with given x, y components and sets z to zero. </summary>
         public Vector3(float x, float y)
         {

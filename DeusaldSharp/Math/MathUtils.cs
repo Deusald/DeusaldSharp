@@ -24,9 +24,11 @@
 // ReSharper disable UnusedMember.Global
 
 using System;
+using JetBrains.Annotations;
 
 namespace DeusaldSharp
 {
+    [PublicAPI]
     public static class MathUtils
     {
         #region Variables
@@ -223,7 +225,7 @@ namespace DeusaldSharp
         /// <summary> Check that the given value is zero by comparing it to the epsilon float value. </summary>
         public static bool IsFloatZero(this float value)
         {
-            return AreFloatsEquals(value, 0f);
+            return value.AreFloatsEquals(0f);
         }
 
         /// <summary> Check that the given values are equal, taking into account the epsilon float tolerance. </summary>

@@ -21,9 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using JetBrains.Annotations;
+
 namespace DeusaldSharp
 {
     /// <summary> Logging levels. </summary>
+    [PublicAPI]
     public enum LogLevel
     {
         /// <summary> Don't print log. </summary>

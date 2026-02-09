@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// ReSharper disable MemberCanBePrivate.Global
+using JetBrains.Annotations;
 
 namespace DeusaldSharp
 {
@@ -30,6 +30,7 @@ namespace DeusaldSharp
     using System.Collections.Generic;
 
     /// <summary> A two-element array in the form of a vector.  </summary>
+    [PublicAPI]
     public struct TVector2<T> : IEnumerable<T>
     {
         #region Variables

@@ -27,28 +27,28 @@ namespace DeusaldSharp
 {
     public class UsernameVerificator
     {
-        private int    MinCharacters              { get; }
-        private int    MaxCharacters              { get; }
-        private bool   WhitespaceRequirement      { get; }
-        private string CharactersRequirementRegex { get; } // For example @"A-Za-z0-9 _"
+        private readonly int    _MinCharacters;
+        private readonly int    _MaxCharacters;
+        private readonly bool   _WhitespaceRequirement;
+        private readonly string _CharactersRequirementRegex; // For example @"A-Za-z0-9 _"
 
         public UsernameVerificator(int minCharacters, int maxCharacters, bool whitespaceRequirement, string charactersRequirementRegex)
         {
-            MinCharacters              = minCharacters;
-            MaxCharacters              = maxCharacters;
-            WhitespaceRequirement      = whitespaceRequirement;
-            CharactersRequirementRegex = charactersRequirementRegex;
+            _MinCharacters              = minCharacters;
+            _MaxCharacters              = maxCharacters;
+            _WhitespaceRequirement      = whitespaceRequirement;
+            _CharactersRequirementRegex = charactersRequirementRegex;
         }
 
         public bool CheckUsernameRequirements(string username)
         {
-            return CheckUsernameLengthRequirement(username) && (!WhitespaceRequirement || CheckUsernameWhitespaceRequirement(username)) && CheckCharactersRequirement(username);
+            return CheckUsernameLengthRequirement(username) && (!_WhitespaceRequirement || CheckUsernameWhitespaceRequirement(username)) && CheckCharactersRequirement(username);
         }
 
         public bool CheckUsernameLengthRequirement(string username)
         {
-            if (username.Length < MinCharacters) return false;
-            if (username.Length > MaxCharacters) return false;
+            if (username.Length < _MinCharacters) return false;
+            if (username.Length > _MaxCharacters) return false;
             return true;
         }
 
@@ -62,14 +62,14 @@ namespace DeusaldSharp
 
         public bool CheckCharactersRequirement(string username)
         {
-            return Regex.IsMatch(username, $"^[{CharactersRequirementRegex}]+$");
+            return Regex.IsMatch(username, $"^[{_CharactersRequirementRegex}]+$");
         }
 
         public string CleanUsername(string username)
         {
-            username = Regex.Replace(username, $"[^{CharactersRequirementRegex}]+", "");
+            username = Regex.Replace(username, $"[^{_CharactersRequirementRegex}]+", "");
             username = username.Trim();
-            return username.Length > MaxCharacters ? username.Substring(0, MaxCharacters) : username;
+            return username.Length > _MaxCharacters ? username.Substring(0, _MaxCharacters) : username;
         }
     }
 }

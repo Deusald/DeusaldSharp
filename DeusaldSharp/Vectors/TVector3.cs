@@ -21,22 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using JetBrains.Annotations;
+
 namespace DeusaldSharp
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-
+    [PublicAPI]
     public struct TVector3<T> : IEnumerable<T>
     {
         #region Variables
 
         /// <summary> X component of the vector. </summary>
         public T x;
-        
+
         /// <summary> Y component of the vector. </summary>
         public T y;
-        
+
         /// <summary> Z component of the vector. </summary>
         public T z;
 

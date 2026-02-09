@@ -25,11 +25,13 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 
 // ReSharper disable StaticMemberInGenericType
 
 namespace DeusaldSharp
 {
+    [PublicAPI]
     public static class SerializableEnumCache<TEnum> where TEnum : unmanaged, Enum
     {
         private static readonly bool                 _HasAttribute;
