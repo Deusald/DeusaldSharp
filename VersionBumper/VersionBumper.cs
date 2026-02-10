@@ -30,6 +30,8 @@ public static class VersionBumper
     public static Version  CurrentVersion           { get; set; } = new();
     public static string   PathToCsProjFile         { get; set; } = "";
     public static string   PathToMainCsFile         { get; set; } = "";
+    public static string   PathToAnalyzerProjFile   { get; set; } = "";
+    public static string   PathToAnalyzerMainCsFile { get; set; } = "";
     public static string[] PathsToUnityPackageJsons { get; set; } = Array.Empty<string>();
 
     public static void Run()
@@ -39,25 +41,15 @@ public static class VersionBumper
         Version.TryParse(newVersionText, out Version? newVersion);
 
         if (newVersion == null) throw new Exception("Failed to parse new version");
-        
+
         string workingDirectory = Environment.CurrentDirectory;
         string projectDirectory = Directory.GetParent(workingDirectory)!.Parent!.Parent!.Parent!.FullName;
 
-        string fullPathToCsProjFile = projectDirectory + PathToCsProjFile;
-        string csProjFile           = File.ReadAllText(fullPathToCsProjFile);
+        ReplaceCsProjFile(PathToCsProjFile);
+        ReplaceCsProjFile(PathToAnalyzerProjFile);
 
-        csProjFile = csProjFile.Replace($"<PackageVersion>{CurrentVersion}</PackageVersion>", $"<PackageVersion>{newVersion}</PackageVersion>");
-        csProjFile = csProjFile.Replace($"<AssemblyVersion>{CurrentVersion}</AssemblyVersion>", $"<AssemblyVersion>{newVersion}</AssemblyVersion>");
-        
-        File.WriteAllText(fullPathToCsProjFile, csProjFile);
-        
-        string fullPathToMainCsFile = projectDirectory + PathToMainCsFile;
-        string mainCsFile           = File.ReadAllText(fullPathToMainCsFile);
-
-        mainCsFile = mainCsFile.Replace($"new Version({CurrentVersion.Major}, {CurrentVersion.Minor}, {CurrentVersion.Build})",
-            $"new Version({newVersion.Major}, {newVersion.Minor}, {newVersion.Build})");
-        
-        File.WriteAllText(fullPathToMainCsFile, mainCsFile);
+        ReplaceMainCsFile(PathToMainCsFile);
+        ReplaceMainCsFile(PathToAnalyzerMainCsFile);
 
         foreach (string unityJsonPath in PathsToUnityPackageJsons)
         {
@@ -65,10 +57,32 @@ public static class VersionBumper
             string unityJsonFile       = File.ReadAllText(fullPathToUnityJson);
 
             unityJsonFile = unityJsonFile.Replace($"\"version\": \"{CurrentVersion}\",", $"\"version\": \"{newVersion}\",");
-            
+
             File.WriteAllText(fullPathToUnityJson, unityJsonFile);
         }
-        
+
         Console.WriteLine($"Successfully updated version from {CurrentVersion} to {newVersion}.");
+
+        void ReplaceCsProjFile(string pathToProjFile)
+        {
+            string fullPathToCsProjFile = projectDirectory + pathToProjFile;
+            string csProjFile           = File.ReadAllText(fullPathToCsProjFile);
+
+            csProjFile = csProjFile.Replace($"<PackageVersion>{CurrentVersion}</PackageVersion>",   $"<PackageVersion>{newVersion}</PackageVersion>");
+            csProjFile = csProjFile.Replace($"<AssemblyVersion>{CurrentVersion}</AssemblyVersion>", $"<AssemblyVersion>{newVersion}</AssemblyVersion>");
+
+            File.WriteAllText(fullPathToCsProjFile, csProjFile);
+        }
+
+        void ReplaceMainCsFile(string pathToMainCsFile)
+        {
+            string fullPathToMainCsFile = projectDirectory + pathToMainCsFile;
+            string mainCsFile           = File.ReadAllText(fullPathToMainCsFile);
+
+            mainCsFile = mainCsFile.Replace($"new({CurrentVersion.Major}, {CurrentVersion.Minor}, {CurrentVersion.Build})",
+                $"new({newVersion.Major}, {newVersion.Minor}, {newVersion.Build})");
+
+            File.WriteAllText(fullPathToMainCsFile, mainCsFile);
+        }
     }
 }

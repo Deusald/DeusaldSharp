@@ -21,9 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-VersionBumper.VersionBumper.CurrentVersion   = DeusaldSharp.DeusaldSharp.Version;
-VersionBumper.VersionBumper.PathToCsProjFile = "\\DeusaldSharp\\DeusaldSharp.csproj";
-VersionBumper.VersionBumper.PathToMainCsFile = "\\DeusaldSharp\\DeusaldSharp.cs";
+VersionBumper.VersionBumper.CurrentVersion           = DeusaldSharp.DeusaldSharp.Version;
+VersionBumper.VersionBumper.PathToCsProjFile         = "\\DeusaldSharp\\DeusaldSharp.csproj";
+VersionBumper.VersionBumper.PathToMainCsFile         = "\\DeusaldSharp\\DeusaldSharp.cs";
+VersionBumper.VersionBumper.PathToAnalyzerProjFile   = "\\DeusaldSharp.Analyzers\\DeusaldSharp.Analyzers\\DeusaldSharp.Analyzers.csproj";
+VersionBumper.VersionBumper.PathToAnalyzerMainCsFile = "\\DeusaldSharp.Analyzers\\DeusaldSharp.Analyzers\\DeusaldSharpAnalyzers.cs";
 VersionBumper.VersionBumper.PathsToUnityPackageJsons = new[]
 {
     "\\UnityPackage.NetStandard2.1\\package.json"

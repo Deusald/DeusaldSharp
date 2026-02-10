@@ -3,7 +3,7 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>DeusaldSharp</PackageId>
-        <PackageVersion>8.1.0</PackageVersion>
+        <PackageVersion>9.0.0</PackageVersion>
         <Title>DeusaldSharp</Title>
         <Authors>Adam "Deusald" Orliński</Authors>
         <Description>C# utils that are often useful in game development.</Description>
@@ -15,8 +15,8 @@
         <PackageTags>C# Tools Utils</PackageTags>
         <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
-        <AssemblyVersion>8.1.0</AssemblyVersion>
+        <TargetFrameworks>netstandard2.1;net10.0</TargetFrameworks>
+        <AssemblyVersion>9.0.0</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>

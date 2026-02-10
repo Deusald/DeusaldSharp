@@ -5,7 +5,19 @@
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
+        <PackageVersion>9.0.0</PackageVersion>
+        <AssemblyVersion>9.0.0</AssemblyVersion>
 
+        <Title>DeusaldSharp.Analyzers</Title>
+        <Authors>Adam "Deusald" Orliński</Authors>
+        <Description>C# utils that are often useful in game development.</Description>
+        <Copyright>Copyright ©Adam "Deusald" Orliński 2020</Copyright>
+        <PackageProjectUrl>https://github.com/Deusald/DeusaldSharp</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/Deusald/DeusaldSharp</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageTags>C# Tools Utils</PackageTags>
+        
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
 
