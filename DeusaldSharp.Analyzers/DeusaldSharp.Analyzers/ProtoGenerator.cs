@@ -164,6 +164,45 @@ public sealed class ProtoGenerator : IIncrementalGenerator
                     id));
                 return null;
             }
+            
+            // Direct generic field: public T Data;
+            if (f.Type is ITypeParameterSymbol tpField && IsProtoMsgBaseDerived(tpField) && !tpField.HasConstructorConstraint)
+            {
+                spc.ReportDiagnostic(Diagnostic.Create(
+                    new DiagnosticDescriptor(
+                        id: "DSHP005",
+                        title: "Generic Proto field type must have new() constraint",
+                        messageFormat:
+                        "Field '{0}' uses generic type parameter '{1}' which is deserialized via 'new {1}()'. Add 'where {1} : new()' to the containing type.",
+                        category: "DeusaldSharp.Proto",
+                        DiagnosticSeverity.Error,
+                        isEnabledByDefault: true),
+                    f.Locations.FirstOrDefault(),
+                    $"{msgType.Name}.{f.Name}",
+                    tpField.Name));
+                return null;
+            }
+
+            // List generic element: public List<T> Data;
+            if (TryGetListElement(f.Type, out ITypeSymbol elem) &&
+                elem is ITypeParameterSymbol tpElem &&
+                IsProtoMsgBaseDerived(tpElem) &&
+                !tpElem.HasConstructorConstraint)
+            {
+                spc.ReportDiagnostic(Diagnostic.Create(
+                    new DiagnosticDescriptor(
+                        id: "DSHP006",
+                        title: "Generic List Proto field type must have new() constraint",
+                        messageFormat:
+                        "Field '{0}' uses generic type parameter '{1}' which is deserialized via 'new {1}()'. Add 'where {1} : new()' to the containing type.",
+                        category: "DeusaldSharp.Proto",
+                        DiagnosticSeverity.Error,
+                        isEnabledByDefault: true),
+                    f.Locations.FirstOrDefault(),
+                    $"{msgType.Name}.{f.Name}",
+                    tpElem.Name));
+                return null;
+            }
 
             if (!TryClassifyFieldType(f.Type, f.NullableAnnotation, out _))
             {
@@ -381,6 +420,17 @@ public sealed class ProtoGenerator : IIncrementalGenerator
 
     private static bool IsProtoMsgBaseDerived(ITypeSymbol type)
     {
+        // Support generic type parameters (e.g., T) by looking at constraints.
+        if (type is ITypeParameterSymbol tp)
+        {
+            foreach (var c in tp.ConstraintTypes)
+            {
+                if (IsProtoMsgBaseDerived(c))
+                    return true;
+            }
+            return false;
+        }
+        
         if (type is not INamedTypeSymbol nts) return false;
 
         for (INamedTypeSymbol? t = nts; t is not null; t = t.BaseType)
@@ -408,7 +458,17 @@ public sealed class ProtoGenerator : IIncrementalGenerator
 
         if (ns is not null) sb.Append("namespace ").Append(ns).AppendLine(" {");
 
-        sb.Append("public partial class ").Append(msgName).AppendLine();
+        sb.Append("public partial class ").Append(msgName);
+
+        if (msgType.TypeParameters.Length > 0)
+        {
+            sb.Append('<');
+            sb.Append(string.Join(", ", msgType.TypeParameters.Select(p => p.Name)));
+            sb.Append('>');
+        }
+
+        sb.AppendLine();
+        
         sb.AppendLine("{");
 
         // Serialize

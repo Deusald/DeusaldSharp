@@ -83,6 +83,12 @@ namespace DeusaldSharpTests
         [ProtoField(1)] public EmptyMsg? Msg;
     }
 
+    [PublicAPI]
+    public partial class GenericMsg<T> : ProtoMsgBase where T : ProtoMsgBase, new()
+    {
+        [ProtoField(1)] public T? Msg;
+    }
+
     /// <summary>
     /// “Full” message to cover most public ProtoField factories.
     /// </summary>
@@ -232,6 +238,25 @@ namespace DeusaldSharpTests
         }
 
         [Test]
+        public void Proto_Generic_Msg()
+        {
+            GenericMsg<ChildMsg> genericMsg = new GenericMsg<ChildMsg>
+            {
+                Msg = new()
+                {
+                    X    = 5,
+                    Flag = true
+                }
+            };
+
+            GenericMsg<ChildMsg> newMsg = ProtoMsgBase.Deserialize<GenericMsg<ChildMsg>>(genericMsg.Serialize());
+
+            Assert.That(newMsg.Msg,      Is.Not.Null);
+            Assert.That(newMsg.Msg!.X,   Is.EqualTo(5));
+            Assert.That(newMsg.Msg.Flag, Is.True);
+        }
+
+        [Test]
         public void Proto_Roundtrip_Primitives_Specials_Nullables_Lists_Objects()
         {
             // Arrange
@@ -285,17 +310,17 @@ namespace DeusaldSharpTests
                 Assert.That(roundtrip.I, Is.EqualTo(msg.I));
                 Assert.That(roundtrip.S, Is.EqualTo(msg.S));
 
-                Assert.That(roundtrip.G, Is.EqualTo(msg.G));
-                Assert.That(roundtrip.DT, Is.EqualTo(msg.DT));
-                Assert.That(roundtrip.TS, Is.EqualTo(msg.TS));
-                Assert.That(roundtrip.V, Is.EqualTo(msg.V));
+                Assert.That(roundtrip.G,    Is.EqualTo(msg.G));
+                Assert.That(roundtrip.DT,   Is.EqualTo(msg.DT));
+                Assert.That(roundtrip.TS,   Is.EqualTo(msg.TS));
+                Assert.That(roundtrip.V,    Is.EqualTo(msg.V));
                 Assert.That(roundtrip.Code, Is.EqualTo(msg.Code));
 
-                Assert.That(roundtrip.NI, Is.EqualTo(msg.NI));
-                Assert.That(roundtrip.NG, Is.EqualTo(msg.NG));
+                Assert.That(roundtrip.NI,  Is.EqualTo(msg.NI));
+                Assert.That(roundtrip.NG,  Is.EqualTo(msg.NG));
                 Assert.That(roundtrip.NTS, Is.EqualTo(msg.NTS));
 
-                Assert.That(roundtrip.E, Is.EqualTo(msg.E));
+                Assert.That(roundtrip.E,  Is.EqualTo(msg.E));
                 Assert.That(roundtrip.NE, Is.EqualTo(msg.NE));
 
                 Assert.That(roundtrip.Ints, Is.EqualTo(msg.Ints));
@@ -310,18 +335,18 @@ namespace DeusaldSharpTests
                 Assert.That(roundtrip.NStrings, Is.EqualTo(new[] { "x", "", "y" }));
                 Assert.That(roundtrip.NEnums,   Is.EqualTo(msg.NEnums));
 
-                Assert.That(roundtrip.Child.X, Is.EqualTo(msg.Child.X));
+                Assert.That(roundtrip.Child.X,    Is.EqualTo(msg.Child.X));
                 Assert.That(roundtrip.Child.Flag, Is.EqualTo(msg.Child.Flag));
 
-                Assert.That(roundtrip.Children.Count, Is.EqualTo(2));
-                Assert.That(roundtrip.Children[0].X, Is.EqualTo(1));
+                Assert.That(roundtrip.Children.Count,   Is.EqualTo(2));
+                Assert.That(roundtrip.Children[0].X,    Is.EqualTo(1));
                 Assert.That(roundtrip.Children[0].Flag, Is.EqualTo(false));
-                Assert.That(roundtrip.Children[1].X, Is.EqualTo(2));
+                Assert.That(roundtrip.Children[1].X,    Is.EqualTo(2));
                 Assert.That(roundtrip.Children[1].Flag, Is.EqualTo(true));
 
-                Assert.That(roundtrip.NChildren, Is.Not.Null);
-                Assert.That(roundtrip.NChildren!.Count, Is.EqualTo(1));
-                Assert.That(roundtrip.NChildren[0].X, Is.EqualTo(42));
+                Assert.That(roundtrip.NChildren,         Is.Not.Null);
+                Assert.That(roundtrip.NChildren!.Count,  Is.EqualTo(1));
+                Assert.That(roundtrip.NChildren[0].X,    Is.EqualTo(42));
                 Assert.That(roundtrip.NChildren[0].Flag, Is.EqualTo(true));
             });
         }
@@ -436,15 +461,15 @@ namespace DeusaldSharpTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(ra.NI, Is.Null);
-                Assert.That(ra.NG, Is.Null);
+                Assert.That(ra.NI,  Is.Null);
+                Assert.That(ra.NG,  Is.Null);
                 Assert.That(ra.NTS, Is.Null);
-                Assert.That(ra.NE, Is.Null);
+                Assert.That(ra.NE,  Is.Null);
 
-                Assert.That(rb.NI, Is.EqualTo(b.NI));
-                Assert.That(rb.NG, Is.EqualTo(b.NG));
+                Assert.That(rb.NI,  Is.EqualTo(b.NI));
+                Assert.That(rb.NG,  Is.EqualTo(b.NG));
                 Assert.That(rb.NTS, Is.EqualTo(b.NTS));
-                Assert.That(rb.NE, Is.EqualTo(b.NE));
+                Assert.That(rb.NE,  Is.EqualTo(b.NE));
             });
         }
 
@@ -463,7 +488,7 @@ namespace DeusaldSharpTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(ra.NInts, Is.Null);
+                Assert.That(ra.NInts,    Is.Null);
                 Assert.That(ra.NStrings, Is.Null);
 
                 Assert.That(rb.NInts,    Is.EqualTo(new[] { 1, 2, 3 }));
@@ -491,12 +516,12 @@ namespace DeusaldSharpTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(r.Children.Count, Is.EqualTo(3));
-                Assert.That(r.Children[0].X, Is.EqualTo(1));
+                Assert.That(r.Children.Count,   Is.EqualTo(3));
+                Assert.That(r.Children[0].X,    Is.EqualTo(1));
                 Assert.That(r.Children[0].Flag, Is.EqualTo(false));
-                Assert.That(r.Children[1].X, Is.EqualTo(2));
+                Assert.That(r.Children[1].X,    Is.EqualTo(2));
                 Assert.That(r.Children[1].Flag, Is.EqualTo(true));
-                Assert.That(r.Children[2].X, Is.EqualTo(3));
+                Assert.That(r.Children[2].X,    Is.EqualTo(3));
                 Assert.That(r.Children[2].Flag, Is.EqualTo(false));
             });
         }
@@ -540,7 +565,7 @@ namespace DeusaldSharpTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(r.E, Is.EqualTo(TestEnumSByte.Neg));
+                Assert.That(r.E,  Is.EqualTo(TestEnumSByte.Neg));
                 Assert.That(r.NE, Is.EqualTo(TestEnumSByte.Pos));
             });
         }
@@ -579,15 +604,15 @@ namespace DeusaldSharpTests
                 byte[]  data = msg.Serialize();
                 RootMsg r    = ProtoMsgBase.Deserialize<RootMsg>(data);
 
-                Assert.That(r.I, Is.EqualTo(msg.I));
-                Assert.That(r.S, Is.EqualTo(msg.S));
-                Assert.That(r.B, Is.EqualTo(msg.B));
-                Assert.That(r.V, Is.EqualTo(msg.V));
+                Assert.That(r.I,  Is.EqualTo(msg.I));
+                Assert.That(r.S,  Is.EqualTo(msg.S));
+                Assert.That(r.B,  Is.EqualTo(msg.B));
+                Assert.That(r.V,  Is.EqualTo(msg.V));
                 Assert.That(r.NI, Is.EqualTo(msg.NI));
                 Assert.That(r.NE, Is.EqualTo(msg.NE));
 
-                Assert.That(r.Children.Count, Is.EqualTo(msg.Children.Count));
-                Assert.That(r.Children[0].X, Is.EqualTo(msg.Children[0].X));
+                Assert.That(r.Children.Count,   Is.EqualTo(msg.Children.Count));
+                Assert.That(r.Children[0].X,    Is.EqualTo(msg.Children[0].X));
                 Assert.That(r.Children[0].Flag, Is.EqualTo(msg.Children[0].Flag));
             }
         }
