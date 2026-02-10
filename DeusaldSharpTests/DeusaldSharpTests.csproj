@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\DeusaldSharp.Analyzers\DeusaldSharp.Analyzers\DeusaldSharp.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\DeusaldSharp\DeusaldSharp.csproj" />
     </ItemGroup>
 

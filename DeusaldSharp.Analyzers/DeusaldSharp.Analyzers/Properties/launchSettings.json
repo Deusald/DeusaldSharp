@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "DebugRoslynSourceGenerator": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "../DeusaldSharp.Analyzers.Sample/DeusaldSharp.Analyzers.Sample.csproj"
+    }
+  }
+}

@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using JetBrains.Annotations;
 
 namespace DeusaldSharp
@@ -379,5 +380,33 @@ namespace DeusaldSharp
         }
 
         #endregion SerializableEnum
+
+        #region HttpStatusCode
+
+        public static void Write(this BinaryWriter binaryWriter, HttpStatusCode httpStatusCode)
+        {
+            binaryWriter.Write((int)httpStatusCode);
+        }
+
+        public static HttpStatusCode ReadHttpStatusCode(this BinaryReader binaryReader)
+        {
+            return (HttpStatusCode)binaryReader.ReadInt32();
+        }
+        
+        public static void Write(this BinaryWriter writer, List<HttpStatusCode> values)
+        {
+            writer.Write(values.Count);
+            foreach (HttpStatusCode v in values) writer.Write(v);
+        }
+
+        public static List<HttpStatusCode> ReadHttpStatusCodeList(this BinaryReader reader)
+        {
+            int                  size = reader.ReadInt32();
+            List<HttpStatusCode> list = new List<HttpStatusCode>(size);
+            for (int i = 0; i < size; i++) list.Add(reader.ReadHttpStatusCode());
+            return list;
+        }
+
+        #endregion HttpStatusCode
     }
 }
