@@ -73,7 +73,7 @@ namespace DeusaldSharpTests
         [ProtoField(1)] public int  X;
         [ProtoField(2)] public bool Flag;
     }
-
+    
     [PublicAPI]
     public partial class EmptyMsg : ProtoMsgBase { }
 

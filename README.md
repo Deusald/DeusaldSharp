@@ -443,326 +443,206 @@ This guarantees:
 
 ---
 
-#### `ProtoField`
+## Proto module (ProtoMsgBase / ProtoField)
 
-Factory class for defining fields.
+The Proto module is a **lightweight, explicit, binary message format** with **source-generated** serialization.
+It is designed for:
 
-Each field provides:
+- deterministic serialization (stable bytes for the same state),
+- schema evolution (forward/backward compatibility),
+- **zero reflection at runtime**,
+- fast skip of unknown fields,
+- a wire format that is easy to debug.
 
-* a writer `(BinaryWriter, ref T)`
-* a reader `(BinaryReader, ref T)`
-
-Factories are **strongly typed**, explicit, and allocation-aware.
-
----
-
-## Wire format guarantees
-
-### 1. Length-delimited fields
-
-Every field is length-prefixed.
-
-This means:
-
-* unknown fields can be skipped safely
-* corrupted or truncated payloads throw immediately
-* nested objects and lists are safe
+It is intentionally **not** Protocol Buffers–compatible. It’s a pragmatic binary format aimed at game networking,
+save files, and internal tooling where stability and control matter more than varint compactness.
 
 ---
 
-### 2. Deterministic serialization
+### How it works
 
-For the same object state:
+1. You create a **partial** message type that derives from `ProtoMsgBase`.
+2. You mark instance fields with `[ProtoField(<ushort id>)]`.
+3. The **DeusaldSharp.Analyzers** source generator emits `Serialize(BinaryWriter)` and `Deserialize(BinaryReader)`
+   into a generated `.g.cs` file at build time.
 
-* `Serialize()` always produces identical byte output
-* field order is stable (schema order)
-
-This is verified by tests and enables:
-
-* hashing
-* caching
-* binary diffs
-* deterministic replays
+> If a type derives from `ProtoMsgBase` but is not `partial`, you’ll get a build error.
 
 ---
 
-### 3. Duplicate fields
-
-If the same field ID appears multiple times in the stream:
-
-```text
-[id=1][payload=10]
-[id=1][payload=99]
-```
-
-Result:
+### Quick start
 
 ```csharp
-field == 99
-```
+using DeusaldSharp;
 
-This allows:
-
-* patch-style updates
-* stream merging
-* late overrides
-
----
-
-## Supported field types
-
-### Primitives
-
-```csharp
-Bool, Byte, SByte,
-Short, UShort,
-Int, UInt,
-Long, ULong,
-Float, Double,
-Char, String
-```
-
-Example:
-
-```csharp
-ProtoField.Int<MyMsg>(1, static (ref MyMsg o) => ref o.Value);
-```
-
----
-
-### Nullable value types
-
-Serialized as:
-
-```
-[bool hasValue][value?]
-```
-
-Factories:
-
-```csharp
-NullableInt
-NullableGuid
-NullableTimeSpan
-NullableSerializableEnum
-```
-
-Example:
-
-```csharp
-ProtoField.NullableInt<MyMsg>(2, static (ref MyMsg o) => ref o.OptionalValue);
-```
-
----
-
-### Lists (non-nullable)
-
-Serialized as:
-
-```
-[int count][item][item][item]...
-```
-
-Primitive list factories:
-
-```csharp
-ByteList, SByteList, BoolList,
-ShortList, UShortList,
-IntList, UIntList,
-LongList, ULongList,
-FloatList, DoubleList,
-CharList, StringList
-```
-
-Specialized lists:
-
-```csharp
-GuidList
-DateTimeList
-TimeSpanList
-VersionList
-SerializableEnumList
-```
-
-Example:
-
-```csharp
-ProtoField.IntList<MyMsg>(3, static (ref MyMsg o) => ref o.Values);
-```
-
----
-
-### Nullable lists
-
-Serialized as:
-
-```
-[bool hasValue]
-  false -> null
-  true  -> [int count][items...]
-```
-
-Factories:
-
-```csharp
-NullableIntList
-NullableStringList
-NullableGuidList
-NullableSerializableEnumList
-...
-```
-
-Example:
-
-```csharp
-ProtoField.NullableStringList<MyMsg>(4, static (ref MyMsg o) => ref o.Tags);
-```
-
----
-
-### Enums
-
-Enums are serialized using the **SerializableEnum** system.
-
-Requirements:
-
-* enum must be annotated with `[SerializableEnum]`
-* wire type is explicit and stable
-
-```csharp
-[SerializableEnum(SerializableEnumType.SByte)]
-public enum State : sbyte
+public partial class LoginMsg : ProtoMsgBase
 {
-    Idle = 0,
-    Active = 1,
-    Disabled = -1
+    [ProtoField(1)] public int    UserId;
+    [ProtoField(2)] public string Name = "";
+    [ProtoField(3)] public bool   IsGuest;
 }
-```
 
-Field usage:
+// Serialize
+var msg  = new LoginMsg { UserId = 42, Name = "Ada", IsGuest = false };
+byte[] bytes = msg.Serialize();
 
-```csharp
-ProtoField.SerializableEnum<MyMsg, State>(5, static (ref MyMsg o) => ref o.State);
-ProtoField.NullableSerializableEnum<MyMsg, State>(6, static (ref MyMsg o) => ref o.OptionalState);
-```
+// Deserialize (instance)
+var copy = new LoginMsg();
+copy.Deserialize(bytes);
 
-Negative values are fully supported.
-
----
-
-## Nested messages (objects)
-
-### Single object
-
-Objects are serialized as **length-delimited nested messages**:
-
-```
-[int byteLength][objectBytes]
-```
-
-Factory:
-
-```csharp
-ProtoField.Object<Parent, Child>(7, static (ref Parent o) => ref o.Child);
+// Deserialize (generic helper)
+LoginMsg copy2 = ProtoMsgBase.Deserialize<LoginMsg>(bytes);
 ```
 
 ---
 
-### Nullable object
+### Wire format
 
-Serialized as:
+Each field is serialized as a **length-delimited record**:
 
 ```
-[int byteLength]
-  0    -> null
-  >0   -> nested message bytes
+[ushort fieldId][int payloadLength][payloadBytes...]
 ```
 
-Factory:
+Fields are written in ascending `fieldId` order (the generator sorts them).
+Unknown `fieldId`s are skipped by reading `payloadLength` and seeking forward.
 
-```csharp
-ProtoField.NullableObject<Parent, Child>(8, static (ref Parent o) => ref o.OptionalChild);
-```
-
-`null` roundtrips as `null`.
+**Important:** serialization requires a **seekable** stream (e.g. `MemoryStream`) because the generator writes
+`payloadLength` after the payload is written.
 
 ---
 
-### Object lists
+### Field IDs and compatibility
 
-Serialized as:
+Rules enforced at compile time:
+
+- `ProtoField` IDs must be **non-zero** `ushort`
+- IDs must be **unique within a message** (duplicates are a generator error)
+
+Compatibility behavior:
+
+- **New reader reading old data:** missing fields stay at default (`0`, `false`, `null`, etc.)
+- **Old reader reading new data:** unknown fields are skipped safely
+- **Reordering fields:** safe; meaning is defined by ID, not order
+
+---
+
+### Supported field types
+
+The generator supports:
+
+**Primitives & string**
+- `bool, byte, sbyte, short, ushort, int, uint, long, ulong, float, double, char, string`
+
+**Special built-ins**
+- `Guid, DateTime, TimeSpan, Version, System.Net.HttpStatusCode`
+
+**Serializable enums**
+- Any enum marked with `[SerializableEnum(...)]` (see the SerializableEnum module)
+
+**Nullable value types**
+- `Nullable<T>` where `T` is a supported primitive/special/serializable-enum
+
+**Nested messages**
+- Any non-nullable reference type deriving from `ProtoMsgBase`
+- Nullable reference nested message (e.g. `ChildMsg?`) is supported as well
+
+**Lists**
+- `List<T>` where `T` is any supported primitive/special/serializable-enum
+- `List<T>` where `T : ProtoMsgBase` (items may be `null`)
+- Nullable list reference `List<T>?`
+
+If a field type is not supported, you’ll get a build error pointing at the field.
+
+---
+
+### Nullability rules on the wire
+
+**Nullable value types (`int?`, `Guid?`, etc.)**
+
+```
+[bool hasValue][value if hasValue]
+```
+
+**Nullable nested message (`ChildMsg?`)**
+
+```
+[bool hasValue][nested payload bytes...]
+```
+
+The nested message bytes are stored inside the field payload (the outer field already has a length).
+
+**Object lists (`List<ChildMsg>`)**
 
 ```
 [int count]
-  [int len][object bytes]
-  [int len][object bytes]
-  ...
+  repeat count times:
+    [bool hasItem]
+      false -> null element
+      true  -> [int itemLen][item bytes...]
 ```
 
-Factories:
+---
+
+### Examples
+
+#### 1) Serializable enum field
 
 ```csharp
-ObjectList
-NullableObjectList
+using DeusaldSharp;
+
+[SerializableEnum(SerializableEnumType.SByte)]
+public enum PlayerState : sbyte
+{
+    Idle = 0,
+    Playing = 1,
+    Disconnected = -1
+}
+
+public partial class StateMsg : ProtoMsgBase
+{
+    [ProtoField(1)] public PlayerState State;
+    [ProtoField(2)] public PlayerState? Previous;
+}
 ```
 
-This design guarantees:
+#### 2) Nested messages + nullable nested messages
 
-* no overreads
-* no stream corruption
-* safe partial deserialization
+```csharp
+using DeusaldSharp;
 
----
+public partial class Vec2Msg : ProtoMsgBase
+{
+    [ProtoField(1)] public float X;
+    [ProtoField(2)] public float Y;
+}
 
-## Schema evolution
+public partial class SpawnMsg : ProtoMsgBase
+{
+    [ProtoField(1)] public int     EntityId;
+    [ProtoField(2)] public Vec2Msg Position = new Vec2Msg();
+    [ProtoField(3)] public Vec2Msg? Velocity; // nullable nested message
+}
+```
 
-### Old writer → New reader
+#### 3) Lists (including lists of messages)
 
-New fields default to zero/null.
+```csharp
+using System.Collections.Generic;
+using DeusaldSharp;
 
-### New writer → Old reader
-
-Unknown fields are skipped.
-
-### Reordering fields
-
-Safe — field IDs define meaning, not order.
-
-### Removing fields
-
-Safe — reader simply never sees them.
-
----
-
-## Error handling
-
-* Corrupt payload lengths → `EndOfStreamException`
-* Enum overflow / mismatch → `InvalidOperationException`
-* Missing enum attribute → `InvalidOperationException`
-
-Errors fail fast and loudly.
+public partial class InventoryMsg : ProtoMsgBase
+{
+    [ProtoField(1)] public List<int> ItemIds = new();
+    [ProtoField(2)] public List<Vec2Msg> Checkpoints = new(); // items may be null if you put nulls in the list
+    [ProtoField(3)] public List<string>? Tags;                // nullable list reference
+}
+```
 
 ---
 
-## Design philosophy
+### Error handling
 
-This Proto module is intentionally:
-
-* **explicit over magical**
-* **schema-driven**
-* **allocation-aware**
-* **debuggable**
-* **stable over time**
-
-It is especially suitable for:
-
-* multiplayer game protocols
-* save file formats
-* editor tooling
-* deterministic simulations
-
-If you need varints, reflection, or codegen — this is not that.
-If you need control, safety, and long-term stability — this is.
-
----
-
+- Unsupported field types / duplicate IDs / non-partial messages → **build-time errors** (generator diagnostics)
+- Truncated/corrupt payloads → runtime exceptions from `BinaryReader` (fail-fast)
+- Serializable-enum misuse (missing attribute, invalid underlying type) → runtime exceptions from the SerializableEnum helpers

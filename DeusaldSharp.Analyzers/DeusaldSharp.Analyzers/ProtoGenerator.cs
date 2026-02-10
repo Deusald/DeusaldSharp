@@ -74,6 +74,8 @@ public sealed class ProtoGenerator : IIncrementalGenerator
 
     private static void Emit(SourceProductionContext spc, INamedTypeSymbol msgType)
     {
+        if (IsAbstract(msgType)) return;
+        
         if (!IsPartial(msgType))
         {
             spc.ReportDiagnostic(Diagnostic.Create(
@@ -96,6 +98,12 @@ public sealed class ProtoGenerator : IIncrementalGenerator
         spc.AddSource($"{msgType.Name}.DeusaldSharpProto.g.cs", src);
     }
 
+    private static bool IsAbstract(INamedTypeSymbol t)
+        => t.DeclaringSyntaxReferences
+            .Select(r => r.GetSyntax())
+            .OfType<ClassDeclarationSyntax>()
+            .Any(s => s.Modifiers.Any(m => m.Text == "abstract"));
+    
     private static bool IsPartial(INamedTypeSymbol t)
         => t.DeclaringSyntaxReferences
             .Select(r => r.GetSyntax())
