@@ -2,12 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-        <PackageVersion>9.0.0</PackageVersion>
-        <AssemblyVersion>9.0.0</AssemblyVersion>
-
+        <PackageVersion>10.0.0</PackageVersion>
+        <AssemblyVersion>10.0.0</AssemblyVersion>
+        <PackageType>Analyzer</PackageType>
         <Title>DeusaldSharp.Analyzers</Title>
         <Authors>Adam "Deusald" Orliński</Authors>
         <Description>C# utils that are often useful in game development.</Description>

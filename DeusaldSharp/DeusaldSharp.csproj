@@ -3,7 +3,7 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>DeusaldSharp</PackageId>
-        <PackageVersion>9.0.0</PackageVersion>
+        <PackageVersion>10.0.0</PackageVersion>
         <Title>DeusaldSharp</Title>
         <Authors>Adam "Deusald" Orliński</Authors>
         <Description>C# utils that are often useful in game development.</Description>
@@ -16,7 +16,7 @@
         <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
         <TargetFrameworks>netstandard2.1;net10.0</TargetFrameworks>
-        <AssemblyVersion>9.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
