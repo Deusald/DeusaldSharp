@@ -42,7 +42,7 @@ namespace DeusaldSharpTests
             int secondsToMilliseconds = 15 * MathUtils.SEC_TO_MILLISECONDS;
 
             // Assert
-            Assert.AreEqual(15000, secondsToMilliseconds);
+            Assert.That(secondsToMilliseconds, Is.EqualTo(15000));
         }
 
         /// <summary> Testing conversion from minutes to seconds. </summary>
@@ -56,7 +56,7 @@ namespace DeusaldSharpTests
             int minutesToSeconds = 15 * MathUtils.MIN_TO_SEC;
 
             // Assert
-            Assert.AreEqual(900, minutesToSeconds);
+            Assert.That(minutesToSeconds, Is.EqualTo(900));
         }
 
         /// <summary> Testing conversion from hours to minutes. </summary>
@@ -70,7 +70,7 @@ namespace DeusaldSharpTests
             int hoursToMinutes = 15 * MathUtils.HOURS_TO_MIN;
 
             // Assert
-            Assert.AreEqual(900, hoursToMinutes);
+            Assert.That(hoursToMinutes, Is.EqualTo(900));
         }
 
         /// <summary> Testing conversion from days to hours. </summary>
@@ -84,7 +84,7 @@ namespace DeusaldSharpTests
             int daysToHours = 15 * MathUtils.DAYS_TO_HOURS;
 
             // Assert
-            Assert.AreEqual(360, daysToHours);
+            Assert.That(daysToHours, Is.EqualTo(360));
         }
 
         /// <summary> Testing conversion from days to seconds. </summary>
@@ -98,7 +98,7 @@ namespace DeusaldSharpTests
             int daysToSeconds = 3 * MathUtils.DAYS_TO_HOURS * MathUtils.HOURS_TO_MIN * MathUtils.MIN_TO_SEC;
 
             // Assert
-            Assert.AreEqual(259200, daysToSeconds);
+            Assert.That(daysToSeconds, Is.EqualTo(259200));
         }
 
         /// <summary> Testing conversion from degrees to radians. </summary>
@@ -112,7 +112,7 @@ namespace DeusaldSharpTests
             float radians = 90 * MathUtils.DEG_TO_RAD;
 
             // Assert
-            Assert.AreEqual(1.57079637f, radians);
+            Assert.That(radians, Is.EqualTo(1.57079637f));
         }
 
         /// <summary> Testing conversion from radians to degrees. </summary>
@@ -126,7 +126,7 @@ namespace DeusaldSharpTests
             float degrees = 3.1415926536f * MathUtils.RAD_TO_DEG;
 
             // Assert
-            Assert.AreEqual(180f, degrees);
+            Assert.That(degrees, Is.EqualTo(180f));
         }
 
         /// <summary> Providing data and expecting mathematically correct result. </summary>
@@ -144,9 +144,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(15.1f, clamp);
-                Assert.AreEqual(3,     clampTwo);
-                Assert.AreEqual(5,     clampThree);
+                Assert.That(clamp, Is.EqualTo(15.1f));
+                Assert.That(clampTwo, Is.EqualTo(3));
+                Assert.That(clampThree, Is.EqualTo(5));
             });
         }
 
@@ -165,9 +165,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(7.75f, lerp);
-                Assert.AreEqual(3.25f, lerpTwo);
-                Assert.AreEqual(5.5f,  lerpThree);
+                Assert.That(lerp, Is.EqualTo(7.75f));
+                Assert.That(lerpTwo, Is.EqualTo(3.25f));
+                Assert.That(lerpThree, Is.EqualTo(5.5f));
             });
         }
 
@@ -186,9 +186,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(0.75f, inverseLerp);
-                Assert.AreEqual(0.25f, inverseLerpTwo);
-                Assert.AreEqual(0.5f,  inverseLerpThree);
+                Assert.That(inverseLerp, Is.EqualTo(0.75f));
+                Assert.That(inverseLerpTwo, Is.EqualTo(0.25f));
+                Assert.That(inverseLerpThree, Is.EqualTo(0.5f));
             });
         }
 
@@ -207,9 +207,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(7.451587f, roundToDecimal);
-                Assert.AreEqual(7.452f,    roundToDecimalTwo);
-                Assert.AreEqual(7f,        roundToDecimalThree);
+                Assert.That(roundToDecimal, Is.EqualTo(7.451587f));
+                Assert.That(roundToDecimalTwo, Is.EqualTo(7.452f));
+                Assert.That(roundToDecimalThree, Is.EqualTo(7f));
             });
         }
 
@@ -228,9 +228,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(isFloatZero);
-                Assert.IsFalse(isFloatZeroTwo);
-                Assert.IsFalse(isFloatZeroThree);
+                Assert.That(isFloatZero, Is.True);
+                Assert.That(isFloatZeroTwo, Is.False);
+                Assert.That(isFloatZeroThree, Is.False);
             });
         }
 
@@ -249,9 +249,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(areFloatsEquals);
-                Assert.IsFalse(areFloatsEqualsTwo);
-                Assert.IsFalse(areFloatsEqualsThree);
+                Assert.That(areFloatsEquals, Is.True);
+                Assert.That(areFloatsEqualsTwo, Is.False);
+                Assert.That(areFloatsEqualsThree, Is.False);
             });
         }
 
@@ -272,8 +272,8 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(5, markedBitOne);
-                Assert.AreEqual(14, markedBitTwo);
+                Assert.That(markedBitOne, Is.EqualTo(5));
+                Assert.That(markedBitTwo, Is.EqualTo(14));
             });
         }
 
@@ -294,8 +294,8 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(5, numberOfSetBits);
-                Assert.AreEqual(7, numberOfSetBitsTwo);
+                Assert.That(numberOfSetBits, Is.EqualTo(5));
+                Assert.That(numberOfSetBitsTwo, Is.EqualTo(7));
             });
         }
 
@@ -320,10 +320,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(isSingleBitOn);
-                Assert.IsFalse(isSingleBitOnTwo);
-                Assert.IsTrue(isSingleBitOnThree);
-                Assert.IsTrue(isSingleBitOnFour);
+                Assert.That(isSingleBitOn, Is.False);
+                Assert.That(isSingleBitOnTwo, Is.False);
+                Assert.That(isSingleBitOnThree, Is.True);
+                Assert.That(isSingleBitOnFour, Is.True);
             });
         }
 
@@ -348,10 +348,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(hasAnyBitOn);
-                Assert.IsTrue(hasAnyBitOnTwo);
-                Assert.IsFalse(hasAnyBitOnThree);
-                Assert.IsFalse(hasAnyBitOnFour);
+                Assert.That(hasAnyBitOn, Is.True);
+                Assert.That(hasAnyBitOnTwo, Is.True);
+                Assert.That(hasAnyBitOnThree, Is.False);
+                Assert.That(hasAnyBitOnFour, Is.False);
             });
         }
 
@@ -368,18 +368,18 @@ namespace DeusaldSharpTests
             uint three = uint.MaxValue;
             int  four  = int.MaxValue;
 
-            bool hasAllBitsOn      = MathUtils.HasAllBitsOn(one,   uint.MaxValue);
-            bool hasAllBitsOnTwo   = MathUtils.HasAllBitsOn(two,   int.MaxValue);
-            bool hasAllBitsOnThree = MathUtils.HasAllBitsOn(three, uint.MaxValue);
-            bool hasAllBitsOnFour  = MathUtils.HasAllBitsOn(four,  int.MaxValue);
+            bool hasAllBitsOn      = one.HasAllBitsOn(uint.MaxValue);
+            bool hasAllBitsOnTwo   = two.HasAllBitsOn(int.MaxValue);
+            bool hasAllBitsOnThree = three.HasAllBitsOn(uint.MaxValue);
+            bool hasAllBitsOnFour  = four.HasAllBitsOn(int.MaxValue);
 
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(hasAllBitsOn);
-                Assert.IsFalse(hasAllBitsOnTwo);
-                Assert.IsTrue(hasAllBitsOnThree);
-                Assert.IsTrue(hasAllBitsOnFour);
+                Assert.That(hasAllBitsOn, Is.False);
+                Assert.That(hasAllBitsOnTwo, Is.False);
+                Assert.That(hasAllBitsOnThree, Is.True);
+                Assert.That(hasAllBitsOnFour, Is.True);
             });
         }
     }

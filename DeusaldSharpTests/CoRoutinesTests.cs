@@ -32,7 +32,7 @@ namespace DeusaldSharpTests
 {
     public class CoRoutinesTests
     {
-        public static CoRoCtrl CoRoCtrl = new CoRoCtrl();
+        public static readonly CoRoCtrl CoRoCtrl = new();
         
         [SetUp]
         public void Setup()
@@ -58,15 +58,15 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            Assert.AreEqual(0, value);
+            Assert.That(value, Is.EqualTo(0));
             CoRoCtrl.RunCoRoutine(TestMethod());
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(2, value);
+            Assert.That(value, Is.EqualTo(2));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(3, value);
+            Assert.That(value, Is.EqualTo(3));
         }
         
         /// <summary> Testing coRoutine in coRoutine and WaitUntilDone state. </summary>
@@ -92,15 +92,15 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            Assert.AreEqual(0, value);
+            Assert.That(value, Is.EqualTo(0));
             CoRoCtrl.RunCoRoutine(TestMethod());
-            Assert.AreEqual(2, value);
+            Assert.That(value, Is.EqualTo(2));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(2, value);
+            Assert.That(value, Is.EqualTo(2));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(3, value);
+            Assert.That(value, Is.EqualTo(3));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(4, value);
+            Assert.That(value, Is.EqualTo(4));
         }
         
         /// <summary> Testing standard coRoutine flow and waitForSeconds state. </summary>
@@ -119,15 +119,15 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            Assert.AreEqual(0, value);
+            Assert.That(value, Is.EqualTo(0));
             CoRoCtrl.RunCoRoutine(TestMethod());
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(2, value);
+            Assert.That(value, Is.EqualTo(2));
         }
         
         /// <summary> Testing standard coRoutine flow and waitForCondition state. </summary>
@@ -148,16 +148,16 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            Assert.AreEqual(0, value);
+            Assert.That(value, Is.EqualTo(0));
             CoRoCtrl.RunCoRoutine(TestMethod());
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             pass = true;
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(2, value);
+            Assert.That(value, Is.EqualTo(2));
         }
         
         /// <summary> Testing coTags and coHandles. </summary>
@@ -178,13 +178,13 @@ namespace DeusaldSharpTests
             }
 
             // Act & Assert
-            Assert.AreEqual(0, value);
+            Assert.That(value, Is.EqualTo(0));
             ICoHandle coHandle = CoRoCtrl.RunCoRoutine(TestMethod(), new CoTag(1));
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
             CoRoCtrl.Update(0.33f);
-            Assert.AreEqual(new CoTag(1), coHandle.CoTag);
+            Assert.That(coHandle.CoTag, Is.EqualTo(new CoTag(1)));
             coHandle.Kill();
-            Assert.AreEqual(false, coHandle.IsAlive);
+            Assert.That(coHandle.IsAlive, Is.False);
         }
     }
 }

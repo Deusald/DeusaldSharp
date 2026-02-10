@@ -47,9 +47,9 @@ namespace DeusaldSharpTests
             Assert.Multiple(() =>
             {
                 enumerator.MoveNext();
-                Assert.AreEqual(10,  enumerator.Current);
+                Assert.That(enumerator.Current, Is.EqualTo(10));
                 enumerator.MoveNext();
-                Assert.AreEqual(15,  enumerator.Current);
+                Assert.That(enumerator.Current, Is.EqualTo(15));
             });
         }
         
@@ -69,10 +69,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1,  one[0]);
-                Assert.AreEqual(1,  one[1]);
-                Assert.AreEqual(10, two[0]);
-                Assert.AreEqual(11, two[1]);
+                Assert.That(one[0], Is.EqualTo(1));
+                Assert.That(one[1], Is.EqualTo(1));
+                Assert.That(two[0], Is.EqualTo(10));
+                Assert.That(two[1], Is.EqualTo(11));
             });
         }
     }

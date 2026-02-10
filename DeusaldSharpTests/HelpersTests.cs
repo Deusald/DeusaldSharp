@@ -53,8 +53,8 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(10,         ten);
-                Assert.AreEqual(TestEnum.B, b);
+                Assert.That(ten, Is.EqualTo(10));
+                Assert.That(b, Is.EqualTo(TestEnum.B));
             });
         }
     }

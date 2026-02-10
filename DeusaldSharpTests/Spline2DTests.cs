@@ -38,8 +38,8 @@ namespace DeusaldSharpTests
         public void Spline2D_Length()
         {
             // Arrange
-            Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});
-            Spline2D two = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2)});
+            Spline2D one = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2) });
+            Spline2D two = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2) });
 
             // Act
             float lengthOne = one.Length;
@@ -48,8 +48,8 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(2,           lengthOne);
-                Assert.AreEqual(2.82842731f, lengthTwo);
+                Assert.That(lengthOne, Is.EqualTo(2));
+                Assert.That(lengthTwo, Is.EqualTo(2.82842731f));
             });
         }
 
@@ -59,8 +59,8 @@ namespace DeusaldSharpTests
         public void Spline2D_Interpolate()
         {
             // Arrange
-            Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});
-            Spline2D two = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2)});
+            Spline2D one = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2) });
+            Spline2D two = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2) });
 
             // Act
             Vector2 positionOne = one.Interpolate(0.75f);
@@ -69,19 +69,21 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector2(0,       1.5625f), positionOne);
-                Assert.AreEqual(new Vector2(1.5625f, 1.5625f), positionTwo);
+                Assert.That(positionOne.x, Is.EqualTo(0).Within(1e-5f));
+                Assert.That(positionOne.y, Is.EqualTo(1.5625f).Within(1e-5f));
+                Assert.That(positionTwo.x, Is.EqualTo(1.5625f).Within(1e-5f));
+                Assert.That(positionTwo.y, Is.EqualTo(1.5625f).Within(1e-5f));
             });
         }
-        
+
         /// <summary> Testing interpolate position on spline. Providing points and expecting correct position approximation. </summary>
         [Test]
         [TestOf(nameof(Spline2D.InterpolateDistance))]
         public void Spline2D_InterpolateDistance()
         {
             // Arrange
-            Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});
-            Spline2D two = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2)});
+            Spline2D one = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2) });
+            Spline2D two = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2) });
 
             // Act
             Vector2 positionOne = one.InterpolateDistance(1.5f);
@@ -90,19 +92,21 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector2(0,          1.5015914f), positionOne);
-                Assert.AreEqual(new Vector2(1.0576555f, 1.0576555f), positionTwo);
+                Assert.That(positionOne.x, Is.EqualTo(0).Within(1e-5f));
+                Assert.That(positionOne.y, Is.EqualTo(1.5015914f).Within(1e-5f));
+                Assert.That(positionTwo.x, Is.EqualTo(1.0576555f).Within(1e-5f));
+                Assert.That(positionTwo.y, Is.EqualTo(1.0576555f).Within(1e-5f));
             });
         }
-        
+
         /// <summary> Testing multiply request of interpolate position on spline. Providing points and expecting correct position approximation. </summary>
         [Test]
         [TestOf(nameof(Spline2D.InterpolateDistance))]
         public void Spline2D_InterpolateDistance_Multiply()
         {
             // Arrange
-            Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});
-            Spline2D two = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2)});
+            Spline2D one = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2) });
+            Spline2D two = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2) });
 
             // Act
             Vector2 positionOne   = one.InterpolateDistance(1.5f);
@@ -115,12 +119,18 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector2(0,           1.5015914f),  positionOne);
-                Assert.AreEqual(new Vector2(1.0576555f,  1.0576555f),  positionTwo);
-                Assert.AreEqual(new Vector2(0,           0.49840856f), positionThree);
-                Assert.AreEqual(new Vector2(0.35238677f, 0.35238677f), positionFour);
-                Assert.AreEqual(new Vector2(0,           1.5015914f),  positionFive);
-                Assert.AreEqual(new Vector2(1.0576555f,  1.0576555f),  positionSix);
+                Assert.That(positionOne.x,   Is.EqualTo(0).Within(1e-5f));
+                Assert.That(positionOne.y,   Is.EqualTo(1.5015914f).Within(1e-5f));
+                Assert.That(positionTwo.x,   Is.EqualTo(1.0576555f).Within(1e-5f));
+                Assert.That(positionTwo.y,   Is.EqualTo(1.0576555f).Within(1e-5f));
+                Assert.That(positionThree.x, Is.EqualTo(0).Within(1e-5f));
+                Assert.That(positionThree.y, Is.EqualTo(0.49840856f).Within(1e-5f));
+                Assert.That(positionFour.x,  Is.EqualTo(0.35238677f).Within(1e-5f));
+                Assert.That(positionFour.y,  Is.EqualTo(0.35238677f).Within(1e-5f));
+                Assert.That(positionFive.x,  Is.EqualTo(0).Within(1e-5f));
+                Assert.That(positionFive.y,  Is.EqualTo(1.5015914f).Within(1e-5f));
+                Assert.That(positionSix.x,   Is.EqualTo(1.0576555f).Within(1e-5f));
+                Assert.That(positionSix.y,   Is.EqualTo(1.0576555f).Within(1e-5f));
             });
         }
     }

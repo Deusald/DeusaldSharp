@@ -57,36 +57,57 @@ namespace DeusaldSharp
             return sb.ToString();
         }
 
+        private const int _SALT_SIZE  = 16;
+        private const int _HASH_SIZE  = 32; // 256-bit
+        private const int _ITERATIONS = 100_000;
+
         public static string HashPassword(this string password)
         {
-            byte[] salt;
-            RandomNumberGenerator.Create().GetBytes(salt = new byte[16]);
-            Rfc2898DeriveBytes pbkdf2    = new Rfc2898DeriveBytes(password, salt, 100000, HashAlgorithmName.SHA512);
-            byte[]             hash      = pbkdf2.GetBytes(20);
-            byte[]             hashBytes = new byte[36];
-            Array.Copy(salt, 0, hashBytes, 0,  16);
-            Array.Copy(hash, 0, hashBytes, 16, 20);
-            return Convert.ToBase64String(hashBytes);
+            byte[] salt = new byte[_SALT_SIZE];
+            RandomNumberGenerator.Fill(salt);
+
+            byte[] hash = new byte[_HASH_SIZE];
+            DeriveKey(password, salt, hash);
+
+            byte[] result = new byte[_SALT_SIZE + _HASH_SIZE];
+            Buffer.BlockCopy(salt, 0, result, 0,          _SALT_SIZE);
+            Buffer.BlockCopy(hash, 0, result, _SALT_SIZE, _HASH_SIZE);
+
+            return Convert.ToBase64String(result);
         }
 
         public static bool CompareHashedPasswords(this string enteredPass, string passHash)
         {
-            /* Extract the bytes */
             byte[] hashBytes = Convert.FromBase64String(passHash);
-            /* Get the salt */
-            byte[] salt = new byte[16];
-            Array.Copy(hashBytes, 0, salt, 0, 16);
-            /* Compute the hash on the password the user entered */
-            Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(enteredPass, salt, 100000, HashAlgorithmName.SHA512);
-            byte[]             hash   = pbkdf2.GetBytes(20);
-            /* Compare the results */
-            for (int i = 0; i < 20; i++)
-                if (hashBytes[i + 16] != hash[i])
-                    return false;
+            if (hashBytes.Length != _SALT_SIZE + _HASH_SIZE)
+                return false;
 
-            return true;
+            ReadOnlySpan<byte> salt         = hashBytes.AsSpan(0,          _SALT_SIZE);
+            ReadOnlySpan<byte> expectedHash = hashBytes.AsSpan(_SALT_SIZE, _HASH_SIZE);
+
+            byte[] actualHash = new byte[_HASH_SIZE];
+            DeriveKey(enteredPass, salt, actualHash);
+
+            return CryptographicOperations.FixedTimeEquals(actualHash, expectedHash);
         }
-        
+
+        private static void DeriveKey(string password, ReadOnlySpan<byte> salt, Span<byte> destination)
+        {
+            #if NET6_0_OR_GREATER
+            Rfc2898DeriveBytes.Pbkdf2(
+                password,
+                salt,
+                destination,
+                _ITERATIONS,
+                HashAlgorithmName.SHA512);
+            #else
+            // netstandard2.1 / older TFMs: no static Pbkdf2 API, use the ctor.
+            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt.ToArray(), _ITERATIONS, HashAlgorithmName.SHA512);
+            byte[]    derived = pbkdf2.GetBytes(destination.Length);
+            derived.CopyTo(destination);
+            #endif
+        }
+
         public static string ComputeHmacSha256Hex(this string message, string key)
         {
             ASCIIEncoding encoding = new ASCIIEncoding();
@@ -125,7 +146,7 @@ namespace DeusaldSharp
         {
             return Regex.Replace(text, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])", " $1");
         }
-        
+
         /// <summary>Checks if a string is Null or white space</summary>
         public static bool IsNullOrWhiteSpace(this string? val) => string.IsNullOrWhiteSpace(val);
 

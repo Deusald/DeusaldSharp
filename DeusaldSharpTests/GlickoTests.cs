@@ -54,15 +54,15 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.Greater(newA.Rating, a.Rating);
-                Assert.Less(newB.Rating, b.Rating);
+                Assert.That(newA.Rating, Is.GreaterThan(a.Rating));
+                Assert.That(newB.Rating, Is.LessThan(b.Rating));
 
-                Assert.Greater(newA.Volatility, 0.0);
-                Assert.Greater(newB.Volatility, 0.0);
+                Assert.That(newA.Volatility, Is.GreaterThan(0.0));
+                Assert.That(newB.Volatility, Is.GreaterThan(0.0));
 
                 // After an outcome, uncertainty should reduce (deviation typically decreases).
-                Assert.Less(newA.Deviation, a.Deviation);
-                Assert.Less(newB.Deviation, b.Deviation);
+                Assert.That(newA.Deviation, Is.LessThan(a.Deviation));
+                Assert.That(newB.Deviation, Is.LessThan(b.Deviation));
             });
         }
 
@@ -80,14 +80,14 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(a.Rating, newA.Rating, 0.000001);
-                Assert.AreEqual(b.Rating, newB.Rating, 0.000001);
+                Assert.That(newA.Rating, Is.EqualTo(a.Rating).Within(0.000001));
+                Assert.That(newB.Rating, Is.EqualTo(b.Rating).Within(0.000001));
 
-                Assert.Greater(newA.Volatility, 0.0);
-                Assert.Greater(newB.Volatility, 0.0);
+                Assert.That(newA.Volatility, Is.GreaterThan(0.0));
+                Assert.That(newB.Volatility, Is.GreaterThan(0.0));
 
-                Assert.Less(newA.Deviation, a.Deviation);
-                Assert.Less(newB.Deviation, b.Deviation);
+                Assert.That(newA.Deviation, Is.LessThan(a.Deviation));
+                Assert.That(newB.Deviation, Is.LessThan(b.Deviation));
             });
         }
 
@@ -111,9 +111,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.Greater(updated.Rating, player.Rating);
-                Assert.Greater(updated.Volatility, 0.0);
-                Assert.Less(updated.Deviation, player.Deviation);
+                Assert.That(updated.Rating, Is.GreaterThan(player.Rating));
+                Assert.That(updated.Volatility, Is.GreaterThan(0.0));
+                Assert.That(updated.Deviation, Is.LessThan(player.Deviation));
             });
         }
 
@@ -136,9 +136,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.Less(updated.Rating, player.Rating);
-                Assert.Greater(updated.Volatility, 0.0);
-                Assert.Less(updated.Deviation, player.Deviation);
+                Assert.That(updated.Rating, Is.LessThan(player.Rating));
+                Assert.That(updated.Volatility, Is.GreaterThan(0.0));
+                Assert.That(updated.Deviation, Is.LessThan(player.Deviation));
             });
         }
 
@@ -154,7 +154,7 @@ namespace DeusaldSharpTests
             double p = Glicko.GetWinProbability(a, b);
 
             // Assert
-            Assert.AreEqual(0.5, p, 0.000001);
+            Assert.That(p, Is.EqualTo(0.5).Within(0.000001));
         }
 
         [Test]
@@ -175,9 +175,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.Greater(pStrong, 0.5);
-                Assert.Less(pWeak, 0.5);
-                Assert.AreEqual(1.0, pStrong + pWeak, 0.000001);
+                Assert.That(pStrong, Is.GreaterThan(0.5));
+                Assert.That(pWeak, Is.LessThan(0.5));
+                Assert.That(pStrong + pWeak, Is.EqualTo(1.0).Within(0.000001));
             });
         }
 
@@ -202,8 +202,8 @@ namespace DeusaldSharpTests
 
             // Assert
             // Higher opponent uncertainty should reduce confidence (closer to 0.5).
-            Assert.Greater(pLowDev, pHighDev);
-            Assert.Greater(pHighDev, 0.5);
+            Assert.That(pLowDev, Is.GreaterThan(pHighDev));
+            Assert.That(pHighDev, Is.GreaterThan(0.5));
         }
 
         [Test]
@@ -220,10 +220,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(didDecay);
-                Assert.AreEqual(player.Rating, decayed.Rating, 0.0);
-                Assert.AreEqual(player.Deviation, decayed.Deviation, 0.0);
-                Assert.AreEqual(player.Volatility, decayed.Volatility, 0.0);
+                Assert.That(didDecay, Is.False);
+                Assert.That(decayed.Rating, Is.EqualTo(player.Rating).Within(0.0));
+                Assert.That(decayed.Deviation, Is.EqualTo(player.Deviation).Within(0.0));
+                Assert.That(decayed.Volatility, Is.EqualTo(player.Volatility).Within(0.0));
             });
         }
 
@@ -243,11 +243,11 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(didDecay);
-                Assert.GreaterOrEqual(decayed.Deviation, player.Deviation);
-                Assert.LessOrEqual(decayed.Deviation, 350.0);
-                Assert.AreEqual(player.Rating, decayed.Rating, 0.0);
-                Assert.AreEqual(player.Volatility, decayed.Volatility, 0.0);
+                Assert.That(didDecay, Is.True);
+                Assert.That(decayed.Deviation, Is.GreaterThanOrEqualTo(player.Deviation));
+                Assert.That(decayed.Deviation, Is.LessThanOrEqualTo(350.0));
+                Assert.That(decayed.Rating, Is.EqualTo(player.Rating).Within(0.0));
+                Assert.That(decayed.Volatility, Is.EqualTo(player.Volatility).Within(0.0));
             });
         }
     }

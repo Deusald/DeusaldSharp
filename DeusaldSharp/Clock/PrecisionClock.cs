@@ -22,51 +22,31 @@
 // SOFTWARE.
 
 using System;
+using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace DeusaldSharp
 {
-    /// <summary> Clock for multiplayer game servers. </summary>
     public class PrecisionClock
     {
-        #region Public Types
-
         public delegate void TickDelegate(ulong frameNumber);
 
-        #endregion Public Types
-
-        #region Properties
-
-        /// <summary> Is Clock still executing. </summary>
         public bool IsAlive { get; private set; }
 
-        #endregion Properties
-
-        #region Variables
-
-        /// <summary> This event will be executed with every tick. </summary>
         public event TickDelegate? Tick;
-
-        /// <summary> This event will be executed if one frame will take more time we can give. </summary>
-        public event Action? TooLongFrame;
-
-        #endregion Variables
-
-        #region Special Methods
+        public event Action?       TooLongFrame;
 
         public PrecisionClock(ushort ticksPerSecond)
         {
             IsAlive = true;
 
             if (MathUtils.SEC_TO_MILLISECONDS % ticksPerSecond != 0)
-            {
                 throw new Exception("Number of ticks per second must be factor of 1000.");
-            }
 
-            double millisecondsForFrame = MathUtils.SEC_TO_MILLISECONDS / (double)ticksPerSecond;
+            double msPerFrame = MathUtils.SEC_TO_MILLISECONDS / (double)ticksPerSecond;
+            var    interval   = TimeSpan.FromMilliseconds(msPerFrame);
 
-            Thread clockThread = new Thread(ClockStep(TimeSpan.FromMilliseconds(millisecondsForFrame)).Wait)
+            Thread clockThread = new Thread(() => ClockStep(interval))
             {
                 IsBackground = true,
                 Priority     = ThreadPriority.AboveNormal
@@ -75,67 +55,48 @@ namespace DeusaldSharp
             clockThread.Start();
         }
 
-        #endregion Special Methods
+        public void Kill() => IsAlive = false;
 
-        #region Public Methods
-
-        public void Kill()
+        private void ClockStep(TimeSpan interval)
         {
-            IsAlive = false;
-        }
+            // Ticks in Stopwatch are based on Stopwatch.Frequency
+            long intervalTicks = (long)(interval.TotalSeconds * Stopwatch.Frequency);
 
-        #endregion Public Methods
+            // Stage thresholds (tune if you want)
+            const int stage1SleepMs = 2; // coarse sleep when far away
+            long      stage1Ticks   = (long)(stage1SleepMs / 1000.0 * Stopwatch.Frequency);
 
-        #region Private Methods
+            // warmup: align first tick to next interval boundary
+            Stopwatch sw    = Stopwatch.StartNew();
+            ulong     frame = 0;
 
-        private async Task ClockStep(TimeSpan interval)
-        {
-            ulong frame       = 0;
-            long  stage1Delay = 20;
-            long  stage2Delay = 5 * TimeSpan.TicksPerMillisecond;
-
-            DateTime target = DateTime.Now + new TimeSpan(0, 0, 0, 0, (int)stage1Delay + 2);
-            bool     warmup = true;
+            long nextTick = ((sw.ElapsedTicks / intervalTicks) + 1) * intervalTicks;
 
             while (IsAlive)
             {
-                // Getting closer to 'target' - Lets do the less precise but least cpu intensive wait
-                TimeSpan timeLeft = target - DateTime.Now;
+                long now       = sw.ElapsedTicks;
+                long remaining = nextTick - now;
 
-                if (timeLeft.TotalMilliseconds >= stage1Delay)
+                // Coarse sleep if we have time (avoid oversleep by leaving a little margin)
+                if (remaining > stage1Ticks)
                 {
-                    await Task.Delay((int)(timeLeft.TotalMilliseconds - stage1Delay));
+                    // Sleep most of the remaining time, keep a margin
+                    double remainingMs = (remaining - stage1Ticks) * 1000.0 / Stopwatch.Frequency;
+                    if (remainingMs > 1)
+                        Thread.Sleep((int)remainingMs);
                 }
 
-                // Getting closer to 'target' - Lets do the semi-precise but mild cpu intensive wait - Task.Yield()
-                while (DateTime.Now < target - new TimeSpan(stage2Delay))
-                {
-                    await Task.Yield();
-                }
-
-                // Extremely close to 'target' - Lets do the most precise but very cpu/battery intensive 
-                while (DateTime.Now < target)
-                {
+                // Spin until the target
+                while (sw.ElapsedTicks < nextTick)
                     Thread.SpinWait(64);
-                }
 
-                if (!warmup)
-                {
-                    Tick?.Invoke(frame++);
-                    target += interval;
+                Tick?.Invoke(frame++);
+                nextTick += intervalTicks;
 
-                    if (DateTime.Now >= target) TooLongFrame?.Invoke();
-                }
-                else
-                {
-                    long start1   = DateTime.Now.Ticks + (long)interval.TotalMilliseconds * TimeSpan.TicksPerMillisecond;
-                    long alignVal = start1 - start1 % ((long)interval.TotalMilliseconds * TimeSpan.TicksPerMillisecond);
-                    target = new DateTime(alignVal);
-                    warmup = false;
-                }
+                // If we’re already behind nextTick, we missed the budget
+                if (sw.ElapsedTicks >= nextTick)
+                    TooLongFrame?.Invoke();
             }
         }
-
-        #endregion Private Methods
     }
 }

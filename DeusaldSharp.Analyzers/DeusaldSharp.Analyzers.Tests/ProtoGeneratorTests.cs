@@ -64,7 +64,7 @@ namespace MyGame
     [Fact]
     public void Generates_Model_And_Overrides()
     {
-        ProtoGenerator        generator = new ProtoGenerator(); // or ProtoGenerator, whatever your class name is
+        ProtoGenerator        generator = new ProtoGenerator();
         CSharpGeneratorDriver driver    = CSharpGeneratorDriver.Create(generator);
 
         CSharpCompilation compilation = CSharpCompilation.Create(

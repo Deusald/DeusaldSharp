@@ -53,11 +53,11 @@ namespace DeusaldSharpTests
             // Act
             await Task.Delay(5 * MathUtils.SEC_TO_MILLISECONDS);
             serverClock.Kill();
+            
+            int expected = 50 * 5; // 250
+            Assert.That(lastFrameNumber, Is.InRange(expected - 5, expected + 5));
 
-            // Assert (50 frames per second * 5 seconds - 2 frames for warmup start)
-            Assert.LessOrEqual(50*5-2, lastFrameNumber);
-            Assert.GreaterOrEqual(50*5, lastFrameNumber);
-            Assert.AreEqual(false, serverClock.IsAlive);
+            Assert.That(serverClock.IsAlive, Is.False);
         }
 
         /// <summary> Testing standard Game Server Clock. </summary>
@@ -79,11 +79,10 @@ namespace DeusaldSharpTests
             // Act
             await Task.Delay(5 * MathUtils.SEC_TO_MILLISECONDS);
             serverClock.Kill();
-
-            // Assert (50 frames per second * 5 seconds - 2 frames for warmup start)
-            Assert.LessOrEqual(50*5-2, lastFrameNumber);
-            Assert.GreaterOrEqual(50*5, lastFrameNumber);
-            Assert.AreEqual(false, serverClock.IsAlive);
+            
+            int expected = 50 * 5; // 250
+            Assert.That(lastFrameNumber,     Is.InRange(expected - 5, expected + 5));
+            Assert.That(serverClock.IsAlive, Is.False);
         }
     }
 }

@@ -110,7 +110,13 @@ public sealed class ProtoGenerator : IIncrementalGenerator
             .OfType<ClassDeclarationSyntax>()
             .Any(s => s.Modifiers.Any(m => m.Text == "partial"));
 
-    private sealed record FieldInfo(ushort Id, string Name, ITypeSymbol Type, NullableAnnotation NullableAnnotation);
+    private sealed record FieldInfo(ushort Id, string Name, ITypeSymbol Type, NullableAnnotation NullableAnnotation)
+    {
+        public ushort             Id                 { get; } = Id;
+        public string             Name               { get; } = Name;
+        public ITypeSymbol        Type               { get; } = Type;
+        public NullableAnnotation NullableAnnotation { get; } = NullableAnnotation;
+    }
 
     private static List<FieldInfo>? GatherFields(SourceProductionContext spc, INamedTypeSymbol msgType)
     {
@@ -195,7 +201,12 @@ public sealed class ProtoGenerator : IIncrementalGenerator
         NullableList,   // nullable ref List<T> where T is supported
     }
 
-    private sealed record FieldTypeInfo(FieldKind Kind, ITypeSymbol? ElementType = null, FieldTypeInfo? Inner = null);
+    private sealed record FieldTypeInfo(FieldKind Kind, ITypeSymbol? ElementType = null, FieldTypeInfo? Inner = null)
+    {
+        public FieldKind      Kind        { get; } = Kind;
+        public ITypeSymbol?   ElementType { get; } = ElementType;
+        public FieldTypeInfo? Inner       { get; } = Inner;
+    }
 
     private static bool TryClassifyFieldType(ITypeSymbol type, NullableAnnotation nullableAnn, out FieldTypeInfo info)
     {
@@ -406,10 +417,14 @@ public sealed class ProtoGenerator : IIncrementalGenerator
         sb.AppendLine("        if (!writer.BaseStream.CanSeek)");
         sb.AppendLine("            throw new InvalidOperationException(\"Proto serialization requires a seekable stream (e.g., MemoryStream). \");");
         sb.AppendLine();
-        sb.AppendLine("        long __lenPos;");
-        sb.AppendLine("        long __start;");
-        sb.AppendLine("        long __end;");
-        sb.AppendLine("        int __payloadLen;");
+
+        if (fields.Count > 0)
+        {
+            sb.AppendLine("        long __lenPos;");
+            sb.AppendLine("        long __start;");
+            sb.AppendLine("        long __end;");
+            sb.AppendLine("        int __payloadLen;");
+        }
 
         foreach (FieldInfo f in fields)
         {

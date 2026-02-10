@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using System.IO;
 using DeusaldSharp;
 using NUnit.Framework;
+
+
 // ReSharper disable UnusedMember.Local
 
 namespace DeusaldSharpTests
@@ -101,25 +103,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                CollectionAssert.AreEqual(bytes, rBytes);
-                CollectionAssert.AreEqual(sbytes, rSBytes);
-                CollectionAssert.AreEqual(bools, rBools);
-                CollectionAssert.AreEqual(shorts, rShorts);
-                CollectionAssert.AreEqual(ushorts, rUShorts);
-                CollectionAssert.AreEqual(ints, rInts);
-                CollectionAssert.AreEqual(uints, rUInts);
-                CollectionAssert.AreEqual(longs, rLongs);
-                CollectionAssert.AreEqual(ulongs, rULongs);
+                Assert.That(rBytes, Is.EqualTo(bytes));
+                Assert.That(rSBytes, Is.EqualTo(sbytes));
+                Assert.That(rBools, Is.EqualTo(bools));
+                Assert.That(rShorts, Is.EqualTo(shorts));
+                Assert.That(rUShorts, Is.EqualTo(ushorts));
+                Assert.That(rInts, Is.EqualTo(ints));
+                Assert.That(rUInts, Is.EqualTo(uints));
+                Assert.That(rLongs, Is.EqualTo(longs));
+                Assert.That(rULongs, Is.EqualTo(ulongs));
 
                 // floats/doubles: exact roundtrip through BinaryWriter/Reader
-                CollectionAssert.AreEqual(floats, rFloats);
-                CollectionAssert.AreEqual(doubles, rDoubles);
+                Assert.That(rFloats, Is.EqualTo(floats));
+                Assert.That(rDoubles, Is.EqualTo(doubles));
 
-                CollectionAssert.AreEqual(chars, rChars);
+                Assert.That(rChars, Is.EqualTo(chars));
 
                 // note: Write(List<string>) writes (v ?? string.Empty)
                 List<string> expectedStrings = new() { "", "hello", "", "żółw", "line\nbreak" };
-                CollectionAssert.AreEqual(expectedStrings, rStrings);
+                Assert.That(rStrings, Is.EqualTo(expectedStrings));
             });
         }
 
@@ -142,7 +144,7 @@ namespace DeusaldSharpTests
             Guid rg = br.ReadGuid();
 
             // Assert
-            Assert.AreEqual(g, rg);
+            Assert.That(g, Is.EqualTo(rg));
         }
 
         [Test]
@@ -160,7 +162,7 @@ namespace DeusaldSharpTests
             List<Guid> r = br.ReadGuidList();
 
             // Assert
-            CollectionAssert.AreEqual(list, r);
+            Assert.That(r, Is.EqualTo(list));
         }
 
         [Test]
@@ -178,7 +180,7 @@ namespace DeusaldSharpTests
             DateTime rdt = br.ReadDateTime();
 
             // Assert
-            Assert.AreEqual(dt, rdt);
+            Assert.That(rdt, Is.EqualTo(dt));
         }
 
         [Test]
@@ -201,7 +203,7 @@ namespace DeusaldSharpTests
             List<DateTime> r = br.ReadDateTimeList();
 
             // Assert
-            CollectionAssert.AreEqual(list, r);
+            Assert.That(r, Is.EqualTo(list));
         }
 
         [Test]
@@ -219,7 +221,7 @@ namespace DeusaldSharpTests
             TimeSpan rts = br.ReadTimeSpan();
 
             // Assert
-            Assert.AreEqual(ts, rts);
+            Assert.That(rts, Is.EqualTo(ts));
         }
 
         [Test]
@@ -242,7 +244,7 @@ namespace DeusaldSharpTests
             List<TimeSpan> r = br.ReadTimeSpanList();
 
             // Assert
-            CollectionAssert.AreEqual(list, r);
+            Assert.That(r, Is.EqualTo(list));
         }
 
         [Test]
@@ -260,7 +262,7 @@ namespace DeusaldSharpTests
             Version rv = br.ReadVersion();
 
             // Assert
-            Assert.AreEqual(v, rv);
+            Assert.That(rv, Is.EqualTo(v));
         }
 
         [Test]
@@ -278,7 +280,7 @@ namespace DeusaldSharpTests
             List<Version> r = br.ReadVersionList();
 
             // Assert
-            CollectionAssert.AreEqual(list, r);
+            Assert.That(r, Is.EqualTo(list));
         }
 
         #endregion Guid / DateTime / TimeSpan / Version
@@ -349,10 +351,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(TestByteEnum.Max, r1);
-                Assert.AreEqual(TestSByteEnum.Neg, r2);
-                Assert.AreEqual(TestIntEnum.Min, r3);
-                Assert.AreEqual(TestIntEnum.Max, r4);
+                Assert.That(r1, Is.EqualTo(TestByteEnum.Max));
+                Assert.That(r2, Is.EqualTo(TestSByteEnum.Neg));
+                Assert.That(r3, Is.EqualTo(TestIntEnum.Min));
+                Assert.That(r4, Is.EqualTo(TestIntEnum.Max));
             });
         }
 
@@ -373,7 +375,7 @@ namespace DeusaldSharpTests
             List<TestIntEnum> r = br.ReadSerializableEnumList<TestIntEnum>();
 
             // Assert
-            CollectionAssert.AreEqual(list, r);
+            Assert.That(r, Is.EqualTo(list));
         }
 
         [Test]

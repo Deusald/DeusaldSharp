@@ -43,17 +43,39 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(0f,  0f,  0f),  Vector3.Zero);
-                Assert.AreEqual(new Vector3(1f,  1f,  1f),  Vector3.One);
-                Assert.AreEqual(new Vector3(1f,  0f,  0f),  Vector3.UnitX);
-                Assert.AreEqual(new Vector3(0f,  1f,  0f),  Vector3.UnitY);
-                Assert.AreEqual(new Vector3(0f,  0f,  1f),  Vector3.UnitZ);
-                Assert.AreEqual(new Vector3(0f,  1f,  0f),  Vector3.Up);
-                Assert.AreEqual(new Vector3(0f,  -1f, 0f),  Vector3.Down);
-                Assert.AreEqual(new Vector3(1f,  0f,  0f),  Vector3.Right);
-                Assert.AreEqual(new Vector3(-1f, 0f,  0f),  Vector3.Left);
-                Assert.AreEqual(new Vector3(0f,  0f,  -1f), Vector3.Forward);
-                Assert.AreEqual(new Vector3(0f,  0f,  1f),  Vector3.Backward);
+                Assert.That(Vector3.Zero.x,     Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Zero.y,     Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Zero.z,     Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.One.x,      Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(Vector3.One.y,      Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(Vector3.One.z,      Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(Vector3.UnitX.x,    Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(Vector3.UnitX.y,    Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.UnitX.z,    Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.UnitY.x,    Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.UnitY.y,    Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(Vector3.UnitY.z,    Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.UnitZ.x,    Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.UnitZ.y,    Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.UnitZ.z,    Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(Vector3.Up.x,       Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Up.y,       Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(Vector3.Up.z,       Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Down.x,     Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Down.y,     Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(Vector3.Down.z,     Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Right.x,    Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(Vector3.Right.y,    Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Right.z,    Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Left.x,     Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(Vector3.Left.y,     Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Left.z,     Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Forward.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Forward.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Forward.z,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(Vector3.Backward.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Backward.y, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(Vector3.Backward.z, Is.EqualTo(1f).Within(1e-5f));
             });
         }
 
@@ -79,11 +101,11 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1.7321f,  oneMagnitude);
-                Assert.AreEqual(6.7082f,  twoMagnitude);
-                Assert.AreEqual(1f,       threeMagnitude);
-                Assert.AreEqual(10.0623f, fourMagnitude);
-                Assert.AreEqual(0f,       fiveMagnitude);
+                Assert.That(oneMagnitude,   Is.EqualTo(1.7321f));
+                Assert.That(twoMagnitude,   Is.EqualTo(6.7082f));
+                Assert.That(threeMagnitude, Is.EqualTo(1f));
+                Assert.That(fourMagnitude,  Is.EqualTo(10.0623f));
+                Assert.That(fiveMagnitude,  Is.EqualTo(0f));
             });
         }
 
@@ -109,11 +131,11 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(3f,      oneSqrMagnitude);
-                Assert.AreEqual(45f,     twoSqrMagnitude);
-                Assert.AreEqual(1f,      threeSqrMagnitude);
-                Assert.AreEqual(101.25f, fourSqrMagnitude);
-                Assert.AreEqual(0f,      fiveSqrMagnitude);
+                Assert.That(oneSqrMagnitude,   Is.EqualTo(3f));
+                Assert.That(twoSqrMagnitude,   Is.EqualTo(45f));
+                Assert.That(threeSqrMagnitude, Is.EqualTo(1f));
+                Assert.That(fourSqrMagnitude,  Is.EqualTo(101.25f));
+                Assert.That(fiveSqrMagnitude,  Is.EqualTo(0f));
             });
         }
 
@@ -140,17 +162,37 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(0.57735026f,   0.57735026f,  0.57735026f),  oneNormalized);
-                Assert.AreEqual(new Vector3(0.2981424f,    -0.745356f,   0.5962848f),   twoNormalized);
-                Assert.AreEqual(new Vector3(0f,            1f,           0f),           threeNormalized);
-                Assert.AreEqual(new Vector3(-0.099380806f, 0.049690403f, -0.99380803f), fourNormalized);
-                Assert.AreEqual(new Vector3(0f,            0f,           0f),           fiveNormalized);
+                Assert.That(oneNormalized.x,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(oneNormalized.y,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(oneNormalized.z,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(twoNormalized.x,   Is.EqualTo(0.2981424f).Within(1e-5f));
+                Assert.That(twoNormalized.y,   Is.EqualTo(-0.745356f).Within(1e-5f));
+                Assert.That(twoNormalized.z,   Is.EqualTo(0.5962848f).Within(1e-5f));
+                Assert.That(threeNormalized.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(threeNormalized.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(threeNormalized.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourNormalized.x,  Is.EqualTo(-0.099380806f).Within(1e-5f));
+                Assert.That(fourNormalized.y,  Is.EqualTo(0.049690403f).Within(1e-5f));
+                Assert.That(fourNormalized.z,  Is.EqualTo(-0.99380803f).Within(1e-5f));
+                Assert.That(fiveNormalized.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fiveNormalized.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fiveNormalized.z,  Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -177,17 +219,37 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(-1f, -1f,   -1f), oneNegated);
-                Assert.AreEqual(new Vector3(-2f, 5f,    -4f), twoNegated);
-                Assert.AreEqual(new Vector3(0f,  -1f,   0f),  threeNegated);
-                Assert.AreEqual(new Vector3(1f,  -0.5f, 10f), fourNegated);
-                Assert.AreEqual(new Vector3(0f,  0f,    0f),  fiveNegated);
+                Assert.That(oneNegated.x,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(oneNegated.y,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(oneNegated.z,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(twoNegated.x,   Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(twoNegated.y,   Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(twoNegated.z,   Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(threeNegated.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(threeNegated.y, Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(threeNegated.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourNegated.x,  Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(fourNegated.y,  Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(fourNegated.z,  Is.EqualTo(10f).Within(1e-5f));
+                Assert.That(fiveNegated.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fiveNegated.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fiveNegated.z,  Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -213,11 +275,11 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(oneIsValid);
-                Assert.IsTrue(twoIsValid);
-                Assert.IsFalse(threeIsValid);
-                Assert.IsFalse(fourIsValid);
-                Assert.IsTrue(fiveIsValid);
+                Assert.That(oneIsValid,   Is.True);
+                Assert.That(twoIsValid,   Is.True);
+                Assert.That(threeIsValid, Is.False);
+                Assert.That(fourIsValid,  Is.False);
+                Assert.That(fiveIsValid,  Is.True);
             });
         }
 
@@ -239,29 +301,29 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1f, one.x);
-                Assert.AreEqual(1f, one.y);
-                Assert.AreEqual(1f, one.z);
+                Assert.That(one.x, Is.EqualTo(1f));
+                Assert.That(one.y, Is.EqualTo(1f));
+                Assert.That(one.z, Is.EqualTo(1f));
 
-                Assert.AreEqual(5f, two.x);
-                Assert.AreEqual(5f, two.y);
-                Assert.AreEqual(5f, two.z);
+                Assert.That(two.x, Is.EqualTo(5f));
+                Assert.That(two.y, Is.EqualTo(5f));
+                Assert.That(two.z, Is.EqualTo(5f));
 
-                Assert.AreEqual(1f, three.x);
-                Assert.AreEqual(2f, three.y);
-                Assert.AreEqual(3f, three.z);
+                Assert.That(three.x, Is.EqualTo(1f));
+                Assert.That(three.y, Is.EqualTo(2f));
+                Assert.That(three.z, Is.EqualTo(3f));
 
-                Assert.AreEqual(6f, four.x);
-                Assert.AreEqual(7f, four.y);
-                Assert.AreEqual(0f, four.z);
+                Assert.That(four.x, Is.EqualTo(6f));
+                Assert.That(four.y, Is.EqualTo(7f));
+                Assert.That(four.z, Is.EqualTo(0f));
 
-                Assert.AreEqual(4f, five.x);
-                Assert.AreEqual(2f, five.y);
-                Assert.AreEqual(0f, five.z);
+                Assert.That(five.x, Is.EqualTo(4f));
+                Assert.That(five.y, Is.EqualTo(2f));
+                Assert.That(five.z, Is.EqualTo(0f));
 
-                Assert.AreEqual(8f, six.x);
-                Assert.AreEqual(2f, six.y);
-                Assert.AreEqual(1f, six.z);
+                Assert.That(six.x, Is.EqualTo(8f));
+                Assert.That(six.y, Is.EqualTo(2f));
+                Assert.That(six.z, Is.EqualTo(1f));
             });
         }
 
@@ -287,11 +349,21 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(2f,  3f, 4f),  one);
-                Assert.AreEqual(new Vector3(-5f, 4f, 88f), two);
-                Assert.AreEqual(new Vector3(1f,  0f, -1f), three);
-                Assert.AreEqual(new Vector3(3f,  6f, 3f),  four);
-                Assert.AreEqual(new Vector3(1f,  1f, 1f),  five);
+                Assert.That(one.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(3f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(88f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(3f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(6f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(3f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(1f).Within(1e-5f));
             });
         }
 
@@ -307,7 +379,9 @@ namespace DeusaldSharpTests
             one.SetZero();
 
             // Assert
-            Assert.AreEqual(new Vector3(0f, 0f, 0f), one);
+            Assert.That(one.x, Is.EqualTo(0f).Within(1e-5f));
+            Assert.That(one.y, Is.EqualTo(0f).Within(1e-5f));
+            Assert.That(one.z, Is.EqualTo(0f).Within(1e-5f));
         }
 
         /// <summary> Providing data and expecting mathematically correct results. </summary>
@@ -329,13 +403,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(3f, -4f,  5f),   oneTwoSum);
-                Assert.AreEqual(new Vector3(3f, 1.5f, -10f), threeFourSum);
+                Assert.That(oneTwoSum.x,    Is.EqualTo(3f).Within(1e-5f));
+                Assert.That(oneTwoSum.y,    Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(oneTwoSum.z,    Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(threeFourSum.x, Is.EqualTo(3f).Within(1e-5f));
+                Assert.That(threeFourSum.y, Is.EqualTo(1.5f).Within(1e-5f));
+                Assert.That(threeFourSum.z, Is.EqualTo(-10f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(4f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
             });
         }
 
@@ -358,13 +444,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(-1f, 6f,   -3f), oneTwoSub);
-                Assert.AreEqual(new Vector3(5f,  0.5f, 10f), threeFourSub);
+                Assert.That(oneTwoSub.x,    Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(oneTwoSub.y,    Is.EqualTo(6f).Within(1e-5f));
+                Assert.That(oneTwoSub.z,    Is.EqualTo(-3f).Within(1e-5f));
+                Assert.That(threeFourSub.x, Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(threeFourSub.y, Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(threeFourSub.z, Is.EqualTo(10f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(4f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
             });
         }
 
@@ -387,13 +485,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f), oneTwoMul);
-                Assert.AreEqual(new Vector3(-4f, 0.5f, 0f), threeFourMul);
+                Assert.That(oneTwoMul.x,    Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(oneTwoMul.y,    Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(oneTwoMul.z,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(threeFourMul.x, Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(threeFourMul.y, Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(threeFourMul.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(4f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
             });
         }
 
@@ -416,11 +526,19 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(4f,   4f,  4f), oneTwoMul);
-                Assert.AreEqual(new Vector3(-12f, -3f, 0f), threeFourMul);
+                Assert.That(oneTwoMul.x,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(oneTwoMul.y,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(oneTwoMul.z,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(threeFourMul.x, Is.EqualTo(-12f).Within(1e-5f));
+                Assert.That(threeFourMul.y, Is.EqualTo(-3f).Within(1e-5f));
+                Assert.That(threeFourMul.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f, 1f, 1f), one);
-                Assert.AreEqual(new Vector3(4f, 1f, 0f), three);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -443,13 +561,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(0.5f, -0.2f, 0.25f), oneTwoDiv);
-                Assert.AreEqual(new Vector3(-4f,  2f,    0f),    threeFourDiv);
+                Assert.That(oneTwoDiv.x,    Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(oneTwoDiv.y,    Is.EqualTo(-0.2f).Within(1e-5f));
+                Assert.That(oneTwoDiv.z,    Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(threeFourDiv.x, Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(threeFourDiv.y, Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(threeFourDiv.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(4f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
             });
         }
 
@@ -472,11 +602,19 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(0.25f, 0.25f, 0.25f), oneTwoDiv);
-                Assert.AreEqual(new Vector3(-2f,   -0.5f, 0f),    threeFourDiv);
+                Assert.That(oneTwoDiv.x,    Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(oneTwoDiv.y,    Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(oneTwoDiv.z,    Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(threeFourDiv.x, Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(threeFourDiv.y, Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(threeFourDiv.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f, 1f, 1f), one);
-                Assert.AreEqual(new Vector3(4f, 1f, 0f), three);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -496,11 +634,19 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(-1f, -1f, -1f), oneNegated);
-                Assert.AreEqual(new Vector3(-2f, 5f,  -4f), threeNegated);
+                Assert.That(oneNegated.x,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(oneNegated.y,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(oneNegated.z,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(threeNegated.x, Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(threeNegated.y, Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(threeNegated.z, Is.EqualTo(-4f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f, 1f,  1f), one);
-                Assert.AreEqual(new Vector3(2f, -5f, 4f), two);
+                Assert.That(one.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x, Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y, Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z, Is.EqualTo(4f).Within(1e-5f));
             });
         }
 
@@ -526,11 +672,21 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(-1f, -1f,   -1f), one);
-                Assert.AreEqual(new Vector3(-2f, 5f,    -4f), two);
-                Assert.AreEqual(new Vector3(0f,  -1f,   0f),  three);
-                Assert.AreEqual(new Vector3(1f,  -0.5f, 10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,    0f),  five);
+                Assert.That(one.x,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -556,11 +712,11 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1.7321f,  oneLength);
-                Assert.AreEqual(6.7082f,  twoLength);
-                Assert.AreEqual(1f,       threeLength);
-                Assert.AreEqual(10.0623f, fourLength);
-                Assert.AreEqual(0f,       fiveLength);
+                Assert.That(oneLength,   Is.EqualTo(1.7321f));
+                Assert.That(twoLength,   Is.EqualTo(6.7082f));
+                Assert.That(threeLength, Is.EqualTo(1f));
+                Assert.That(fourLength,  Is.EqualTo(10.0623f));
+                Assert.That(fiveLength,  Is.EqualTo(0f));
             });
         }
 
@@ -586,11 +742,11 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(3f,      oneLengthSquared);
-                Assert.AreEqual(45f,     twoLengthSquared);
-                Assert.AreEqual(1f,      threeLengthSquared);
-                Assert.AreEqual(101.25f, fourLengthSquared);
-                Assert.AreEqual(0f,      fiveLengthSquared);
+                Assert.That(oneLengthSquared,   Is.EqualTo(3f));
+                Assert.That(twoLengthSquared,   Is.EqualTo(45f));
+                Assert.That(threeLengthSquared, Is.EqualTo(1f));
+                Assert.That(fourLengthSquared,  Is.EqualTo(101.25f));
+                Assert.That(fiveLengthSquared,  Is.EqualTo(0f));
             });
         }
 
@@ -616,11 +772,21 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(0.57735026f,   0.57735026f,  0.57735026f),  one);
-                Assert.AreEqual(new Vector3(0.2981424f,    -0.745356f,   0.5962848f),   two);
-                Assert.AreEqual(new Vector3(0f,            1f,           0f),           three);
-                Assert.AreEqual(new Vector3(-0.099380806f, 0.049690403f, -0.99380803f), four);
-                Assert.AreEqual(new Vector3(0f,            0f,           0f),           five);
+                Assert.That(one.x,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(0.2981424f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-0.745356f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(0.5962848f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-0.099380806f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.049690403f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-0.99380803f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -647,17 +813,37 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(0.57735026f,   0.57735026f,  0.57735026f),  oneNormalized);
-                Assert.AreEqual(new Vector3(0.2981424f,    -0.745356f,   0.5962848f),   twoNormalized);
-                Assert.AreEqual(new Vector3(0f,            1f,           0f),           threeNormalized);
-                Assert.AreEqual(new Vector3(-0.099380806f, 0.049690403f, -0.99380803f), fourNormalized);
-                Assert.AreEqual(new Vector3(0f,            0f,           0f),           fiveNormalized);
+                Assert.That(oneNormalized.x,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(oneNormalized.y,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(oneNormalized.z,   Is.EqualTo(0.57735026f).Within(1e-5f));
+                Assert.That(twoNormalized.x,   Is.EqualTo(0.2981424f).Within(1e-5f));
+                Assert.That(twoNormalized.y,   Is.EqualTo(-0.745356f).Within(1e-5f));
+                Assert.That(twoNormalized.z,   Is.EqualTo(0.5962848f).Within(1e-5f));
+                Assert.That(threeNormalized.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(threeNormalized.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(threeNormalized.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourNormalized.x,  Is.EqualTo(-0.099380806f).Within(1e-5f));
+                Assert.That(fourNormalized.y,  Is.EqualTo(0.049690403f).Within(1e-5f));
+                Assert.That(fourNormalized.z,  Is.EqualTo(-0.99380803f).Within(1e-5f));
+                Assert.That(fiveNormalized.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fiveNormalized.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fiveNormalized.z,  Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -682,16 +868,34 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(9f,   -2f, -7f), oneCrossTwo);
-                Assert.AreEqual(new Vector3(-4f,  0f,  2f),  twoCrossThree);
-                Assert.AreEqual(new Vector3(-10f, 0f,  1f),  threeCrossFour);
-                Assert.AreEqual(new Vector3(0f,   0f,  0f),  fourCrossFive);
+                Assert.That(oneCrossTwo.x,    Is.EqualTo(9f).Within(1e-5f));
+                Assert.That(oneCrossTwo.y,    Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(oneCrossTwo.z,    Is.EqualTo(-7f).Within(1e-5f));
+                Assert.That(twoCrossThree.x,  Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(twoCrossThree.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(twoCrossThree.z,  Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(threeCrossFour.x, Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(threeCrossFour.y, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(threeCrossFour.z, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(fourCrossFive.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourCrossFive.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourCrossFive.z,  Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -716,16 +920,26 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(6.78233f,    oneDistanceTwo);
-                Assert.AreEqual(7.483315f,   twoDistanceThree);
-                Assert.AreEqual(10.0623055f, threeDistanceFour);
-                Assert.AreEqual(10.0623055f, fourDistanceFive);
+                Assert.That(oneDistanceTwo,    Is.EqualTo(6.78233f));
+                Assert.That(twoDistanceThree,  Is.EqualTo(7.483315f));
+                Assert.That(threeDistanceFour, Is.EqualTo(10.0623055f));
+                Assert.That(fourDistanceFive,  Is.EqualTo(10.0623055f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -750,16 +964,26 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(46f,     oneDistanceSquaredTwo);
-                Assert.AreEqual(56f,     twoDistanceSquaredThree);
-                Assert.AreEqual(101.25f, threeDistanceSquaredFour);
-                Assert.AreEqual(101.25f, fourDistanceSquaredFive);
+                Assert.That(oneDistanceSquaredTwo,    Is.EqualTo(46f));
+                Assert.That(twoDistanceSquaredThree,  Is.EqualTo(56f));
+                Assert.That(threeDistanceSquaredFour, Is.EqualTo(101.25f));
+                Assert.That(fourDistanceSquaredFive,  Is.EqualTo(101.25f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -784,16 +1008,26 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1f,   oneDotTwo);
-                Assert.AreEqual(-5f,  twoDotThree);
-                Assert.AreEqual(0.5f, threeDotFour);
-                Assert.AreEqual(0f,   fourDotFive);
+                Assert.That(oneDotTwo,    Is.EqualTo(1f));
+                Assert.That(twoDotThree,  Is.EqualTo(-5f));
+                Assert.That(threeDotFour, Is.EqualTo(0.5f));
+                Assert.That(fourDotFive,  Is.EqualTo(0f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -818,16 +1052,34 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(-3f, 11f,  -7f),  oneReflectTwo);
-                Assert.AreEqual(new Vector3(2f,  5f,   4f),   twoReflectThree);
-                Assert.AreEqual(new Vector3(1f,  0.5f, 10f),  threeReflectFour);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), fourReflectFive);
+                Assert.That(oneReflectTwo.x,    Is.EqualTo(-3f).Within(1e-5f));
+                Assert.That(oneReflectTwo.y,    Is.EqualTo(11f).Within(1e-5f));
+                Assert.That(oneReflectTwo.z,    Is.EqualTo(-7f).Within(1e-5f));
+                Assert.That(twoReflectThree.x,  Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(twoReflectThree.y,  Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(twoReflectThree.z,  Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(threeReflectFour.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(threeReflectFour.y, Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(threeReflectFour.z, Is.EqualTo(10f).Within(1e-5f));
+                Assert.That(fourReflectFive.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(fourReflectFive.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(fourReflectFive.z,  Is.EqualTo(-10f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -852,11 +1104,19 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(1f,   2f,  0.7f), oneClamp);
-                Assert.AreEqual(new Vector3(2.5f, -2f, 3f),   twoClamp);
+                Assert.That(oneClamp.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(oneClamp.y, Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(oneClamp.z, Is.EqualTo(0.7f).Within(1e-5f));
+                Assert.That(twoClamp.x, Is.EqualTo(2.5f).Within(1e-5f));
+                Assert.That(twoClamp.y, Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(twoClamp.z, Is.EqualTo(3f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f, 1f,  1f), one);
-                Assert.AreEqual(new Vector3(2f, -5f, 4f), two);
+                Assert.That(one.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x, Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y, Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z, Is.EqualTo(4f).Within(1e-5f));
             });
         }
 
@@ -881,16 +1141,34 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(1.25f,  -0.5f,  1.75f), oneLerpTwo);
-                Assert.AreEqual(new Vector3(1.5f,   -3.5f,  3f),    twoLerpThree);
-                Assert.AreEqual(new Vector3(-0.25f, 0.875f, -2.5f), threeLerpFour);
-                Assert.AreEqual(new Vector3(-0.75f, 0.375f, -7.5f), fourLerpFive);
+                Assert.That(oneLerpTwo.x,    Is.EqualTo(1.25f).Within(1e-5f));
+                Assert.That(oneLerpTwo.y,    Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(oneLerpTwo.z,    Is.EqualTo(1.75f).Within(1e-5f));
+                Assert.That(twoLerpThree.x,  Is.EqualTo(1.5f).Within(1e-5f));
+                Assert.That(twoLerpThree.y,  Is.EqualTo(-3.5f).Within(1e-5f));
+                Assert.That(twoLerpThree.z,  Is.EqualTo(3f).Within(1e-5f));
+                Assert.That(threeLerpFour.x, Is.EqualTo(-0.25f).Within(1e-5f));
+                Assert.That(threeLerpFour.y, Is.EqualTo(0.875f).Within(1e-5f));
+                Assert.That(threeLerpFour.z, Is.EqualTo(-2.5f).Within(1e-5f));
+                Assert.That(fourLerpFive.x,  Is.EqualTo(-0.75f).Within(1e-5f));
+                Assert.That(fourLerpFive.y,  Is.EqualTo(0.375f).Within(1e-5f));
+                Assert.That(fourLerpFive.z,  Is.EqualTo(-7.5f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -915,16 +1193,34 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(1.5f,  -2f,   2.5f), oneLerpTwo);
-                Assert.AreEqual(new Vector3(1f,    -2f,   2f),   twoLerpThree);
-                Assert.AreEqual(new Vector3(-0.5f, 0.75f, -5f),  threeLerpFour);
-                Assert.AreEqual(new Vector3(-0.5f, 0.25f, -5f),  fourLerpFive);
+                Assert.That(oneLerpTwo.x,    Is.EqualTo(1.5f).Within(1e-5f));
+                Assert.That(oneLerpTwo.y,    Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(oneLerpTwo.z,    Is.EqualTo(2.5f).Within(1e-5f));
+                Assert.That(twoLerpThree.x,  Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(twoLerpThree.y,  Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(twoLerpThree.z,  Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(threeLerpFour.x, Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(threeLerpFour.y, Is.EqualTo(0.75f).Within(1e-5f));
+                Assert.That(threeLerpFour.z, Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(fourLerpFive.x,  Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(fourLerpFive.y,  Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(fourLerpFive.z,  Is.EqualTo(-5f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -949,16 +1245,34 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(1.75f,  -3.5f,  3.25f), oneLerpTwo);
-                Assert.AreEqual(new Vector3(0.5f,   -0.5f,  1f),    twoLerpThree);
-                Assert.AreEqual(new Vector3(-0.75f, 0.625f, -7.5f), threeLerpFour);
-                Assert.AreEqual(new Vector3(-0.25f, 0.125f, -2.5f), fourLerpFive);
+                Assert.That(oneLerpTwo.x,    Is.EqualTo(1.75f).Within(1e-5f));
+                Assert.That(oneLerpTwo.y,    Is.EqualTo(-3.5f).Within(1e-5f));
+                Assert.That(oneLerpTwo.z,    Is.EqualTo(3.25f).Within(1e-5f));
+                Assert.That(twoLerpThree.x,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(twoLerpThree.y,  Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(twoLerpThree.z,  Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(threeLerpFour.x, Is.EqualTo(-0.75f).Within(1e-5f));
+                Assert.That(threeLerpFour.y, Is.EqualTo(0.625f).Within(1e-5f));
+                Assert.That(threeLerpFour.z, Is.EqualTo(-7.5f).Within(1e-5f));
+                Assert.That(fourLerpFive.x,  Is.EqualTo(-0.25f).Within(1e-5f));
+                Assert.That(fourLerpFive.y,  Is.EqualTo(0.125f).Within(1e-5f));
+                Assert.That(fourLerpFive.z,  Is.EqualTo(-2.5f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -983,16 +1297,34 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(2f, 1f,   4f), oneMaxTwo);
-                Assert.AreEqual(new Vector3(2f, 1f,   4f), twoMaxThree);
-                Assert.AreEqual(new Vector3(0f, 1f,   0f), threeMaxFour);
-                Assert.AreEqual(new Vector3(0f, 0.5f, 0f), fourMaxFive);
+                Assert.That(oneMaxTwo.x,    Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(oneMaxTwo.y,    Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(oneMaxTwo.z,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(twoMaxThree.x,  Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(twoMaxThree.y,  Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(twoMaxThree.z,  Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(threeMaxFour.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(threeMaxFour.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(threeMaxFour.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourMaxFive.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourMaxFive.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(fourMaxFive.z,  Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -1017,16 +1349,34 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(1f,  -5f,  1f),   oneMinTwo);
-                Assert.AreEqual(new Vector3(0f,  -5f,  0f),   twoMinThree);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), threeMinFour);
-                Assert.AreEqual(new Vector3(-1f, 0f,   -10f), fourMinFive);
+                Assert.That(oneMinTwo.x,    Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(oneMinTwo.y,    Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(oneMinTwo.z,    Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(twoMinThree.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(twoMinThree.y,  Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(twoMinThree.z,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(threeMinFour.x, Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(threeMinFour.y, Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(threeMinFour.z, Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(fourMinFive.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(fourMinFive.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourMinFive.z,  Is.EqualTo(-10f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -1044,12 +1394,16 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(one.Equals(one));
-                Assert.IsFalse(one.Equals(two));
-                Assert.IsFalse(one.Equals(new object()));
+                Assert.That(one.Equals(one),          Is.True);
+                Assert.That(one.Equals(two),          Is.False);
+                Assert.That(one.Equals(new object()), Is.False);
 
-                Assert.AreEqual(new Vector3(1f, 1f,  1f), one);
-                Assert.AreEqual(new Vector3(2f, -5f, 4f), two);
+                Assert.That(one.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x, Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y, Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z, Is.EqualTo(4f).Within(1e-5f));
             });
         }
 
@@ -1067,11 +1421,15 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(796917760,  one.GetHashCode());
-                Assert.AreEqual(-736100352, two.GetHashCode());
+                Assert.That(one.GetHashCode(), Is.EqualTo(796917760));
+                Assert.That(two.GetHashCode(), Is.EqualTo(-736100352));
 
-                Assert.AreEqual(new Vector3(1f, 1f,  1f), one);
-                Assert.AreEqual(new Vector3(2f, -5f, 4f), two);
+                Assert.That(one.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x, Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y, Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z, Is.EqualTo(4f).Within(1e-5f));
             });
         }
 
@@ -1090,12 +1448,18 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(one == three);
-                Assert.IsFalse(one == two);
+                Assert.That(one == three, Is.True);
+                Assert.That(one == two,   Is.False);
 
-                Assert.AreEqual(new Vector3(1f, 1f,  1f), one);
-                Assert.AreEqual(new Vector3(2f, -5f, 4f), two);
-                Assert.AreEqual(new Vector3(1f, 1f,  1f), three);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(1f).Within(1e-5f));
             });
         }
 
@@ -1114,12 +1478,18 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(one != three);
-                Assert.IsTrue(one != two);
+                Assert.That(one != three, Is.False);
+                Assert.That(one != two,   Is.True);
 
-                Assert.AreEqual(new Vector3(1f, 1f,  1f), one);
-                Assert.AreEqual(new Vector3(2f, -5f, 4f), two);
-                Assert.AreEqual(new Vector3(1f, 1f,  1f), three);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(1f).Within(1e-5f));
             });
         }
 
@@ -1145,17 +1515,37 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(-1f, -1f,   -1f), oneNegated);
-                Assert.AreEqual(new Vector3(-2f, 5f,    -4f), twoNegated);
-                Assert.AreEqual(new Vector3(0f,  -1f,   0f),  threeNegated);
-                Assert.AreEqual(new Vector3(1f,  -0.5f, 10f), fourNegated);
-                Assert.AreEqual(new Vector3(0f,  0f,    0f),  fiveNegated);
+                Assert.That(oneNegated.x,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(oneNegated.y,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(oneNegated.z,   Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(twoNegated.x,   Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(twoNegated.y,   Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(twoNegated.z,   Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(threeNegated.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(threeNegated.y, Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(threeNegated.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fourNegated.x,  Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(fourNegated.y,  Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(fourNegated.z,  Is.EqualTo(10f).Within(1e-5f));
+                Assert.That(fiveNegated.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fiveNegated.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(fiveNegated.z,  Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(0f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
-                Assert.AreEqual(new Vector3(0f,  0f,   0f),   five);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
+                Assert.That(five.x,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.y,  Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(five.z,  Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -1178,13 +1568,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(3f, -4f,  5f),   oneTwoSum);
-                Assert.AreEqual(new Vector3(3f, 1.5f, -10f), threeFourSum);
+                Assert.That(oneTwoSum.x,    Is.EqualTo(3f).Within(1e-5f));
+                Assert.That(oneTwoSum.y,    Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(oneTwoSum.z,    Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(threeFourSum.x, Is.EqualTo(3f).Within(1e-5f));
+                Assert.That(threeFourSum.y, Is.EqualTo(1.5f).Within(1e-5f));
+                Assert.That(threeFourSum.z, Is.EqualTo(-10f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(4f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
             });
         }
 
@@ -1207,13 +1609,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(-1f, 6f,   -3f), oneTwoSub);
-                Assert.AreEqual(new Vector3(5f,  0.5f, 10f), threeFourSub);
+                Assert.That(oneTwoSub.x,    Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(oneTwoSub.y,    Is.EqualTo(6f).Within(1e-5f));
+                Assert.That(oneTwoSub.z,    Is.EqualTo(-3f).Within(1e-5f));
+                Assert.That(threeFourSub.x, Is.EqualTo(5f).Within(1e-5f));
+                Assert.That(threeFourSub.y, Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(threeFourSub.z, Is.EqualTo(10f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(4f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
             });
         }
 
@@ -1236,13 +1650,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f), oneTwoMul);
-                Assert.AreEqual(new Vector3(-4f, 0.5f, 0f), threeFourMul);
+                Assert.That(oneTwoMul.x,    Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(oneTwoMul.y,    Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(oneTwoMul.z,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(threeFourMul.x, Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(threeFourMul.y, Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(threeFourMul.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(4f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
             });
         }
 
@@ -1265,11 +1691,19 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(4f,   4f,  4f), oneTwoMul);
-                Assert.AreEqual(new Vector3(-12f, -3f, 0f), threeFourMul);
+                Assert.That(oneTwoMul.x,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(oneTwoMul.y,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(oneTwoMul.z,    Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(threeFourMul.x, Is.EqualTo(-12f).Within(1e-5f));
+                Assert.That(threeFourMul.y, Is.EqualTo(-3f).Within(1e-5f));
+                Assert.That(threeFourMul.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f, 1f, 1f), one);
-                Assert.AreEqual(new Vector3(4f, 1f, 0f), three);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -1292,13 +1726,25 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(0.5f, -0.2f, 0.25f), oneTwoDiv);
-                Assert.AreEqual(new Vector3(-4f,  2f,    0f),    threeFourDiv);
+                Assert.That(oneTwoDiv.x,    Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(oneTwoDiv.y,    Is.EqualTo(-0.2f).Within(1e-5f));
+                Assert.That(oneTwoDiv.z,    Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(threeFourDiv.x, Is.EqualTo(-4f).Within(1e-5f));
+                Assert.That(threeFourDiv.y, Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(threeFourDiv.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f,  1f,   1f),   one);
-                Assert.AreEqual(new Vector3(2f,  -5f,  4f),   two);
-                Assert.AreEqual(new Vector3(4f,  1f,   0f),   three);
-                Assert.AreEqual(new Vector3(-1f, 0.5f, -10f), four);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(two.x,   Is.EqualTo(2f).Within(1e-5f));
+                Assert.That(two.y,   Is.EqualTo(-5f).Within(1e-5f));
+                Assert.That(two.z,   Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(four.x,  Is.EqualTo(-1f).Within(1e-5f));
+                Assert.That(four.y,  Is.EqualTo(0.5f).Within(1e-5f));
+                Assert.That(four.z,  Is.EqualTo(-10f).Within(1e-5f));
             });
         }
 
@@ -1321,11 +1767,19 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(0.25f, 0.25f, 0.25f), oneTwoDiv);
-                Assert.AreEqual(new Vector3(-2f,   -0.5f, 0f),    threeFourDiv);
+                Assert.That(oneTwoDiv.x,    Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(oneTwoDiv.y,    Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(oneTwoDiv.z,    Is.EqualTo(0.25f).Within(1e-5f));
+                Assert.That(threeFourDiv.x, Is.EqualTo(-2f).Within(1e-5f));
+                Assert.That(threeFourDiv.y, Is.EqualTo(-0.5f).Within(1e-5f));
+                Assert.That(threeFourDiv.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector3(1f, 1f, 1f), one);
-                Assert.AreEqual(new Vector3(4f, 1f, 0f), three);
+                Assert.That(one.x,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.y,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(one.z,   Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.x, Is.EqualTo(4f).Within(1e-5f));
+                Assert.That(three.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(three.z, Is.EqualTo(0f).Within(1e-5f));
             });
         }
 
@@ -1345,14 +1799,18 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(new Vector3(1,  1f, 0f), newOne);
-                Assert.AreEqual(new Vector3(7f, 8f, 0f), newTwo);
+                Assert.That(newOne.x, Is.EqualTo(1).Within(1e-5f));
+                Assert.That(newOne.y, Is.EqualTo(1f).Within(1e-5f));
+                Assert.That(newOne.z, Is.EqualTo(0f).Within(1e-5f));
+                Assert.That(newTwo.x, Is.EqualTo(7f).Within(1e-5f));
+                Assert.That(newTwo.y, Is.EqualTo(8f).Within(1e-5f));
+                Assert.That(newTwo.z, Is.EqualTo(0f).Within(1e-5f));
 
-                Assert.AreEqual(new Vector2(1f, 1f), one);
-                Assert.AreEqual(new Vector2(7f, 8f), two);
+                Assert.That(one, Is.EqualTo(new Vector2(1f, 1f)));
+                Assert.That(two, Is.EqualTo(new Vector2(7f, 8f)));
             });
         }
-        
+
         /// <summary> Testing bracket access operator. </summary>
         [Test]
         [TestOf(nameof(Vector3))]
@@ -1370,12 +1828,12 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1f, one[0]);
-                Assert.AreEqual(1f, one[1]);
-                Assert.AreEqual(1f, one[2]);
-                Assert.AreEqual(10f, two[0]);
-                Assert.AreEqual(11f, two[1]);
-                Assert.AreEqual(12f, two[2]);
+                Assert.That(one[0], Is.EqualTo(1f));
+                Assert.That(one[1], Is.EqualTo(1f));
+                Assert.That(one[2], Is.EqualTo(1f));
+                Assert.That(two[0], Is.EqualTo(10f));
+                Assert.That(two[1], Is.EqualTo(11f));
+                Assert.That(two[2], Is.EqualTo(12f));
             });
         }
     }

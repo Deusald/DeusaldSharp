@@ -52,10 +52,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(tooShort);
-                Assert.IsTrue(atMin);
-                Assert.IsTrue(atMax);
-                Assert.IsFalse(tooLong);
+                Assert.That(tooShort, Is.False);
+                Assert.That(atMin, Is.True);
+                Assert.That(atMax, Is.True);
+                Assert.That(tooLong, Is.False);
             });
         }
 
@@ -75,7 +75,7 @@ namespace DeusaldSharpTests
             bool result = verificator.CheckUsernameWhitespaceRequirement("");
 
             // Assert
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -99,10 +99,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(leading);
-                Assert.IsFalse(trailing);
-                Assert.IsTrue(middle);
-                Assert.IsTrue(noSpace);
+                Assert.That(leading, Is.False);
+                Assert.That(trailing, Is.False);
+                Assert.That(middle, Is.True);
+                Assert.That(noSpace, Is.True);
             });
         }
 
@@ -127,10 +127,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(okOne);
-                Assert.IsTrue(okTwo);
-                Assert.IsFalse(badOne);
-                Assert.IsFalse(badTwo);
+                Assert.That(okOne, Is.True);
+                Assert.That(okTwo, Is.True);
+                Assert.That(badOne, Is.False);
+                Assert.That(badTwo, Is.False);
             });
         }
 
@@ -156,11 +156,11 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(ok);
-                Assert.IsFalse(badStart);
-                Assert.IsFalse(badEnd);
-                Assert.IsFalse(badChar);
-                Assert.IsFalse(badLength);
+                Assert.That(ok, Is.True);
+                Assert.That(badStart, Is.False);
+                Assert.That(badEnd, Is.False);
+                Assert.That(badChar, Is.False);
+                Assert.That(badLength, Is.False);
             });
         }
 
@@ -184,9 +184,9 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(leadingOk);
-                Assert.IsTrue(trailingOk);
-                Assert.IsTrue(middleOk);
+                Assert.That(leadingOk, Is.True);
+                Assert.That(trailingOk, Is.True);
+                Assert.That(middleOk, Is.True);
             });
         }
 
@@ -208,7 +208,7 @@ namespace DeusaldSharpTests
             // Assert
             // - invalid: ! @ @ removed
             // - leading/trailing whitespace trimmed
-            Assert.AreEqual("Adam 12_3", cleaned);
+            Assert.That(cleaned, Is.EqualTo("Adam 12_3"));
         }
 
         [Test]
@@ -227,7 +227,7 @@ namespace DeusaldSharpTests
             string cleaned = verificator.CleanUsername("   ABCDEFG   ");
 
             // Assert
-            Assert.AreEqual("ABCDE", cleaned);
+            Assert.That(cleaned, Is.EqualTo("ABCDE"));
         }
 
         [Test]
@@ -246,7 +246,7 @@ namespace DeusaldSharpTests
             string cleaned = verificator.CleanUsername("!!!@@@ 123");
 
             // Assert
-            Assert.AreEqual("", cleaned);
+            Assert.That(cleaned, Is.EqualTo(""));
         }
     }
 }

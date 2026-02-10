@@ -53,8 +53,8 @@ namespace DeusaldSharpTests
             TestFlags flags2 = TestFlags.A | TestFlags.C;
 
             // Act & Assert
-            Assert.AreEqual(true,  flags.IsSingleFlagOn());
-            Assert.AreEqual(false, flags2.IsSingleFlagOn());
+            Assert.That(flags.IsSingleFlagOn(), Is.True);
+            Assert.That(flags2.IsSingleFlagOn(), Is.False);
         }
 
         /// <summary> Testing GetRandomFlag method. </summary>
@@ -69,8 +69,8 @@ namespace DeusaldSharpTests
             TestFlags result = flags.GetRandomFlag((min, max) => new Random().Next(min, max));
 
             // Assert
-            Assert.AreEqual(true, result.IsSingleFlagOn());
-            Assert.AreEqual(true, result == TestFlags.A || result == TestFlags.B);
+            Assert.That(result.IsSingleFlagOn(), Is.True);
+            Assert.That(result == TestFlags.A || result == TestFlags.B, Is.True);
         }
 
         /// <summary> Testing HasAnyFlag method. </summary>
@@ -82,7 +82,7 @@ namespace DeusaldSharpTests
             TestFlags flags = TestFlags.A | TestFlags.B;
 
             // Act & Assert
-            Assert.AreEqual(true, flags.HasAnyFlag(TestFlags.A | TestFlags.C));
+            Assert.That(flags.HasAnyFlag(TestFlags.A | TestFlags.C), Is.True);
         }
         
         /// <summary> Testing HasAllFlags method. </summary>
@@ -94,8 +94,8 @@ namespace DeusaldSharpTests
             TestFlags flags = TestFlags.A | TestFlags.B;
 
             // Act & Assert
-            Assert.AreEqual(true, flags.HasAllFlags(TestFlags.A | TestFlags.B));
-            Assert.AreEqual(false, flags.HasAllFlags(TestFlags.A | TestFlags.C));
+            Assert.That(flags.HasAllFlags(TestFlags.A | TestFlags.B), Is.True);
+            Assert.That(flags.HasAllFlags(TestFlags.A | TestFlags.C), Is.False);
         }
     }
 }

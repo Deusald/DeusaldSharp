@@ -100,10 +100,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(10,              receivedInt);
-                Assert.AreEqual(10.5f,           receivedFloat);
-                Assert.AreEqual("Test",          receivedString);
-                Assert.AreEqual(objectToReceive, receivedObject);
+                Assert.That(receivedInt, Is.EqualTo(10));
+                Assert.That(receivedFloat, Is.EqualTo(10.5f));
+                Assert.That(receivedString, Is.EqualTo("Test"));
+                Assert.That(receivedObject, Is.EqualTo(objectToReceive));
             });
 
             // Act
@@ -113,10 +113,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(0,  receivedInt);
-                Assert.AreEqual(0f, receivedFloat);
-                Assert.IsNull(receivedString);
-                Assert.IsNull(receivedObject);
+                Assert.That(receivedInt, Is.EqualTo(0));
+                Assert.That(receivedFloat, Is.EqualTo(0f));
+                Assert.That(receivedString, Is.Null);
+                Assert.That(receivedObject, Is.Null);
             });
         }
 
@@ -155,10 +155,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(0,  receivedInt);
-                Assert.AreEqual(0f, receivedFloat);
-                Assert.IsNull(receivedString);
-                Assert.IsNull(receivedObject);
+                Assert.That(receivedInt, Is.EqualTo(0));
+                Assert.That(receivedFloat, Is.EqualTo(0f));
+                Assert.That(receivedString, Is.Null);
+                Assert.That(receivedObject, Is.Null);
             });
         }
 
@@ -201,10 +201,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(0,  receivedInt);
-                Assert.AreEqual(0f, receivedFloat);
-                Assert.IsNull(receivedString);
-                Assert.IsNull(receivedObject);
+                Assert.That(receivedInt, Is.EqualTo(0));
+                Assert.That(receivedFloat, Is.EqualTo(0f));
+                Assert.That(receivedString, Is.Null);
+                Assert.That(receivedObject, Is.Null);
             });
 
             // Act
@@ -218,10 +218,10 @@ namespace DeusaldSharpTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(10,              receivedInt);
-                Assert.AreEqual(10.5f,           receivedFloat);
-                Assert.AreEqual("Test",          receivedString);
-                Assert.AreEqual(objectToReceive, receivedObject);
+                Assert.That(receivedInt, Is.EqualTo(10));
+                Assert.That(receivedFloat, Is.EqualTo(10.5f));
+                Assert.That(receivedString, Is.EqualTo("Test"));
+                Assert.That(receivedObject, Is.EqualTo(objectToReceive));
             });
         }
 
@@ -251,7 +251,7 @@ namespace DeusaldSharpTests
             MsgCtrl.Send(msg);
 
             // Assert
-            Assert.AreEqual("ba", order);
+            Assert.That(order, Is.EqualTo("ba"));
         }
 
         /// <summary> Deallocate test. </summary>
@@ -267,13 +267,13 @@ namespace DeusaldSharpTests
             ExampleMsg msg = MsgCtrl.Allocate<ExampleMsg>();
             
             // Assert
-            Assert.AreEqual(0, MessagesPool<ExampleMsg>.NumberOfFreeMessages);
+            Assert.That(MessagesPool<ExampleMsg>.NumberOfFreeMessages, Is.EqualTo(0));
             
             // Act
             MsgCtrl.Deallocate(msg);
             
             // Assert
-            Assert.AreEqual(1, MessagesPool<ExampleMsg>.NumberOfFreeMessages);
+            Assert.That(MessagesPool<ExampleMsg>.NumberOfFreeMessages, Is.EqualTo(1));
         }
         
         /// <summary> Consume test. </summary>
@@ -303,7 +303,7 @@ namespace DeusaldSharpTests
             MsgCtrl.Send(msg);
 
             // Assert
-            Assert.AreEqual("b", order);
+            Assert.That(order, Is.EqualTo("b"));
         }
         
         /// <summary> Custom attribute register test. </summary>
@@ -319,7 +319,7 @@ namespace DeusaldSharpTests
             MsgCtrl.Send(msg);
 
             // Assert
-            Assert.AreEqual(1, attributeTest.ReceivedMessages);
+            Assert.That(attributeTest.ReceivedMessages, Is.EqualTo(1));
         }
         
         /// <summary> Custom attribute unregister test. </summary>
@@ -336,7 +336,7 @@ namespace DeusaldSharpTests
             MsgCtrl.Send(msg);
 
             // Assert
-            Assert.AreEqual(0, attributeTest.ReceivedMessages);
+            Assert.That(attributeTest.ReceivedMessages, Is.EqualTo(0));
         }
     }
 }
