@@ -4,8 +4,8 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-        <PackageVersion>10.2.0</PackageVersion>
-        <AssemblyVersion>10.2.0</AssemblyVersion>
+        <PackageVersion>10.2.1</PackageVersion>
+        <AssemblyVersion>10.2.1</AssemblyVersion>
         <Title>DeusaldSharp.Analyzers</Title>
         <Authors>Adam "Deusald" Orliński</Authors>
         <Description>C# utils that are often useful in game development.</Description>

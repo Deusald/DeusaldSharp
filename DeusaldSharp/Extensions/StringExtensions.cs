@@ -32,6 +32,11 @@ namespace DeusaldSharp
     [PublicAPI]
     public static class StringExtensions
     {
+        public static string? GetEnvironmentVariable(this string variableName)
+        {
+            return Environment.GetEnvironmentVariable(variableName);
+        }
+        
         public static string ToSnakeCase(this string text)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
