@@ -766,7 +766,7 @@ public sealed class ProtoGenerator : IIncrementalGenerator
                 // primitive/special arrays via your extensions
                 if (TryMapPrimitive(elemType, out _))
                 {
-                    sb.AppendLine($"            writer.Write({arrayExpr});");
+                    sb.AppendLine($"            writer.WriteArray({arrayExpr});");
                 }
                 else if (elemType.ToDisplayString() == "System.Guid" ||
                          elemType.ToDisplayString() == "System.DateTime" ||

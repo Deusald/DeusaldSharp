@@ -180,6 +180,13 @@ namespace DeusaldSharpTests
         [ProtoField(1)] public string S = "";
     }
 
+    [PublicAPI]
+    public partial class GuidByteArray : ProtoMsgBase
+    {
+        [ProtoField(1)] public Guid   GameId;
+        [ProtoField(2)] public byte[] GameLogicBytes = null!;
+    }
+
     public class ProtoModuleTests
     {
         // ------------------------------------------------------------
@@ -232,6 +239,21 @@ namespace DeusaldSharpTests
         // Tests
         // ------------------------------------------------------------
 
+        [Test]
+        public void Proto_Guid_ByteArray()
+        {
+            GuidByteArray msg = new GuidByteArray
+            {
+                GameId = Guid.NewGuid(),
+                GameLogicBytes = "AgAAAAEDAQUAAAABAAAAAQAAAAAAAAAAAwAAAAAAAAAA".Base64StringToByteArray()
+            };
+            
+            GuidByteArray result = ProtoMsgBase.Deserialize<GuidByteArray>(msg.Serialize());
+            
+            Assert.That(result.GameId, Is.EqualTo(msg.GameId));
+            Assert.That(result.GameLogicBytes, Is.EqualTo(msg.GameLogicBytes));
+        }
+        
         [Test]
         public void Proto_Empty_Msg()
         {

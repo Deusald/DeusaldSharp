@@ -234,7 +234,7 @@ namespace DeusaldSharp
         #region Primitive Arrays
 
         // BYTE
-        public static void Write(this BinaryWriter writer, byte[] values)
+        public static void WriteArray(this BinaryWriter writer, byte[] values)
         {
             writer.Write(values.Length);
             foreach (byte v in values) writer.Write(v);
@@ -249,7 +249,7 @@ namespace DeusaldSharp
         }
 
         // SBYTE
-        public static void Write(this BinaryWriter writer, sbyte[] values)
+        public static void WriteArray(this BinaryWriter writer, sbyte[] values)
         {
             writer.Write(values.Length);
             foreach (sbyte v in values) writer.Write(v);
@@ -264,7 +264,7 @@ namespace DeusaldSharp
         }
 
         // BOOL
-        public static void Write(this BinaryWriter writer, bool[] values)
+        public static void WriteArray(this BinaryWriter writer, bool[] values)
         {
             writer.Write(values.Length);
             foreach (bool v in values) writer.Write(v);
@@ -279,7 +279,7 @@ namespace DeusaldSharp
         }
 
         // SHORT
-        public static void Write(this BinaryWriter writer, short[] values)
+        public static void WriteArray(this BinaryWriter writer, short[] values)
         {
             writer.Write(values.Length);
             foreach (short v in values) writer.Write(v);
@@ -294,7 +294,7 @@ namespace DeusaldSharp
         }
 
         // USHORT
-        public static void Write(this BinaryWriter writer, ushort[] values)
+        public static void WriteArray(this BinaryWriter writer, ushort[] values)
         {
             writer.Write(values.Length);
             foreach (ushort v in values) writer.Write(v);
@@ -309,7 +309,7 @@ namespace DeusaldSharp
         }
 
         // INT
-        public static void Write(this BinaryWriter writer, int[] values)
+        public static void WriteArray(this BinaryWriter writer, int[] values)
         {
             writer.Write(values.Length);
             foreach (int v in values) writer.Write(v);
@@ -324,7 +324,7 @@ namespace DeusaldSharp
         }
 
         // UINT
-        public static void Write(this BinaryWriter writer, uint[] values)
+        public static void WriteArray(this BinaryWriter writer, uint[] values)
         {
             writer.Write(values.Length);
             foreach (uint v in values) writer.Write(v);
@@ -339,7 +339,7 @@ namespace DeusaldSharp
         }
 
         // LONG
-        public static void Write(this BinaryWriter writer, long[] values)
+        public static void WriteArray(this BinaryWriter writer, long[] values)
         {
             writer.Write(values.Length);
             foreach (long v in values) writer.Write(v);
@@ -354,7 +354,7 @@ namespace DeusaldSharp
         }
 
         // ULONG
-        public static void Write(this BinaryWriter writer, ulong[] values)
+        public static void WriteArray(this BinaryWriter writer, ulong[] values)
         {
             writer.Write(values.Length);
             foreach (ulong v in values) writer.Write(v);
@@ -369,7 +369,7 @@ namespace DeusaldSharp
         }
 
         // FLOAT
-        public static void Write(this BinaryWriter writer, float[] values)
+        public static void WriteArray(this BinaryWriter writer, float[] values)
         {
             writer.Write(values.Length);
             foreach (float v in values) writer.Write(v);
@@ -384,7 +384,7 @@ namespace DeusaldSharp
         }
 
         // DOUBLE
-        public static void Write(this BinaryWriter writer, double[] values)
+        public static void WriteArray(this BinaryWriter writer, double[] values)
         {
             writer.Write(values.Length);
             foreach (double v in values) writer.Write(v);
@@ -399,7 +399,7 @@ namespace DeusaldSharp
         }
 
         // CHAR
-        public static void Write(this BinaryWriter writer, char[] values)
+        public static void WriteArray(this BinaryWriter writer, char[] values)
         {
             writer.Write(values.Length);
             foreach (char v in values) writer.Write(v);
@@ -414,7 +414,7 @@ namespace DeusaldSharp
         }
 
         // STRING
-        public static void Write(this BinaryWriter writer, string[] values)
+        public static void WriteArray(this BinaryWriter writer, string[] values)
         {
             writer.Write(values.Length);
             foreach (string v in values) writer.Write(v);
