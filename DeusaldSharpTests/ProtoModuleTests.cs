@@ -134,6 +134,14 @@ namespace DeusaldSharpTests
         // object lists
         [ProtoField(23)] public List<ChildMsg>  Children = new();
         [ProtoField(24)] public List<ChildMsg>? NChildren;
+
+        // arrays
+        [ProtoField(25)] public int[]  ArrInts  = Array.Empty<int>();
+        [ProtoField(26)] public Guid[] ArrGuids = Array.Empty<Guid>();
+
+        // Nullable arrays
+        [ProtoField(27)] public int[]?  NArrInts;
+        [ProtoField(28)] public Guid[]? NArrGuids;
     }
 
     /// <summary>
@@ -289,6 +297,12 @@ namespace DeusaldSharpTests
             msg.NStrings = new List<string> { "x", null!, "y" };
             msg.NEnums   = new List<TestEnumSByte> { TestEnumSByte.Pos };
 
+            msg.ArrInts  = new[] { 5, 6, 7 };
+            msg.ArrGuids = new[] { Guid.NewGuid(), Guid.NewGuid() };
+
+            msg.NArrInts  = new[] { 9, 10, 11 };
+            msg.NArrGuids = new[] { Guid.NewGuid(), Guid.NewGuid() };
+            
             msg.Child.X    = 10;
             msg.Child.Flag = true;
 
@@ -334,6 +348,12 @@ namespace DeusaldSharpTests
                 Assert.That(roundtrip.NInts,    Is.EqualTo(msg.NInts));
                 Assert.That(roundtrip.NStrings, Is.EqualTo(new[] { "x", "", "y" }));
                 Assert.That(roundtrip.NEnums,   Is.EqualTo(msg.NEnums));
+                
+                Assert.That(roundtrip.ArrInts,   Is.EqualTo(msg.ArrInts));
+                Assert.That(roundtrip.ArrGuids,  Is.EqualTo(msg.ArrGuids));
+                
+                Assert.That(roundtrip.NArrInts,   Is.EqualTo(msg.NArrInts));
+                Assert.That(roundtrip.NArrGuids,  Is.EqualTo(msg.NArrGuids));
 
                 Assert.That(roundtrip.Child.X,    Is.EqualTo(msg.Child.X));
                 Assert.That(roundtrip.Child.Flag, Is.EqualTo(msg.Child.Flag));

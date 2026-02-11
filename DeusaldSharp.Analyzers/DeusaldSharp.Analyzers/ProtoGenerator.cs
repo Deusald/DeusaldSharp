@@ -75,7 +75,7 @@ public sealed class ProtoGenerator : IIncrementalGenerator
     private static void Emit(SourceProductionContext spc, INamedTypeSymbol msgType)
     {
         if (IsAbstract(msgType)) return;
-        
+
         if (!IsPartial(msgType))
         {
             spc.ReportDiagnostic(Diagnostic.Create(
@@ -103,7 +103,7 @@ public sealed class ProtoGenerator : IIncrementalGenerator
             .Select(r => r.GetSyntax())
             .OfType<ClassDeclarationSyntax>()
             .Any(s => s.Modifiers.Any(m => m.Text == "abstract"));
-    
+
     private static bool IsPartial(INamedTypeSymbol t)
         => t.DeclaringSyntaxReferences
             .Select(r => r.GetSyntax())
@@ -164,7 +164,7 @@ public sealed class ProtoGenerator : IIncrementalGenerator
                     id));
                 return null;
             }
-            
+
             // Direct generic field: public T Data;
             if (f.Type is ITypeParameterSymbol tpField && IsProtoMsgBaseDerived(tpField) && !tpField.HasConstructorConstraint)
             {
@@ -204,6 +204,27 @@ public sealed class ProtoGenerator : IIncrementalGenerator
                 return null;
             }
 
+            // Array generic element: public T[] Data;
+            if (TryGetArrayElement(f.Type, out ITypeSymbol arrElem) &&
+                arrElem is ITypeParameterSymbol tpArrElem &&
+                IsProtoMsgBaseDerived(tpArrElem) &&
+                !tpArrElem.HasConstructorConstraint)
+            {
+                spc.ReportDiagnostic(Diagnostic.Create(
+                    new DiagnosticDescriptor(
+                        id: "DSHP007",
+                        title: "Generic Array Proto field type must have new() constraint",
+                        messageFormat:
+                        "Field '{0}' uses generic type parameter '{1}' which is deserialized via 'new {1}()'. Add 'where {1} : new()' to the containing type.",
+                        category: "DeusaldSharp.Proto",
+                        DiagnosticSeverity.Error,
+                        isEnabledByDefault: true),
+                    f.Locations.FirstOrDefault(),
+                    $"{msgType.Name}.{f.Name}",
+                    tpArrElem.Name));
+                return null;
+            }
+
             if (!TryClassifyFieldType(f.Type, f.NullableAnnotation, out _))
             {
                 spc.ReportDiagnostic(Diagnostic.Create(
@@ -238,6 +259,8 @@ public sealed class ProtoGenerator : IIncrementalGenerator
         NullableObject, // ProtoMsgBase-derived (nullable ref)
         List,           // List<T> where T is supported
         NullableList,   // nullable ref List<T> where T is supported
+        Array,          // T[] where T is supported
+        NullableArray,  // nullable ref T[] where T is supported
     }
 
     private sealed record FieldTypeInfo(FieldKind Kind, ITypeSymbol? ElementType = null, FieldTypeInfo? Inner = null)
@@ -289,6 +312,18 @@ public sealed class ProtoGenerator : IIncrementalGenerator
                 info = new FieldTypeInfo(FieldKind.NullableList, ElementType: elem);
                 return true;
             }
+
+            if (TryGetArrayElement(type, out ITypeSymbol arrElem))
+            {
+                if (!TryClassifyArrayElement(arrElem))
+                {
+                    info = null!;
+                    return false;
+                }
+
+                info = new FieldTypeInfo(FieldKind.NullableArray, ElementType: arrElem);
+                return true;
+            }
         }
 
         return TryClassifyNonNullable(type, out info);
@@ -334,11 +369,37 @@ public sealed class ProtoGenerator : IIncrementalGenerator
             return true;
         }
 
+        if (TryGetArrayElement(type, out ITypeSymbol arrElemType))
+        {
+            if (!TryClassifyArrayElement(arrElemType))
+            {
+                info = null!;
+                return false;
+            }
+
+            info = new(FieldKind.Array, ElementType: arrElemType);
+            return true;
+        }
+
         info = null!;
         return false;
     }
 
     private static bool TryClassifyListElement(ITypeSymbol elemType)
+    {
+        if (TryMapPrimitive(elemType, out _)) return true;
+
+        string full = elemType.ToDisplayString();
+
+        if (_SpecialTypes.Contains(full)) return true;
+
+        if (elemType.TypeKind == TypeKind.Enum && HasAttribute(elemType, _SERIALIZABLE_ENUM_ATTR)) return true;
+
+        if (IsProtoMsgBaseDerived(elemType)) return true;
+        return false;
+    }
+
+    private static bool TryClassifyArrayElement(ITypeSymbol elemType)
     {
         if (TryMapPrimitive(elemType, out _)) return true;
 
@@ -418,6 +479,19 @@ public sealed class ProtoGenerator : IIncrementalGenerator
         return true;
     }
 
+    private static bool TryGetArrayElement(ITypeSymbol type, out ITypeSymbol elementType)
+    {
+        elementType = null!;
+
+        if (type is not IArrayTypeSymbol arrType) return false;
+
+        // Only support single-dimensional arrays
+        if (arrType.Rank != 1) return false;
+
+        elementType = arrType.ElementType;
+        return true;
+    }
+
     private static bool IsProtoMsgBaseDerived(ITypeSymbol type)
     {
         // Support generic type parameters (e.g., T) by looking at constraints.
@@ -430,7 +504,7 @@ public sealed class ProtoGenerator : IIncrementalGenerator
             }
             return false;
         }
-        
+
         if (type is not INamedTypeSymbol nts) return false;
 
         for (INamedTypeSymbol? t = nts; t is not null; t = t.BaseType)
@@ -468,7 +542,7 @@ public sealed class ProtoGenerator : IIncrementalGenerator
         }
 
         sb.AppendLine();
-        
+
         sb.AppendLine("{");
 
         // Serialize
@@ -670,6 +744,78 @@ public sealed class ProtoGenerator : IIncrementalGenerator
 
                 return;
             }
+            case FieldKind.Array:
+            case FieldKind.NullableArray:
+            {
+                string      arrayExpr       = valueExpr;
+                ITypeSymbol elemType        = info.ElementType!;
+                string      elemFq          = elemType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                bool        isNullableArray = info.Kind == FieldKind.NullableArray;
+
+                if (isNullableArray)
+                {
+                    sb.AppendLine($"        if ({arrayExpr} is null)");
+                    sb.AppendLine("        {");
+                    sb.AppendLine("            writer.Write(false);");
+                    sb.AppendLine("        }");
+                    sb.AppendLine("        else");
+                    sb.AppendLine("        {");
+                    sb.AppendLine("            writer.Write(true);");
+                }
+
+                // primitive/special arrays via your extensions
+                if (TryMapPrimitive(elemType, out _))
+                {
+                    sb.AppendLine($"            writer.Write({arrayExpr});");
+                }
+                else if (elemType.ToDisplayString() == "System.Guid" ||
+                         elemType.ToDisplayString() == "System.DateTime" ||
+                         elemType.ToDisplayString() == "System.TimeSpan" ||
+                         elemType.ToDisplayString() == "System.Version" ||
+                         elemType.ToDisplayString() == "System.Net.HttpStatusCode")
+                {
+                    sb.AppendLine($"            writer.Write({arrayExpr});");
+                }
+                else if (elemType.TypeKind == TypeKind.Enum && HasAttribute(elemType, _SERIALIZABLE_ENUM_ATTR))
+                {
+                    sb.AppendLine($"            writer.WriteSerializableEnumArray<{elemFq}>({arrayExpr});");
+                }
+                else if (IsProtoMsgBaseDerived(elemType))
+                {
+                    // Array of objects (supports null elements too): count + for each: bool has + int len + bytes
+                    sb.AppendLine($"            writer.Write({arrayExpr}.Length);");
+                    sb.AppendLine($"            for (int __i = 0; __i < {arrayExpr}.Length; __i++)");
+                    sb.AppendLine("            {");
+                    sb.AppendLine($"                var __item = {arrayExpr}[__i];");
+                    sb.AppendLine("                if (__item is null)");
+                    sb.AppendLine("                {");
+                    sb.AppendLine("                    writer.Write(false);");
+                    sb.AppendLine("                }");
+                    sb.AppendLine("                else");
+                    sb.AppendLine("                {");
+                    sb.AppendLine("                    writer.Write(true);");
+
+                    // per-item length patching inside the array payload (no allocations)
+                    sb.AppendLine("                    long __itemLenPos = writer.BaseStream.Position;");
+                    sb.AppendLine("                    writer.Write(0);");
+                    sb.AppendLine("                    long __itemStart = writer.BaseStream.Position;");
+                    sb.AppendLine("                    __item.Serialize(writer);");
+                    sb.AppendLine("                    long __itemEnd = writer.BaseStream.Position;");
+                    sb.AppendLine("                    int __itemLen = checked((int)(__itemEnd - __itemStart));");
+                    sb.AppendLine("                    writer.BaseStream.Position = __itemLenPos;");
+                    sb.AppendLine("                    writer.Write(__itemLen);");
+                    sb.AppendLine("                    writer.BaseStream.Position = __itemEnd;");
+                    sb.AppendLine("                }");
+                    sb.AppendLine("            }");
+                }
+
+                if (isNullableArray)
+                {
+                    sb.AppendLine("        }");
+                }
+
+                return;
+            }
         }
     }
 
@@ -828,6 +974,73 @@ public sealed class ProtoGenerator : IIncrementalGenerator
 
                 return;
             }
+            case FieldKind.Array:
+            case FieldKind.NullableArray:
+            {
+                bool        isNullable = info.Kind == FieldKind.NullableArray;
+                ITypeSymbol elemType   = info.ElementType!;
+                string      elemFq     = elemType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+                if (isNullable)
+                {
+                    sb.AppendLine("                    {");
+                    sb.AppendLine("                        bool __hasArray = reader.ReadBoolean();");
+                    sb.AppendLine("                        if (!__hasArray)");
+                    sb.AppendLine($"                            this.{f.Name} = null;");
+                    sb.AppendLine("                        else");
+                    sb.AppendLine("                        {");
+                }
+
+                string indent = isNullable ? "                            " : "                    ";
+
+                if (TryMapPrimitive(elemType, out _))
+                {
+                    sb.AppendLine($"{indent}this.{f.Name} = {GetArrayReadCall(elemType)};");
+                }
+                else if (_SpecialTypes.Contains(elemType.ToDisplayString()))
+                {
+                    sb.AppendLine($"{indent}this.{f.Name} = reader.Read{elemType.ToDisplayString().Split('.').Last()}Array();");
+                }
+                else if (elemType.TypeKind == TypeKind.Enum && HasAttribute(elemType, _SERIALIZABLE_ENUM_ATTR))
+                {
+                    sb.AppendLine($"{indent}this.{f.Name} = reader.ReadSerializableEnumArray<{elemFq}>();");
+                }
+                else if (IsProtoMsgBaseDerived(elemType))
+                {
+                    // count + for each: bool has + int len + bytes
+                    sb.AppendLine($"{indent}{{");
+                    sb.AppendLine($"{indent}    int __count = reader.ReadInt32();");
+                    sb.AppendLine($"{indent}    var __array = new {elemFq}[__count];");
+                    sb.AppendLine($"{indent}    for (int __i = 0; __i < __count; __i++)");
+                    sb.AppendLine($"{indent}    {{");
+                    sb.AppendLine($"{indent}        bool __has = reader.ReadBoolean();");
+                    sb.AppendLine($"{indent}        if (!__has)");
+                    sb.AppendLine($"{indent}        {{");
+                    sb.AppendLine($"{indent}            __array[__i] = null!;");
+                    sb.AppendLine($"{indent}        }}");
+                    sb.AppendLine($"{indent}        else");
+                    sb.AppendLine($"{indent}        {{");
+                    sb.AppendLine($"{indent}            int __len = reader.ReadInt32();");
+                    sb.AppendLine($"{indent}            byte[] __bytes = reader.ReadBytes(__len);");
+                    sb.AppendLine($"{indent}            var __obj = new {elemFq}();");
+                    sb.AppendLine($"{indent}            using var __ms = new MemoryStream(__bytes);");
+                    sb.AppendLine($"{indent}            using var __br = new BinaryReader(__ms, Encoding.UTF8, false);");
+                    sb.AppendLine($"{indent}            __obj.Deserialize(__br);");
+                    sb.AppendLine($"{indent}            __array[__i] = __obj;");
+                    sb.AppendLine($"{indent}        }}");
+                    sb.AppendLine($"{indent}    }}");
+                    sb.AppendLine($"{indent}    this.{f.Name} = __array;");
+                    sb.AppendLine($"{indent}}}");
+                }
+
+                if (isNullable)
+                {
+                    sb.AppendLine("                        }");
+                    sb.AppendLine("                    }");
+                }
+
+                return;
+            }
         }
     }
 
@@ -867,6 +1080,27 @@ public sealed class ProtoGenerator : IIncrementalGenerator
             SpecialType.System_Char    => "reader.ReadCharList()",
             SpecialType.System_String  => "reader.ReadStringList()",
             _                          => "throw new InvalidOperationException(\"Unsupported list element\")"
+        };
+    }
+
+    private static string GetArrayReadCall(ITypeSymbol elemType)
+    {
+        return elemType.SpecialType switch
+        {
+            SpecialType.System_Byte    => "reader.ReadByteArray()",
+            SpecialType.System_SByte   => "reader.ReadSByteArray()",
+            SpecialType.System_Boolean => "reader.ReadBoolArray()",
+            SpecialType.System_Int16   => "reader.ReadShortArray()",
+            SpecialType.System_UInt16  => "reader.ReadUShortArray()",
+            SpecialType.System_Int32   => "reader.ReadIntArray()",
+            SpecialType.System_UInt32  => "reader.ReadUIntArray()",
+            SpecialType.System_Int64   => "reader.ReadLongArray()",
+            SpecialType.System_UInt64  => "reader.ReadULongArray()",
+            SpecialType.System_Single  => "reader.ReadFloatArray()",
+            SpecialType.System_Double  => "reader.ReadDoubleArray()",
+            SpecialType.System_Char    => "reader.ReadCharArray()",
+            SpecialType.System_String  => "reader.ReadStringArray()",
+            _                          => "throw new InvalidOperationException(\"Unsupported array element\")"
         };
     }
 }
