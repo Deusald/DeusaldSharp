@@ -31,7 +31,7 @@ namespace DeusaldSharp
 
     /// <summary> A two-element array in the form of a vector.  </summary>
     [PublicAPI]
-    public struct TVector2<T> : IEnumerable<T>
+    public struct TVector2<T> : IEnumerable<T>, IEquatable<TVector2<T>> where T : struct
     {
         #region Variables
 
@@ -43,6 +43,38 @@ namespace DeusaldSharp
 
         #endregion Variables
 
+        #region Init Methods
+
+        /// <summary> Creates a new vector with given x, y components. </summary>
+        public TVector2(T x, T y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        /// <summary> Creates a new vector with all x, y components set to value. </summary>
+        public TVector2(T value)
+        {
+            x = value;
+            y = value;
+        }
+
+        /// <summary> Creates a new vector with given x, y components from Vector2. </summary>
+        public TVector2(TVector2<T> value)
+        {
+            x = value.x;
+            y = value.y;
+        }
+
+        /// <summary> Creates a new vector with given x, y components from Vector3 ignoring z component. </summary>
+        public TVector2(TVector3<T> value)
+        {
+            x = value.x;
+            y = value.y;
+        }
+
+        #endregion Init Methods
+        
         #region Public Methods
 
         #region Enumerable
@@ -98,6 +130,27 @@ namespace DeusaldSharp
 
         #endregion Operators
 
+        #region Equals
+
+        /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
+        public bool Equals(TVector2<T> other)
+        {
+            return x.Equals(other.x) && y.Equals(other.y);
+        }
+
+        /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
+        public override bool Equals(object? obj)
+        {
+            return obj is TVector2<T> other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Tuple.Create(x, y).GetHashCode();
+        }
+
+        #endregion Equals
+        
         #endregion Public Methods
     }
 }
