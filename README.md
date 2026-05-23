@@ -579,3 +579,52 @@ public partial class InventoryMsg : ProtoMsgBase
 - Unsupported field types / duplicate IDs / non-partial messages → **build-time errors** (generator diagnostics)
 - Truncated/corrupt payloads → runtime exceptions from `BinaryReader` (fail-fast)
 - Serializable-enum misuse (missing attribute, invalid underlying type) → runtime exceptions from the SerializableEnum helpers
+
+## Ansi Console Colors
+
+`Ansi` is a static class providing ANSI escape code constants and helpers for colorizing console output. It supports three levels of color control:
+
+- **Named constants** — 8 standard foreground and background colors, plus bright foreground variants, available as plain `string` constants with zero allocation.
+- **True-color methods** — `Fg(r, g, b)` and `Bg(r, g, b)` for full 24-bit RGB control, accepted by any terminal that supports ANSI true color.
+- **`RESET`** — a constant that clears all active formatting. Always append it after colored text to prevent color bleeding into subsequent output.
+
+> **Terminal support:** Windows Terminal, macOS Terminal, and most Linux terminals support ANSI escape codes out of the box. The legacy Windows Console Host (cmd.exe) requires virtual terminal processing to be enabled — .NET 5+ enables it automatically; on older runtimes you may need to set it manually via `SetConsoleMode`.
+
+### Example
+
+```csharp
+// Named foreground color
+Console.WriteLine(Ansi.GREEN + "Success!" + Ansi.RESET);
+
+// Named background + foreground combination
+Console.WriteLine(Ansi.BG_RED + Ansi.WHITE + " ERROR " + Ansi.RESET + " Something went wrong.");
+
+// Bright variant
+Console.WriteLine(Ansi.BRIGHT_BLUE + "Info message" + Ansi.RESET);
+
+// 24-bit true color — foreground
+Console.WriteLine(Ansi.Fg(255, 165, 0) + "Orange text" + Ansi.RESET);
+
+// 24-bit true color — background via RGB
+Console.WriteLine(Ansi.Bg(30, 30, 30) + Ansi.WHITE + " Dark background " + Ansi.RESET);
+
+// 24-bit true color — background via System.Drawing.Color
+Console.WriteLine(Ansi.Bg(Color.CornflowerBlue) + " CornflowerBlue background " + Ansi.RESET);
+
+// Building a colored table row
+string row = Ansi.Bg(50, 50, 80) + Ansi.BRIGHT_WHITE
+           + $" {"Player",-12} {"Score",6} "
+           + Ansi.RESET;
+Console.WriteLine(row);
+```
+
+### Available constants
+
+| Constant | Effect |
+|---|---|
+| `RESET` | Clears all formatting |
+| `BLACK` `RED` `GREEN` `YELLOW` `BLUE` `MAGENTA` `CYAN` `WHITE` | Standard foreground colors |
+| `BG_BLACK` `BG_RED` `BG_GREEN` `BG_YELLOW` `BG_BLUE` `BG_MAGENTA` `BG_CYAN` `BG_WHITE` | Standard background colors |
+| `BRIGHT_RED` `BRIGHT_GREEN` `BRIGHT_BLUE` `BRIGHT_WHITE` | Bright foreground variants |
+| `Fg(r, g, b)` | 24-bit true-color foreground |
+| `Bg(r, g, b)` / `Bg(Color)` | 24-bit true-color background |
