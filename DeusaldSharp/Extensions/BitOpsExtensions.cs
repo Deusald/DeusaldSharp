@@ -27,7 +27,7 @@ using JetBrains.Annotations;
 using System.Numerics;
 #endif
 
-namespace GameLogic
+namespace DeusaldSharp
 {
     [PublicAPI]
     public static class BitOps

@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System.Runtime.CompilerServices;
-using GameLogic;
 using JetBrains.Annotations;
 
 namespace DeusaldSharp
