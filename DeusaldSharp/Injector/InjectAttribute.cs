@@ -26,5 +26,5 @@ using System;
 namespace DeusaldSharp
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    internal class InjectAttribute : Attribute { }
+    public class InjectAttribute : Attribute { }
 }

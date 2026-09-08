@@ -23,6 +23,7 @@ You can add this library to Unity project in 2 ways:
 * Messages system for sending messages to classes that can subscribe for specific messages
 * 2D Spline class
 * Vector2, Vector3 and Typed Vector2/Vector 3 classes with all classic vector math in it
+* Simple dependency injection container with attribute based field/property injection
 
 ## Game Server Clock
 
@@ -579,6 +580,79 @@ public partial class InventoryMsg : ProtoMsgBase
 - Unsupported field types / duplicate IDs / non-partial messages → **build-time errors** (generator diagnostics)
 - Truncated/corrupt payloads → runtime exceptions from `BinaryReader` (fail-fast)
 - Serializable-enum misuse (missing attribute, invalid underlying type) → runtime exceptions from the SerializableEnum helpers
+
+## Injector
+
+`Injector` is a lightweight dependency injection container. You register objects in it (**bind**) and then let it fill
+members marked with the `[Inject]` attribute (**inject**). It is deliberately minimal: no lifetimes, no scopes, no
+automatic construction — you create the objects yourself and the container only wires them together.
+
+The `[Inject]` attribute can be placed on **fields and properties**, both `public` and `private`, and injection is
+resolved by the **exact declared type** of that member.
+
+### Binding
+
+```csharp
+Injector injector = new Injector();
+
+// Bind under the generic type argument
+injector.Bind<IPlayerService>(new PlayerService());
+
+// Bind under the concrete type (the generic argument is inferred)
+injector.Bind(new Logger());
+
+// Bind an object under every interface it implements at once
+injector.BindAllInterfaces(new MatchmakingService()); // binds IMatchmaking, ITickable, ...
+
+// Resolve manually
+IPlayerService players = injector.Get<IPlayerService>();
+```
+
+The type used for the binding is the **generic type argument**, not the runtime type of the object. `Bind<IPlayerService>(new PlayerService())`
+makes the object resolvable as `IPlayerService` only — asking for `PlayerService` will throw. The same applies to
+`BindAllInterfaces`, which binds only the interfaces, never the concrete class. Binding the same type twice replaces the
+previous binding.
+
+Every `Injector` binds **itself** on construction, so `Get<Injector>()` works and `[Inject] Injector` members are filled
+like any other dependency.
+
+### Injecting
+
+```csharp
+public class GameLoop
+{
+    [Inject] public  IPlayerService Players { get; set; }
+    [Inject] private Logger         _Logger;
+
+    public void Tick() => _Logger.Log(Players.Count);
+}
+
+GameLoop loop = new GameLoop();
+injector.Inject(loop); // Players and _Logger are now filled
+```
+
+`TriggerInjectOnBinders()` injects into everything that is bound in the container, which is the usual way to wire up a
+whole system after all bindings are registered. Each object is injected only once, even when it is bound under several
+types (for example through `BindAllInterfaces`):
+
+```csharp
+Injector injector = new Injector();
+
+injector.Bind<IPlayerService>(new PlayerService());
+injector.Bind(new Logger());
+injector.BindAllInterfaces(new GameLoop());
+
+injector.TriggerInjectOnBinders(); // every bound object gets its [Inject] members filled
+```
+
+### Notes
+
+- Members **without** the `[Inject]` attribute are never touched.
+- Injecting an object that has no `[Inject]` members is a no-op, not an error.
+- Requesting or injecting a type that was never bound throws `KeyNotFoundException` — bind everything before calling
+  `Inject` / `TriggerInjectOnBinders`.
+- Resolution is by exact declared type, so a member declared as `PlayerService` is not satisfied by a
+  `Bind<IPlayerService>` binding.
 
 ## Ansi Console Colors
 
