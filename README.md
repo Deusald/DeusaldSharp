@@ -372,9 +372,6 @@ Notes
 * Write(List<string>) writes v ?? string.Empty.
 * Serializable enums require the `[SerializableEnum]` attribute; otherwise reading/writing throws.
 
-Below is a **single, detailed README section** you can copy-paste as-is.
-It documents the **design goals, wire format, guarantees, edge cases, and usage patterns** of your Proto module, aligned with the final, fixed implementation and the expanded test suite.
-
 ---
 
 ## Proto module (ProtoMsgBase / ProtoField)
