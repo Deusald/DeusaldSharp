@@ -4,5 +4,5 @@ namespace DeusaldSharp.Analyzers;
 
 public class DeusaldSharpAnalyzers
 {
-    public static readonly Version Version = new(10, 9, 0);
+    public static readonly Version Version = new(10, 10, 0);
 }
