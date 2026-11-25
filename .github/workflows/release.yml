@@ -13,7 +13,7 @@ permissions:
 
 env:
   SOLUTION: 'DeusaldSharp.sln'
-  OUTPUT: ${{ github.workspace }}/output
+  OUTPUT: 'output' # relative on purpose: dotnet nuget push can't expand wildcards in Windows paths with mixed separators
   NUGET_SOURCE: 'https://api.nuget.org/v3/index.json'
   GITHUB_PACKAGES_SOURCE: 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
 
@@ -63,11 +63,17 @@ jobs:
       # GitHub Packages first: packages are available there within seconds, NuGet.org indexing can take much longer.
       # Only *.nupkg - GitHub Packages doesn't accept symbol packages.
       - name: 'Push to GitHub Packages'
-        run: dotnet nuget push "$OUTPUT/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source "$GITHUB_PACKAGES_SOURCE" --skip-duplicate
+        run: |
+          for package in "$OUTPUT"/*.nupkg; do
+            dotnet nuget push "$package" --api-key "${{ secrets.GITHUB_TOKEN }}" --source "$GITHUB_PACKAGES_SOURCE" --skip-duplicate
+          done
 
       # Pushing *.nupkg to NuGet.org also uploads the matching *.snupkg symbol packages.
       - name: 'Push to NuGet.org'
-        run: dotnet nuget push "$OUTPUT/*.nupkg" --api-key "${{ secrets.NUGET_AUTH_TOKEN }}" --source "$NUGET_SOURCE" --skip-duplicate
+        run: |
+          for package in "$OUTPUT"/*.nupkg; do
+            dotnet nuget push "$package" --api-key "${{ secrets.NUGET_AUTH_TOKEN }}" --source "$NUGET_SOURCE" --skip-duplicate
+          done
 
       - name: 'Create GitHub Release'
         env:
