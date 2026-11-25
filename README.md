@@ -15,7 +15,7 @@ Targets **.NET Standard 2.1** (Unity, Mono, .NET Core 3+) and **.NET 10**. All m
   [Flags memory](#flags-memory) · [Helpers](#helpers) · [Username verificator](#username-verificator) · [Ansi console colors](#ansi-console-colors) · [Enums](#enums)
 - [Vectors](#vectors) · [Splines](#splines) · [Clock](#clock) · [CoRoutines](#coroutines) · [Messages](#messages) ·
   [Injector](#injector) · [Glicko](#glicko) · [Proto](#proto)
-- [Upgrading to 11.0](#upgrading-to-110) · [Building](#building)
+- [Upgrading to 11.0](#upgrading-to-110) · [Building](#building) · [Patch notes](PatchNotes)
 
 ---
 
@@ -28,6 +28,32 @@ Install the `DeusaldSharp` meta-package to get every module, or reference only t
 ```
 dotnet add package DeusaldSharp            # everything
 dotnet add package DeusaldSharp.Proto      # or just the modules you use
+```
+
+### GitHub Packages
+
+Every release is also published to GitHub Packages, where it is available right after the release build (NuGet.org
+indexing can take a while). GitHub Packages requires authentication even for public packages: create a
+[personal access token](https://github.com/settings/tokens) with the `read:packages` scope and add the source once:
+
+```
+dotnet nuget add source https://nuget.pkg.github.com/Deusald/index.json --name deusald-github --username YOUR_GITHUB_USERNAME --password YOUR_TOKEN --store-password-in-clear-text
+```
+
+or per repository in `nuget.config` (keep the token in an environment variable, not in the file):
+
+```xml
+<configuration>
+  <packageSources>
+    <add key="deusald-github" value="https://nuget.pkg.github.com/Deusald/index.json" />
+  </packageSources>
+  <packageSourceCredentials>
+    <deusald-github>
+      <add key="Username" value="YOUR_GITHUB_USERNAME" />
+      <add key="ClearTextPassword" value="%GITHUB_PACKAGES_TOKEN%" />
+    </deusald-github>
+  </packageSourceCredentials>
+</configuration>
 ```
 
 ### Unity
@@ -885,5 +911,15 @@ dotnet test               # runs all tests
 dotnet pack -c Release    # creates the NuGet packages
 ```
 
-- The version of every package, assembly and the Unity `package.json` is set in one place: `<Version>` in `Directory.Build.props`.
-- Pushing a `v*` tag publishes all packages to NuGet (GitHub Actions).
+The version of every package, assembly and the Unity `package.json` is set in one place: `<Version>` in `Directory.Build.props`.
+
+### Releasing
+
+1. Set `<Version>` in `Directory.Build.props` and run a Release build (updates the Unity dlls and `package.json`).
+2. Add the patch notes as `PatchNotes/<Version>.md` - the file becomes the body of the GitHub Release.
+3. Commit, then push a tag `v<Version>` (e.g. `v11.0.0`).
+
+The [Release workflow](.github/workflows/release.yml) then checks that the tag matches `<Version>` and that the patch
+notes exist, builds and tests the solution, publishes all packages to GitHub Packages and NuGet.org (with symbol
+packages), and creates the GitHub Release with the patch notes and the `.nupkg` files attached.
+It needs the `NUGET_AUTH_TOKEN` repository secret (NuGet.org API key); GitHub Packages uses the built-in `GITHUB_TOKEN`.

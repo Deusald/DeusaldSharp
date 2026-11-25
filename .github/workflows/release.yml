@@ -1,0 +1,75 @@
+﻿name: "Release"
+
+# Push a tag "v<Version>" (e.g. v11.0.0) to release. The tag must match <Version> in Directory.Build.props
+# and PatchNotes/<Version>.md must exist - both are checked before anything is published.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write  # create the GitHub Release
+  packages: write  # push to GitHub Packages
+
+env:
+  SOLUTION: 'DeusaldSharp.sln'
+  OUTPUT: ${{ github.workspace }}/output
+  NUGET_SOURCE: 'https://api.nuget.org/v3/index.json'
+  GITHUB_PACKAGES_SOURCE: 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release:
+    name: 'Release'
+    runs-on: windows-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+
+      - name: 'Install dotnet 10.0'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: 'Check version and patch notes'
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PROPS_VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Directory.Build.props)
+          if [ "$TAG_VERSION" != "$PROPS_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match <Version>$PROPS_VERSION</Version> in Directory.Build.props"
+            exit 1
+          fi
+          if [ ! -s "PatchNotes/$TAG_VERSION.md" ]; then
+            echo "::error::Missing patch notes: PatchNotes/$TAG_VERSION.md"
+            exit 1
+          fi
+          echo "VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
+
+      - name: 'Restore'
+        run: dotnet restore "$SOLUTION"
+
+      - name: 'Build'
+        run: dotnet build "$SOLUTION" --no-restore --configuration Release
+
+      - name: 'Test'
+        run: dotnet test "$SOLUTION" --no-build --configuration Release
+
+      - name: 'Pack'
+        run: dotnet pack "$SOLUTION" --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output "$OUTPUT"
+
+      # GitHub Packages first: packages are available there within seconds, NuGet.org indexing can take much longer.
+      # Only *.nupkg - GitHub Packages doesn't accept symbol packages.
+      - name: 'Push to GitHub Packages'
+        run: dotnet nuget push "$OUTPUT/*.nupkg" --api-key "${{ secrets.GITHUB_TOKEN }}" --source "$GITHUB_PACKAGES_SOURCE" --skip-duplicate
+
+      # Pushing *.nupkg to NuGet.org also uploads the matching *.snupkg symbol packages.
+      - name: 'Push to NuGet.org'
+        run: dotnet nuget push "$OUTPUT/*.nupkg" --api-key "${{ secrets.NUGET_AUTH_TOKEN }}" --source "$NUGET_SOURCE" --skip-duplicate
+
+      - name: 'Create GitHub Release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "$OUTPUT"/*.nupkg --verify-tag --title "DeusaldSharp $VERSION" --notes-file "PatchNotes/$VERSION.md"
