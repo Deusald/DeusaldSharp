@@ -15,10 +15,17 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
+        <!-- The repository readme is shown on every package page. -->
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
         <!-- Copy the netstandard2.1 Release build of this module into the Unity package. -->
         <CopyToUnityPackage>true</CopyToUnityPackage>
         <UnityPackageDir>$(MSBuildThisFileDirectory)../UnityPackage.NetStandard2.1/</UnityPackageDir>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/" Visible="false" />
+    </ItemGroup>
 
     <ItemGroup>
         <Compile Include="$(MSBuildThisFileDirectory)InternalsVisibleTo.cs" Link="Properties\InternalsVisibleTo.cs" />
