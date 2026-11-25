@@ -10,6 +10,7 @@ on:
 permissions:
   contents: write  # create the GitHub Release
   packages: write  # push to GitHub Packages
+  id-token: write  # NuGet.org Trusted Publishing (OIDC)
 
 env:
   SOLUTION: 'DeusaldSharp.sln'
@@ -68,11 +69,19 @@ jobs:
             dotnet nuget push "$package" --api-key "${{ secrets.GITHUB_TOKEN }}" --source "$GITHUB_PACKAGES_SOURCE" --skip-duplicate
           done
 
+      # Trusted Publishing: exchanges the workflow's OIDC token for a short-lived (1 hour) NuGet.org API key.
+      # Requires a Trusted Publishing policy on nuget.org for this repository and release.yml.
+      - name: 'Log in to NuGet.org'
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: 'Deusald' # nuget.org profile name, not email
+
       # Pushing *.nupkg to NuGet.org also uploads the matching *.snupkg symbol packages.
       - name: 'Push to NuGet.org'
         run: |
           for package in "$OUTPUT"/*.nupkg; do
-            dotnet nuget push "$package" --api-key "${{ secrets.NUGET_AUTH_TOKEN }}" --source "$NUGET_SOURCE" --skip-duplicate
+            dotnet nuget push "$package" --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --source "$NUGET_SOURCE" --skip-duplicate
           done
 
       - name: 'Create GitHub Release'

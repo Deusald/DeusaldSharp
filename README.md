@@ -399,7 +399,7 @@ Console.WriteLine(Ansi.Bg(Color.CornflowerBlue) + " System.Drawing.Color " + Ans
 - **`LogLevel`** - `Off`, `Trace`, `Debug`, `Info`, `Warn`, `Error`, `Fatal`.
 - **`Platforms`** - `[Flags]` serializable enum: `Windows`, `MacOS`, `Linux`, `iOS`, `Android`, `Xbox`, `PlayStation`,
   `NintendoSwitch` and the groups `Desktop`, `Mobile`, `Console`, `All`.
-- **`DeusaldSharp.Version`** - version of the library (`11.0.0`).
+- **`DeusaldSharp.Version`** - version of the library (`11.0.1`).
 
 ```csharp
 Platforms.Desktop.HasAnyFlag(Platforms.Linux); // true
@@ -922,4 +922,5 @@ The version of every package, assembly and the Unity `package.json` is set in on
 The [Release workflow](.github/workflows/release.yml) then checks that the tag matches `<Version>` and that the patch
 notes exist, builds and tests the solution, publishes all packages to GitHub Packages and NuGet.org (with symbol
 packages), and creates the GitHub Release with the patch notes and the `.nupkg` files attached.
-It needs the `NUGET_AUTH_TOKEN` repository secret (NuGet.org API key); GitHub Packages uses the built-in `GITHUB_TOKEN`.
+NuGet.org uses Trusted Publishing (a nuget.org policy for this repository and `release.yml`, no API key secret);
+GitHub Packages uses the built-in `GITHUB_TOKEN`.
