@@ -59,7 +59,7 @@ jobs:
         run: dotnet test "$SOLUTION" --no-build --configuration Release
 
       - name: 'Pack'
-        run: dotnet pack "$SOLUTION" --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output "$OUTPUT"
+        run: dotnet pack "$SOLUTION" --no-build --configuration Release --output "$OUTPUT"
 
       # GitHub Packages first: packages are available there within seconds, NuGet.org indexing can take much longer.
       # Only *.nupkg - GitHub Packages doesn't accept symbol packages.

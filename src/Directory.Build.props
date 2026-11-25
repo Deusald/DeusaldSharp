@@ -11,6 +11,10 @@
         <Title>$(MSBuildProjectName)</Title>
         <PackageId>$(MSBuildProjectName)</PackageId>
 
+        <!-- Symbol packages (.snupkg) next to every .nupkg; NuGet.org gets them automatically on push. -->
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
         <!-- Copy the netstandard2.1 Release build of this module into the Unity package. -->
         <CopyToUnityPackage>true</CopyToUnityPackage>
         <UnityPackageDir>$(MSBuildThisFileDirectory)../UnityPackage.NetStandard2.1/</UnityPackageDir>

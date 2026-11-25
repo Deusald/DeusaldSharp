@@ -4,6 +4,8 @@
     <PropertyGroup>
         <Description>C# utils that are often useful in game development. Meta-package that references every DeusaldSharp module.</Description>
         <IncludeBuildOutput>false</IncludeBuildOutput>
+        <!-- No dlls, so no pdbs: NuGet.org rejects an empty symbol package. -->
+        <IncludeSymbols>false</IncludeSymbols>
         <CopyToUnityPackage>false</CopyToUnityPackage>
         <!-- NU5128: no lib/ folder is expected, the package only carries dependencies. -->
         <NoWarn>$(NoWarn);NU5128</NoWarn>
