@@ -1,386 +1,697 @@
 # DeusaldSharp
 
-Deusald Sharp is a library that contains useful functionalities when creating game in C#.
+[![NuGet](https://img.shields.io/nuget/v/DeusaldSharp?color=blue)](https://www.nuget.org/packages/DeusaldSharp/)
+[![NuGet](https://img.shields.io/nuget/dt/DeusaldSharp)](https://www.nuget.org/packages/DeusaldSharp/)
 
-## Build
+DeusaldSharp is a set of C# libraries for game development - game servers and Unity clients alike: fixed-tick server
+clocks, Unity-style coroutines, a message bus, a dependency injector, Glicko-2 ratings, vectors and splines, a safe
+binary serialization layer and a source-generated binary message format (Proto).
 
-### [NuGet](https://www.nuget.org/packages/DeusaldSharp/) [![NuGet](https://img.shields.io/nuget/v/DeusaldSharp?color=blue)](https://www.nuget.org/packages/DeusaldSharp/) [![NuGet](https://img.shields.io/nuget/dt/DeusaldSharp)](https://www.nuget.org/packages/DeusaldSharp/)
+Targets **.NET Standard 2.1** (Unity, Mono, .NET Core 3+) and **.NET 10**. All modules use the single `DeusaldSharp` namespace.
 
-The library is split into modules, each published as its own NuGet package (and its own dll). All packages share one version.
-Install `DeusaldSharp` to get everything, or pick only the modules you need:
+- [Installation](#installation)
+- [Modules](#modules)
+- Core: [Extensions](#extensions) · [Binary serialization](#binary-serialization) · [Math utils](#math-utils) ·
+  [Flags memory](#flags-memory) · [Helpers](#helpers) · [Username verificator](#username-verificator) · [Ansi console colors](#ansi-console-colors) · [Enums](#enums)
+- [Vectors](#vectors) · [Splines](#splines) · [Clock](#clock) · [CoRoutines](#coroutines) · [Messages](#messages) ·
+  [Injector](#injector) · [Glicko](#glicko) · [Proto](#proto)
+- [Upgrading to 11.0](#upgrading-to-110) · [Building](#building)
+
+---
+
+## Installation
+
+### NuGet
+
+Install the `DeusaldSharp` meta-package to get every module, or reference only the modules you need:
+
+```
+dotnet add package DeusaldSharp            # everything
+dotnet add package DeusaldSharp.Proto      # or just the modules you use
+```
+
+### Unity
+
+1. Package Manager → *Add package from git URL*:
+   `https://github.com/Deusald/DeusaldSharp.git?path=/UnityPackage.NetStandard2.1#vX.X.X`
+2. Or via scoped registry: https://openupm.com/packages/com.deusald.deusaldsharp/
+
+The Unity package contains one dll per module (`DeusaldSharp.Core.dll`, `DeusaldSharp.Clock.dll`, ...).
+The Proto source generator is not part of the Unity package.
+
+---
+
+## Modules
+
+Every module is a separate NuGet package and dll. All packages share one version.
 
 | Package | Contents | Depends on |
 |---|---|---|
-| `DeusaldSharp` | Meta-package: references every module below | all modules |
-| `DeusaldSharp.Core` | Extensions, BinaryWriter/BinaryReader serializers, Math utils, FlagsMemory, Helpers, Ansi, Username verificator | — |
-| `DeusaldSharp.Clock` | Game Server Clock (Standard and Precision) | Core |
-| `DeusaldSharp.CoRoutines` | Unity-style coroutines | Core |
-| `DeusaldSharp.Vectors` | Vector2, Vector3, TVector2, TVector3 | Core |
-| `DeusaldSharp.Splines` | 2D Spline | Core, Vectors |
-| `DeusaldSharp.Proto` | Proto module (`ProtoMsgBase` / `ProtoField`) with the bundled source generator | Core |
-| `DeusaldSharp.Messages` | Messages system | — |
-| `DeusaldSharp.Glicko` | Glicko-2 style rating | — |
-| `DeusaldSharp.Injector` | Dependency injection container | — |
+| `DeusaldSharp` | Meta-package referencing every module below | all modules |
+| `DeusaldSharp.Core` | [Extensions](#extensions), [binary serialization](#binary-serialization), [math utils](#math-utils), [flags memory](#flags-memory), [helpers](#helpers), [username verificator](#username-verificator), [Ansi colors](#ansi-console-colors), [enums](#enums) | — |
+| `DeusaldSharp.Vectors` | [`Vector2`, `Vector3`, `TVector2<T>`, `TVector3<T>`](#vectors) | Core |
+| `DeusaldSharp.Splines` | [`Spline2D`](#splines) | Core, Vectors |
+| `DeusaldSharp.Clock` | [`GameServerClock`, `PrecisionClock`](#clock) | Core |
+| `DeusaldSharp.CoRoutines` | [Unity-style coroutines](#coroutines) | Core |
+| `DeusaldSharp.Messages` | [Message bus with pooled messages](#messages) | — |
+| `DeusaldSharp.Injector` | [Attribute-based dependency injection](#injector) | — |
+| `DeusaldSharp.Glicko` | [Glicko-2 rating, win probability and decay](#glicko) | — |
+| `DeusaldSharp.Proto` | [Binary messages with a bundled source generator](#proto) | Core |
 
-All modules keep the single `DeusaldSharp` namespace, so switching between the meta-package and individual modules needs no code changes.
+---
 
-> The Proto source generator now ships inside `DeusaldSharp.Proto`. If your project references the old standalone
-> `DeusaldSharp.Analyzers` package, remove it - otherwise the generator runs twice and produces duplicate members.
+## Extensions
 
-### Versioning
+`DeusaldSharp.Core`
 
-The version of every package, assembly and the Unity `package.json` lives in one place: `<Version>` in `Directory.Build.props`.
-A Release build copies the module dlls into `UnityPackage.NetStandard2.1` and updates its `package.json` version.
-To create the NuGet packages run `dotnet pack -c Release`.
+### Enum flags
 
-### Unity Install
-
-You can add this library to Unity project in 2 ways:
-
-1. In package manager add library as git repository using format:
-   `https://github.com/Deusald/DeusaldSharp.git?path=/UnityPackage.NetStandard2.1#vX.X.X`
-   The Unity package contains a separate dll for every module (`DeusaldSharp.Core.dll`, `DeusaldSharp.Clock.dll`, ...).
-2. Add package using Scoped Register: https://openupm.com/packages/com.deusald.deusaldsharp/
-
-## Features
-
-* Game Server Clock in two versions: Standard and Precise
-* Clear C# Coroutines system similar to one that is build in Unity Engine
-* Useful Enum/String/Task/List Extensions and Helpers
-* Useful Math utils
-* Messages system for sending messages to classes that can subscribe for specific messages
-* 2D Spline class
-* Vector2, Vector3 and Typed Vector2/Vector 3 classes with all classic vector math in it
-* Simple dependency injection container with attribute based field/property injection
-
-## Game Server Clock
-
-Library contains two implementations of game server clock: precision one (that is more precise but eats more resources)
-and standard one. Clocks can be used to execute game server logic in fixed time ticks.
-
-### Precision Clock
-
-```csharp
-PrecisionClock serverClock = new PrecisionClock(50);
-serverClock.Tick += frameNumber =>
-{
-    // Game Logic
-};
-serverClock.TooLongFrame += () => Console.WriteLine("Too long frame");
-serverClock.Kill();
-```
-
-### Standard Clock
-
-```csharp
-GameServerClock serverClock = new GameServerClock(50, 100);
-serverClock.Tick += (frameNumber, deltaTime) =>
-{
-    // Game Logic
-};
-serverClock.Log += Console.WriteLine;
-serverClock.Kill();
-```
-
-### Clock notes
-
-- Both clocks are `IDisposable`; `Kill()` / `Dispose()` stop the clock thread and wait (up to 2 s) for it to finish, so no tick runs after they return.
-- Subscribe to `TickException` to handle exceptions thrown by a `Tick` handler - the clock reports them and keeps ticking.
-  Without a subscriber the exception is rethrown on the clock thread, which terminates the process (fail-fast).
-- If a tick takes longer than the interval, the clock skips the missed frames instead of firing them back-to-back.
-
-```csharp
-serverClock.TickException += exception => logger.LogError(exception, "Tick failed");
-```
-
-## CoRoutines
-
-DeusaldSharp contains an implementation of Unity style coroutines logic. It can be used to execute part of the game
-logic separated by server frames/seconds/conditions.
-
-```csharp
-CoRoCtrl.Reset();
-
-IEnumerator<ICoData> TestMethod() // Definition of coroutine method
-{
-    // Game logic
-    yield return CoRoCtrl.WaitForOneTick(); // Pause executing method for the next game server tick
-    // Game logic
-    yield return CoRoCtrl.WaitUntilDone(CoRoCtrl.RunCoRoutine(TestMethodTwo())); // Pause until other coroutine is done
-    // Game logic
-    yield return CoRoCtrl.WaitForSeconds(0.5f); // Pause for 0.5 second
-    // Game logic
-    yield return CoRoCtrl.WaitUntilTrue(() => pass); // Pause until condition is true
-    // Game logic
-}
-
-CoRoCtrl.RunCoRoutine(TestMethod()); // Run coroutine
-CoRoCtrl.Update(0.33f); // Update all coroutines with a given delta time
-// You can start coRoutine with CoTag, CoTag is a tag to mark group of logically connected CoRoutines.
-// The CoTag can be later used to pause or kill all CoRoutines marked with specific tag.
-CoRoCtrl.RunCoRoutine(TestMethod2(), new CoTag(1)); 
-// You can also save coHandle of coRoutine that let's you check and control specific coRoutine
-ICoHandle coHandle = CoRoCtrl.RunCoRoutine(TestMethod2()); 
-if (coHandle.IsAlive) coHandle.Kill();
-```
-
-## Extensions & Helpers
-
-Group of useful extensions and helper methods.
-
-### Fire-and-forget tasks
-
-`Forget()` runs a task without awaiting it and without the "not awaited" warning. Exceptions never crash the process:
-they go to the per-call handler, or to the global `TaskExtensions.UnhandledException` handler. Cancellation is ignored.
-
-```csharp
-// once at startup
-DeusaldSharp.TaskExtensions.UnhandledException = e => Debug.LogException(e);  // Unity
-DeusaldSharp.TaskExtensions.UnhandledException = e => logger.LogError(e, ""); // server
-
-SaveAsync().Forget();                                   // uses the global handler
-SendAsync().Forget(e => ShowError("Couldn't send", e)); // per-call handler
-```
-
-> Set the global handler in every project - when neither handler is set, exceptions from forgotten tasks are swallowed.
-> `DeusaldSharp.TaskExtensions` is written fully qualified because `System.Threading.Tasks.TaskExtensions` has the same name.
-
-### Reading untrusted binary data
-
-All `BinaryReader` list/array readers validate the length prefix: a negative length, or one that cannot fit in the
-remaining bytes of a seekable stream, throws `InvalidDataException` before anything is allocated. On non-seekable streams
-memory grows only with the data actually received.
+Allocation-free flag operations for any enum (no boxing, any underlying type).
 
 ```csharp
 [Flags]
-private enum TestFlags
+public enum Abilities { None = 0, Jump = 1 << 0, Dash = 1 << 1, Fly = 1 << 2 }
+
+Abilities abilities = Abilities.Jump | Abilities.Dash;
+
+abilities.IsSingleFlagOn();                           // false
+abilities.CountFlags();                               // 2
+abilities.HasAnyFlag(Abilities.Dash | Abilities.Fly); // true
+abilities.HasAllFlags(Abilities.Dash | Abilities.Fly);// false
+abilities.WithFlags(Abilities.Fly);                   // Jump, Dash, Fly
+abilities.WithoutFlags(Abilities.Jump);               // Dash
+Abilities.None.IsNoFlagOn();                          // true
+
+foreach (Abilities ability in abilities.IterateSetFlags()) { } // Jump, Dash - struct enumerator, no allocation
+
+EnumExtensions.IterateAllValues<Abilities>();         // None, Jump, Dash, Fly (cached)
+EnumExtensions.IterateAllSingleFlags<Abilities>();    // Jump, Dash, Fly (cached)
+
+abilities.GetRandomFlag(random.Next);                 // Jump or Dash
+abilities.ToBits();                                   // 3
+EnumExtensions.FromBits<Abilities>(4);                // Fly
+
+// Read a custom attribute placed on an enum member
+DescriptionAttribute description = myEnumValue.GetCustomExtension<DescriptionAttribute>();
+```
+
+### Strings
+
+```csharp
+"PlayerMaxHealth".ToSnakeCase();     // "player_max_health"
+"PlayerMaxHealth".SplitPascalCase(); // "Player Max Health"
+"player".FirstToUpper();             // "Player"
+"   ".IsBlank();                     // true (also IsNullOrEmpty / IsNullOrWhiteSpace)
+nullableText.OrEmpty();              // "" when null
+"Hello".Base64Encode();              // "SGVsbG8="
+"SGVsbG8=".Base64Decode();           // "Hello"
+"DB_HOST".GetEnvironmentVariable();  // value or null
+
+// Passwords: PBKDF2-SHA512, 100k iterations, random salt, constant-time comparison
+string hash = "secret123".HashPassword();
+"secret123".CompareHashedPasswords(hash); // true
+
+// HMAC-SHA256 (UTF-8), lowercase hex
+"what do ya want for nothing?".ComputeHmacSha256Hex("Jefe"); // "5bdcc146bf60754e..."
+```
+
+### Byte arrays, lists and bits
+
+```csharp
+byte[] bytes = { 0xDE, 0xAD, 0xBE, 0xEF };
+bytes.ByteArrayToHexString();        // "deadbeef"
+"deadbeef".HexStringToByteArray();   // { 0xDE, 0xAD, 0xBE, 0xEF } - FormatException on invalid input
+bytes.ByteArrayToBase64String();     // "3q2+7w=="
+"3q2+7w==".Base64StringToByteArray();
+
+list.Shuffle();                      // unbiased Fisher-Yates using a cryptographic RNG
+
+ulong mask = 0b1011_0000;
+BitOps.TrailingZeroCount(mask);      // 4
+BitOps.PopCount(mask);               // 3
+ulong rest = mask.PopLowestSetBit(out int index, out ulong bit); // rest = 0b1010_0000, index = 4, bit = 0b1_0000
+```
+
+### Fire-and-forget tasks
+
+`Forget()` runs a task without awaiting it (and without the "not awaited" warning). Exceptions **never crash the
+process**: they go to the per-call handler, or to the global `TaskExtensions.UnhandledException`. Cancellation is ignored.
+
+```csharp
+// once at startup
+DeusaldSharp.TaskExtensions.UnhandledException = e => Debug.LogException(e);        // Unity
+DeusaldSharp.TaskExtensions.UnhandledException = e => logger.LogError(e, "Forget"); // server
+
+SaveAsync().Forget();                                   // global handler
+SendAsync().Forget(e => ShowError("Couldn't send", e)); // per-call handler
+```
+
+> Set the global handler in every project - without any handler, exceptions from forgotten tasks are swallowed.
+> Write `DeusaldSharp.TaskExtensions` fully qualified: `System.Threading.Tasks.TaskExtensions` has the same name.
+
+### Zip
+
+```csharp
+using ZipArchive archive = ZipFile.Open("backup.zip", ZipArchiveMode.Create);
+archive.CreateEntryFromAny(@"C:\Game\Saves", "Backup"); // file or whole directory, recursively
+// entries: "Backup/Saves/slot1.json", "Backup/Saves/Empty/" - '/' separators, empty directories kept, symlinks skipped
+```
+
+---
+
+## Binary serialization
+
+`DeusaldSharp.Core`
+
+`BinaryWriter` / `BinaryReader` extensions for lists, arrays and common types:
+
+- primitive `List<T>` and `T[]`: `byte`, `sbyte`, `bool`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `float`, `double`, `char`, `string`
+- `Guid`, `DateTime`, `TimeSpan`, `Version`, `HttpStatusCode` and their lists / arrays
+- serializable enums with an explicit wire type
+
+```csharp
+using MemoryStream ms = new MemoryStream();
+using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8, leaveOpen: true))
 {
-    None = 0,
-    A    = 1 << 0,
-    B    = 1 << 1,
-    C    = 1 << 2
+    writer.Write(new List<int> { 1, 2, 3 });   // [int count][elements]
+    writer.Write(new List<string> { "a", null }); // null is written as ""
+    writer.WriteArray(new[] { 1.5f, 2.5f });   // arrays use WriteArray
+    writer.Write(Guid.NewGuid());
+    writer.Write(TimeSpan.FromSeconds(1.5));  // int64 ticks - exact
+    writer.Write(new Version(1, 2));          // all four components
 }
 
-private enum TestEnum
-{
-    A = 0,
-    B = 1
-}
+ms.Position = 0;
+using BinaryReader reader = new BinaryReader(ms);
+List<int>    ints    = reader.ReadIntList();    // 1, 2, 3
+List<string> strings = reader.ReadStringList(); // "a", ""
+float[]      floats  = reader.ReadFloatArray(); // 1.5, 2.5
+Guid         id      = reader.ReadGuid();
+TimeSpan     time    = reader.ReadTimeSpan();   // 00:00:01.5
+Version      version = reader.ReadVersion();    // 1.2
 
-// Testing if only one bit is set
-TestFlags flags  = TestFlags.A;
-TestFlags flags2 = TestFlags.A | TestFlags.C;
-Assert.AreEqual(true, flags.IsSingleFlagOn());
-Assert.AreEqual(false, flags2.IsSingleFlagOn());
-
-// Getting random bit from those that are set
-flags.GetRandomFlag((min, max) => new Random().Next(min, max));
-flags.HasAnyFlag(TestFlags.A | TestFlags.C);
-
-// Taking out arguments out of args
-string[] args = { "10", "B" };
-int      ten = args.TakeSimpleType(0, 0);
-TestEnum b   = args.TakeEnum(1, TestEnum.A);
-
-// Shuffle list
-List<int> list = new List<int> { 1, 2, 3 };
-list.Shuffle();
-
-// ... etc.
+// Helpers for byte[] round-trips
+byte[] blob = Helpers.SerializeByBinaryWriter(w => { w.Write(42); w.Write("hi"); });
+Helpers.DeserializeFromBinaryReader(blob, r => { int number = r.ReadInt32(); string text = r.ReadString(); });
 ```
 
-## Math Utils
+### Serializable enums
 
-DeusaldSharp contains many math methods that can be useful when coding Game Server.
+`[SerializableEnum]` fixes the on-the-wire integer type of an enum, so the binary format stays explicit and stable
+(no boxing). Values that don't fit the wire type throw; unsigned enums are never sign-extended.
 
 ```csharp
-// For example
-4.Clamp(2, 3); // 3
-MathUtils.Lerp(1, 10, 0.25f); // 3.25f
-MathUtils.InverseLerp(1, 10, 7.75f); // 0.75f
-7.451587f.RoundToDecimal(3); // 7.452f
-0.1f.IsFloatZero(); // False
-1.55f.AreFloatsEquals(1.55f); // True
-7.MarkBit(2, false); // 5
-// ... etc.
+[SerializableEnum(SerializableEnumType.Byte)]
+public enum WeaponType : byte { Sword = 1, Bow = 2 }
+
+writer.WriteSerializableEnum(WeaponType.Bow);
+writer.WriteSerializableEnumList(new List<WeaponType> { WeaponType.Sword, WeaponType.Bow });
+writer.WriteSerializableEnumArray(new[] { WeaponType.Bow });
+
+WeaponType       one  = reader.ReadSerializableEnum<WeaponType>();
+List<WeaponType> many = reader.ReadSerializableEnumList<WeaponType>();
 ```
 
-## Messages
+Wire types: `Byte`, `SByte`, `Short`, `UShort`, `Int`, `UInt`, `Long`, `ULong`.
 
-Module that enables a possibility to listen for specific messages in a class.
+### Untrusted data
 
-> `MsgCtrl` is static and **not thread-safe** - use it from a single thread (e.g. the game loop / Unity main thread).
-> An exception thrown by a receiver propagates to the caller of `Send`; the bus keeps working and still-queued messages are delivered on the next `Send`.
+The readers are safe to use on data from the network. Every list / array length is validated **before** allocating:
+a negative length, or one that can't fit in the remaining bytes of a seekable stream, throws `InvalidDataException`.
+On non-seekable streams memory grows only with the bytes actually received.
 
 ```csharp
-private class ExampleMsg
-{
-    public int    Int    { get; set; }
-    public float  Float  { get; set; }
-    public string String { get; set; }
-    public object Object { get; set; }
-}
-
-// You can register class to listen for specific message type by using [MessageSlot] attribute
-private class AttributeTest
-{
-    public int ReceivedMessages { get; private set; }
-    
-    public AttributeTest()
-    {
-        MsgCtrl.Register(this);
-    }
-    
-    public void Unregister()
-    {
-        MsgCtrl.Unregister(this);
-    }
-    
-    [MessageSlot]
-    public void Receive(ExampleMsg message)
-    {
-        ++ReceivedMessages;
-    }
-}
-
-// Allocate new instance of a message.
-ExampleMsg msg = MsgCtrl.Allocate<ExampleMsg>(); // Messages instances are recycled from the pool.
-msg.Int    = 10;
-msg.Float  = 10.5f;
-msg.String = "Test";
-msg.Object = objectToReceive;
-MsgCtrl.Send(msg); // Send messages to all classes that listen for this specific message
-
-// Instead of using [MessageSlot] attribute you can also use Bind/Unbind methods
-MsgCtrl.Bind<ExampleMsg>(Receive);
-MsgCtrl.Unbind<ExampleMsg>(Receive);
+new BinaryReader(new MemoryStream(new byte[] { 0xFF, 0xFF, 0xFF, 0x7F })).ReadByteArray();
+// InvalidDataException - instead of allocating 2 GB
 ```
 
-## Spline 2D
+---
 
-DeusaldSharp contains class that lets you define and use 2d spline.
+## Math utils
+
+`DeusaldSharp.Core`
 
 ```csharp
-// Arrange
-Spline2D one = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 2)});
-Spline2D two = new Spline2D(new List<Vector2> {new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 2)});
+4.Clamp(2, 3);                         // 3 - all numeric types; throws when min > max
+MathUtils.Lerp(1f, 10f, 0.25f);        // 3.25
+MathUtils.InverseLerp(1f, 10f, 7.75f); // 0.75 (returns 0 when a == b)
+7.451587f.RoundToDecimal(3);           // 7.452
+(-1).MathMod(5);                       // 4 - always non-negative
+(-3).IsOdd();                          // true
 
-// Act
-Vector2 positionOne   = one.InterpolateDistance(1.5f);
-Vector2 positionTwo   = two.InterpolateDistance(1.5f);
-Vector2 positionThree = one.InterpolateDistance(0.5f);
-Vector2 positionFour  = two.InterpolateDistance(0.5f);
-Vector2 positionFive  = one.InterpolateDistance(1.5f);
-Vector2 positionSix   = two.InterpolateDistance(1.5f);
+// Float comparison with tolerance MathUtils.EPSILON (1e-6, relative above magnitude 1)
+(0.1f + 0.2f).AreFloatsEquals(0.3f);   // true
+1e-7f.IsFloatZero();                   // true
 
-// Assert
-Assert.Multiple(() =>
-{
-    Assert.AreEqual(new Vector2(0,           1.5015914f),  positionOne);
-    Assert.AreEqual(new Vector2(1.0576555f,  1.0576555f),  positionTwo);
-    Assert.AreEqual(new Vector2(0,           0.49840856f), positionThree);
-    Assert.AreEqual(new Vector2(0.35238677f, 0.35238677f), positionFour);
-    Assert.AreEqual(new Vector2(0,           1.5015914f),  positionFive);
-    Assert.AreEqual(new Vector2(1.0576555f,  1.0576555f),  positionSix);
-});
+// Bits (all integer types)
+0b0111.MarkBit(0b0010, false);         // 0b0101 - set / clear the bits of a mask
+0b1011.NumberOfSetBits();              // 3
+8.IsSingleBitOn();                     // true
+0b1010.HasAnyBitOn(0b0010);            // true
+0b1010.HasAllBitsOn(0b0110);           // false
+
+// Constants
+MathUtils.DEG_TO_RAD; MathUtils.RAD_TO_DEG; MathUtils.SEC_TO_MILLISECONDS; MathUtils.MILLISECONDS_TO_SECONDS;
+MathUtils.MIN_TO_SEC; MathUtils.HOURS_TO_MIN; MathUtils.DAYS_TO_HOURS;
 ```
 
-## Vector 2 & Vector 3
+---
 
-DeusaldSharp contains classes that implements Vector 2 and Vector 3 with all basic math connected to vectors.
+## Flags memory
+
+`DeusaldSharp.Core`
+
+Immutable bit sets: `ByteFlagsMemory` (8), `UshortFlagsMemory` (16), `UintFlagsMemory` (32), `UlongFlagsMemory` (64).
+Handy for unlocked levels, achievements, per-slot states. An out-of-range index throws `ArgumentOutOfRangeException`.
 
 ```csharp
-Vector2 one = new Vector2(1f,  1f);
-Vector2 two = new Vector2(2f, -5f);
-one.Normalized;
-one.Negated;
-one.Skew;
-one.Set(2f, 3f);
-Vector2.Add(one, two);
-one.Cross(two);
-one.Distance(two);
-one.Dot(two);
-one.Reflect(two);
-Vector2.Clamp(one, oneMin, oneMax);
-// etc.
-```
-## Typed Vector 2 & Vector 3
-DeusaldSharp contains classes for typed Vector 2 and Vector 3.
-```csharp
-TVector2<int> one = new TVector2<int> {x = 10, y = 15};
-TVector3<int> one = new TVector3<int> {x = 10, y = 15, z = 20};
+UintFlagsMemory unlocked = UintFlagsMemory.Empty.Set(0).Set(5);
+
+unlocked.IsSet(5);                 // true
+unlocked.FlagsSetCount;            // 2
+unlocked.Clear(0).Raw;             // 32
+unlocked.SetTo(5, false);          // set or clear by bool
+unlocked.IsEmpty; unlocked.IsFull;
+UintFlagsMemory.OneUpToIndex(4);   // bits 0..3 set (Raw = 15)
+new UintFlagsMemory(raw);          // from a stored value
+
+ByteFlagsMemory.Empty.Set(1).Set(3).ToString(); // "[ByteFlagsMemory 00001010 count=2]"
 ```
 
-## Username Verificator
+---
 
-`UsernameVerificator` is a helper class for validating and cleaning usernames based on:
-- minimum and maximum length,
-- optional whitespace rule (no leading/trailing spaces),
-- allowed character set (provided as a regex character-class).
+## Helpers
 
-### Example
+`DeusaldSharp.Core`
+
+### Command line arguments
+
+Read typed values from `string[] args` with defaults. Missing / negative indexes and unparsable values return the default;
+parsing is culture-invariant.
 
 ```csharp
-using DeusaldSharp;
+string[] args = { "7777", "Warn", "eu-west", "Adam" };
 
+int      port     = args.TakeSimpleType(0, 8080);                                       // 7777
+LogLevel logLevel = args.TakeEnum(1, LogLevel.Info);                                    // Warn
+string   region   = args.TakeFromList(2, new List<string> { "eu-west", "us-east" }, "us-east"); // "eu-west"
+string   bot      = args.TakeUsername(3, "Guest");                                      // "Adam"
+string   other    = args.TakeString(9, "default");                                      // "default"
+```
+
+`TakeEnum` rejects numeric values that aren't defined in the enum (`[Flags]` enums accept any combination).
+
+### Random
+
+```csharp
+bool coinFlip = Helpers.GetRandomBool(); // cryptographic RNG
+```
+
+---
+
+## Username verificator
+
+`DeusaldSharp.Core`
+
+Validates and cleans usernames by length, leading / trailing whitespace and an allowed character set.
+The character set is the **content** of a regex character class (without the brackets).
+
+```csharp
 UsernameVerificator verificator = new UsernameVerificator(
     minCharacters: 3,
     maxCharacters: 16,
-    whitespaceRequirement: true,
-    charactersRequirementRegex: @"[A-Za-z0-9 _]"
-);
+    whitespaceRequirement: true,         // no leading / trailing spaces
+    charactersRequirementRegex: "A-Za-z0-9 _");
 
-bool isValid = verificator.CheckUsernameRequirements("Adam_123");
-string cleaned = verificator.CleanUsername("  Ad!am@@ 12_3  "); // "Adam 12_3"
+verificator.CheckUsernameRequirements("Adam_123");   // true
+verificator.CheckUsernameRequirements(" Adam");      // false - leading space
+verificator.CheckUsernameRequirements("Ad!am");      // false - '!' not allowed
+verificator.CheckUsernameRequirements(null);         // false
+verificator.CleanUsername("  Ad!am@@ 12_3  ");       // "Adam 12_3"
 ```
 
-## Glicko (Glicko-2 style rating updates)
+Individual checks are available too: `CheckUsernameLengthRequirement`, `CheckUsernameWhitespaceRequirement`, `CheckCharactersRequirement`.
 
-`Glicko` is a helper for updating player ratings using a Glicko-2-like system.
+> Keep the character set ASCII (e.g. `A-Za-z0-9 _`). Unicode classes such as `\w` or `\p{L}` allow look-alike names
+> (Cyrillic "а" vs Latin "a").
 
-### Data structure
+---
+
+## Ansi console colors
+
+`DeusaldSharp.Core`
+
+ANSI escape codes for colored console output: named colors as `string` constants and 24-bit true color.
 
 ```csharp
-using DeusaldSharp;
+Console.WriteLine(Ansi.GREEN + "Success!" + Ansi.RESET);
+Console.WriteLine(Ansi.BG_RED + Ansi.WHITE + " ERROR " + Ansi.RESET + " Something went wrong.");
+Console.WriteLine(Ansi.BRIGHT_BLUE + "Info" + Ansi.RESET);
+Console.WriteLine(Ansi.Fg(255, 165, 0) + "Orange text" + Ansi.RESET);
+Console.WriteLine(Ansi.Bg(30, 30, 30) + Ansi.WHITE + " Dark background " + Ansi.RESET);
+Console.WriteLine(Ansi.Bg(Color.CornflowerBlue) + " System.Drawing.Color " + Ansi.RESET);
+```
 
+| Member | Effect |
+|---|---|
+| `RESET` | Clears all formatting - always append it after colored text |
+| `BLACK` `RED` `GREEN` `YELLOW` `BLUE` `MAGENTA` `CYAN` `WHITE` | Foreground colors |
+| `BG_BLACK` `BG_RED` `BG_GREEN` `BG_YELLOW` `BG_BLUE` `BG_MAGENTA` `BG_CYAN` `BG_WHITE` | Background colors |
+| `BRIGHT_RED` `BRIGHT_GREEN` `BRIGHT_BLUE` `BRIGHT_WHITE` | Bright foreground colors |
+| `Fg(r, g, b)` | True-color foreground |
+| `Bg(r, g, b)` / `Bg(Color)` | True-color background |
+
+> Windows Terminal, macOS and Linux terminals support ANSI codes out of the box; on the legacy Windows console .NET 5+
+> enables them automatically.
+
+---
+
+## Enums
+
+`DeusaldSharp.Core`
+
+- **`LogLevel`** - `Off`, `Trace`, `Debug`, `Info`, `Warn`, `Error`, `Fatal`.
+- **`Platforms`** - `[Flags]` serializable enum: `Windows`, `MacOS`, `Linux`, `iOS`, `Android`, `Xbox`, `PlayStation`,
+  `NintendoSwitch` and the groups `Desktop`, `Mobile`, `Console`, `All`.
+- **`DeusaldSharp.Version`** - version of the library (`11.0.0`).
+
+```csharp
+Platforms.Desktop.HasAnyFlag(Platforms.Linux); // true
+```
+
+---
+
+## Vectors
+
+`DeusaldSharp.Vectors`
+
+`Vector2` and `Vector3` (`float`) with the classic vector math, plus generic `TVector2<T>` / `TVector3<T>` for grids,
+chunks or any struct type.
+
+```csharp
+Vector2 a = new Vector2(3f, 4f);
+Vector2 b = Vector2.Right;            // also Zero, One, Up, Down, Left
+
+a.Magnitude;                          // 5 (also SqrMagnitude, Length(), LengthSquared())
+a.Normalized;                         // (0.6, 0.8) - a.Normalize() normalizes in place
+a.Negated;                            // (-3, -4)
+a.Skew;                               // (-4, 3)
+a.Dot(b);                             // 3
+a.Cross(b);                           // -4
+a.Distance(b);                        // 4.47 (also DistanceSquared)
+new Vector2(1f, -1f).Reflect(Vector2.Up);   // (1, 1)
+Vector2.Lerp(Vector2.Zero, a, 0.5f);        // (1.5, 2)
+Vector2.Clamp(a, Vector2.Zero, Vector2.One * 2f); // (2, 2)
+Vector2.MoveTowards(Vector2.Zero, a, 2.5f); // (1.5, 2)
+Vector2.Rotate(MathF.PI / 2f, b);           // (0, 1) - radians; RotateInverse rotates the other way
+Vector2.Min(a, b); Vector2.Max(a, b); Vector2.Abs(a);
+a + b * 2f;                           // (5, 4) - operators + - * /
+a[1];                                 // 4 - indexer
+a.IsValid;                            // false for NaN / infinity
+
+Vector3 v = new Vector3(1f, 2f, 2f);
+v.Magnitude;                          // 3
+Vector3.Cross(Vector3.UnitX, Vector3.UnitY); // (0, 0, 1)
+Vector3.Forward;                      // (0, 0, -1) - right-handed; also Up, Down, Left, Right, Backward
+Vector2 flat = v;                     // implicit Vector3 -> Vector2
+
+TVector2<int> cell  = new TVector2<int>(10, 15);
+TVector3<int> chunk = new TVector3<int>(1, 2, 3);
+Dictionary<TVector3<int>, Chunk> world = new(); // value equality and hashing on all components
+```
+
+> `==` / `!=` compare with the float tolerance of `MathUtils.AreFloatsEquals` (like Unity), while `Equals` / `GetHashCode`
+> are exact so vectors work as dictionary keys.
+
+---
+
+## Splines
+
+`DeusaldSharp.Splines`
+
+`Spline2D` is a cardinal (Hermite) spline through 2D control points - paths for AI, projectiles, cameras or tracks.
+
+```csharp
+Spline2D path = new Spline2D(new List<Vector2> { new Vector2(0, 0), new Vector2(1, 1), new Vector2(2, 0) },
+                             closed: false, curvature: 0.5f, lengthSamplesPerSegment: 5);
+
+path.Length;                    // 2.88 - approximate curve length
+path.Interpolate(0.5f);         // (1, 1) - position at 50% of the whole curve
+path.InterpolateDistance(1f);   // position 1 unit along the curve
+path.Derivative(0.5f);          // (1, 0) - tangent (also DerivativeDistance)
+path.Interpolate(1, 0.5f);      // halfway between point 1 and point 2
+path.DistanceToLinearT(1f);     // 0.335 - distance -> t
+path.DistanceAtPoint(2);        // distance along the curve at control point 2
+
+// Editing
+path.AddPoint(new Vector2(3, 1));
+path.AddPointScroll(new Vector2(4, 0)); // add at the end, drop the first point (moving windows)
+path.InsertPoint(1, new Vector2(0.5f, 0.5f));
+path.SetPoint(0, Vector2.Zero);         // also path[0] = ...
+path.ReplacePoints(newPoints);
+path.RemovePoint(1);
+path.Clear();
+```
+
+- Open splines clamp `t` to `[0, 1]`; closed splines (`IsClosed`) wrap it, so `Interpolate(1.25f) == Interpolate(0.25f)`.
+- An empty spline interpolates to `Vector2.Zero`, a single-point spline to that point.
+- `Curvature` and `LengthSamplesPerSegment` (≥ 1, length accuracy) can be changed at any time.
+
+---
+
+## Clock
+
+`DeusaldSharp.Clock`
+
+Fixed-tick clocks that run game server logic on their own thread.
+
+| Clock | Tick event | Notes |
+|---|---|---|
+| `GameServerClock(ticksPerSecond, logEveryXFrame)` | `(ulong frameNumber, double deltaTime)` | Light on CPU. `Log` reports average / longest tick every `logEveryXFrame` frames |
+| `PrecisionClock(ticksPerSecond)` | `(ulong frameNumber)` | Tighter timing, uses more CPU. `TooLongFrame` fires when a tick overruns |
+
+```csharp
+using GameServerClock clock = new GameServerClock(ticksPerSecond: 50, logEveryXFrame: 250);
+
+clock.Tick += (frameNumber, deltaTime) =>
+{
+    world.Update(deltaTime);
+};
+clock.Log           += message => logger.LogInformation(message); // "Frame 250. Average frame length ... ms ..."
+clock.TickException += exception => logger.LogError(exception, "Tick failed");
+
+// ... later
+clock.Kill(); // or Dispose()
+```
+
+```csharp
+PrecisionClock clock = new PrecisionClock(60);
+clock.Tick         += frameNumber => Simulate();
+clock.TooLongFrame += () => Console.WriteLine("Too long frame");
+```
+
+- The clock starts ticking when it is created; `IsAlive` tells whether it still runs.
+- The tick rate is exact (scheduled in `Stopwatch` ticks). When a tick takes longer than the interval, missed frames are
+  **skipped** instead of fired back-to-back.
+- `TickException`: with a subscriber, exceptions from `Tick` handlers are reported and the clock keeps ticking. Without
+  one, the exception is rethrown on the clock thread and terminates the process (fail-fast).
+- `Kill()` / `Dispose()` stop the clock and wait (up to 2 s) for the running tick, so no tick runs after they return.
+
+---
+
+## CoRoutines
+
+`DeusaldSharp.CoRoutines`
+
+Unity-style coroutines for any game loop: write sequential logic that waits for ticks, seconds, conditions or other
+coroutines. Create a `CoRoCtrl` and call `Update(deltaTime)` once per frame, after the rest of your frame logic.
+
+```csharp
+CoRoCtrl coRoCtrl = new CoRoCtrl();
+
+IEnumerator<ICoData> OpenDoor()
+{
+    PlayAnimation("door_open");
+    yield return coRoCtrl.WaitForSeconds(0.5f);       // wait 0.5 s of game time
+    _DoorOpen = true;
+}
+
+IEnumerator<ICoData> StartLevel()
+{
+    SpawnPlayer();
+    yield return coRoCtrl.WaitForOneTick();           // next Update
+    yield return coRoCtrl.WaitUntilDone(OpenDoor());  // run another coroutine and wait for it
+    yield return coRoCtrl.WaitUntilTrue(() => _PlayerReady); // also WaitUntilFalse
+    StartTimer();
+}
+
+ICoHandle level = coRoCtrl.RunCoRoutine(StartLevel());
+
+// game loop
+coRoCtrl.Update(deltaTime);
+```
+
+### Controlling coroutines
+
+```csharp
+ICoHandle handle = coRoCtrl.RunCoRoutine(EnemyAi(), new CoTag(7), coMask: 0b0101);
+
+handle.IsAlive;           // false when finished or killed
+handle.IsPaused = true;   // pause / resume
+handle.Kill();
+
+// Groups: by tag, or by bit mask (MaskType.Any / MaskType.All)
+coRoCtrl.PauseCoRoutines(new CoTag(7));
+coRoCtrl.UnpauseCoRoutines(new CoTag(7));
+coRoCtrl.KillCoRoutines(0b0100, CoRoCtrl.MaskType.Any);
+
+// Inside a coroutine
+ICoHandle self = coRoCtrl.GetCurrentCoHandle();
+
+coRoCtrl.Reset();         // kills everything
+```
+
+- Killing a coroutine stops it immediately - even from inside its own body - and runs its `finally` / `using` blocks.
+- An exception thrown in a coroutine kills that coroutine and propagates to the caller of `Update`; the other
+  coroutines keep running.
+- Repeated `WaitForSeconds` don't drift: overshoot from one wait is carried into the next.
+- `RunCoRoutine` executes the coroutine up to its first `yield` immediately; the rest continues in the following `Update` calls.
+
+---
+
+## Messages
+
+`DeusaldSharp.Messages`
+
+A static message bus: classes subscribe to message types and receive every message sent of that type.
+Message instances are pooled - allocate them from the bus and they are recycled after delivery.
+
+```csharp
+public class DamageMsg
+{
+    public int    Amount { get; set; }
+    public Entity Target { get; set; }
+}
+
+// Subscribe with [MessageSlot] methods (any visibility, base classes included)
+public class HealthBar
+{
+    public HealthBar()       => MsgCtrl.Register(this);
+    public void Dispose()    => MsgCtrl.Unregister(this);
+
+    [MessageSlot]
+    private void OnDamage(DamageMsg message) { _Hp -= message.Amount; }
+}
+
+// ... or bind delegates
+MsgCtrl.Bind<DamageMsg>(OnDamage);
+MsgCtrl.Unbind<DamageMsg>(OnDamage);
+
+// Send
+DamageMsg damage = MsgCtrl.Allocate<DamageMsg>(); // from the pool
+damage.Amount = 25;
+MsgCtrl.Send(damage);                             // delivered, then reset and returned to the pool
+```
+
+- **Priority**: `[MessageSlot(priority)]` / `Bind(method, priority)` - receivers with **lower** values are called first.
+- **Consume**: call `MsgCtrl.Consume()` inside a receiver to stop delivery to the remaining receivers.
+- `MsgCtrl.Deallocate(message)` returns a message that won't be sent; `MsgCtrl.Clear()` removes all receivers.
+- Messages sent from inside a receiver are queued and delivered after the current one.
+- Pooled messages are reset between uses (writable public properties and fields go back to their defaults).
+
+> `MsgCtrl` is **not thread-safe** - use it from one thread (game loop / Unity main thread). An exception thrown by a
+> receiver propagates to the caller of `Send`; the bus keeps working and still-queued messages are delivered on the next `Send`.
+
+---
+
+## Injector
+
+`DeusaldSharp.Injector`
+
+A minimal dependency injection container: you create the objects, **bind** them, and the injector fills members marked
+with `[Inject]`. No lifetimes, scopes or automatic construction.
+
+```csharp
+Injector injector = new Injector();
+
+injector.Bind<IPlayerService>(new PlayerService()); // bound as IPlayerService
+injector.Bind(new GameLogger());                    // bound as GameLogger
+injector.BindAllInterfaces(new MatchmakingService()); // bound as every interface it implements
+
+IPlayerService players = injector.Get<IPlayerService>();
+```
+
+```csharp
+public class GameLoop
+{
+    [Inject] public  IPlayerService Players { get; set; }
+    [Inject] private GameLogger     _Logger;
+}
+
+GameLoop loop = new GameLoop().Inject(injector); // or injector.Inject(loop)
+
+injector.TriggerInjectOnBinders(); // inject into every bound object (each object once)
+```
+
+- `[Inject]` works on fields and properties of any visibility, including private members of base classes.
+- Resolution uses the exact declared member type and the type used when binding (`Bind<IPlayerService>` is not
+  resolvable as `PlayerService`). Binding a type again replaces it.
+- Every `Injector` binds itself, so `[Inject] Injector` members work.
+- Getting or injecting a type that was never bound throws `KeyNotFoundException`.
+
+---
+
+## Glicko
+
+`DeusaldSharp.Glicko`
+
+[Glicko-2](http://www.glicko.net/glicko/glicko2.pdf) player ratings: rating updates, win probability for matchmaking
+and rating-deviation decay for inactive players.
+
+```csharp
 GlickoData player = new GlickoData
 {
-    Rating     = Glicko.DEFAULT_RATING,
-    Deviation  = Glicko.DEFAULT_DEVIATION,
-    Volatility = Glicko.DEFAULT_VOLATILITY
+    Rating     = Glicko.DEFAULT_RATING,     // 1500
+    Deviation  = Glicko.DEFAULT_DEVIATION,  // 350
+    Volatility = Glicko.DEFAULT_VOLATILITY  // 0.06
 };
+```
 
-// 1v1 update
+### Updating ratings
 
-GlickoData a = player;
-GlickoData b = player;
+```csharp
+GlickoData a = new GlickoData { Rating = 1500, Deviation = 200, Volatility = 0.06 };
+GlickoData b = new GlickoData { Rating = 1400, Deviation = 30,  Volatility = 0.06 };
 
-// a wins (score = 1.0). draw = 0.5. loss = 0.0.
+// 1v1 game: score 1 = A won, 0.5 = draw, 0 = A lost
 Glicko.Update(a, b, out GlickoData newA, out GlickoData newB, playerAScore: 1.0);
+// newA: 1563.6 / 175.4, newB: 1398.1 / 31.7
 
-// Update vs multiple opponents
-
-List<(GlickoData, double)> opponents = new()
+// Several games in one rating period
+GlickoData updated = Glicko.Update(a, new List<(GlickoData opponent, double score)>
 {
-    (b, 1.0), // win
-    (b, 0.5), // draw
-};
+    (new GlickoData { Rating = 1400, Deviation = 30,  Volatility = 0.06 }, 1.0),
+    (new GlickoData { Rating = 1550, Deviation = 100, Volatility = 0.06 }, 0.0),
+    (new GlickoData { Rating = 1700, Deviation = 300, Volatility = 0.06 }, 0.0)
+});
+// 1464.05 / 151.52 / 0.06 - the example from Glickman's paper
+```
 
-GlickoData updated = Glicko.Update(a, opponents);
+### Win probability
 
-// Win probability (uses both players' deviations)
-double p = Glicko.GetWinProbability(a, b);
+```csharp
+double p = Glicko.GetWinProbability(a, b); // 0.619 - uses both players' deviations
 ```
 
 ### Decay (inactivity)
 
-Inactive players' rating deviation grows by one Glicko-2 rating period for every elapsed `period` after a deadline
-(rating and volatility stay the same, deviation is capped at `DEFAULT_DEVIATION`). Reaching the deadline applies the
-first period. Store the returned `nextDecayDeadline` - it keeps partially elapsed periods, so a player who logs in every
-day decays gradually, not in bursts. Reset the deadline to `now + gracePeriod` when the player plays a game.
+The deviation of an inactive player grows by one Glicko-2 rating period for every elapsed `period` after a deadline
+(rating and volatility don't change; deviation is capped at `DEFAULT_DEVIATION`). Reaching the deadline applies the first
+period. Store the returned `nextDecayDeadline`: it keeps partially elapsed periods, so a player who logs in every day
+decays gradually, not in bursts.
 
 ```csharp
-// after a game: player.DecayDeadline = DateTime.UtcNow + TimeSpan.FromDays(14);
+// after every game: player.DecayDeadline = DateTime.UtcNow + TimeSpan.FromDays(14);
 
 GlickoData decayed = Glicko.DecayPlayer(player.Glicko, player.DecayDeadline, DateTime.UtcNow, TimeSpan.FromDays(1),
                                         out long periodsApplied, out DateTime nextDecayDeadline);
@@ -390,412 +701,189 @@ if (periodsApplied > 0)
     player.Glicko        = decayed;
     player.DecayDeadline = nextDecayDeadline;
 }
+// e.g. deviation 60 -> 68.5 after 10 periods
 ```
 
-## Binary serializers (BinaryWriter/BinaryReader extensions)
-
-DeusaldSharp includes a set of `BinaryWriter` / `BinaryReader` extension methods for compact, allocation-friendly binary serialization of common types and their `List<T>` variants:
-
-- Primitive lists: `byte`, `sbyte`, `bool`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `float`, `double`, `char`, `string`
-- `Guid`, `DateTime`, `TimeSpan`, `Version` (and their list variants)
-- Serializable enums (zero-boxing, explicit wire type) via `[SerializableEnum]`
-
-### Primitive lists example
-
-```csharp
-using System.Collections.Generic;
-using System.IO;
-using DeusaldSharp;
-
-using MemoryStream ms = new MemoryStream();
-using BinaryWriter bw = new BinaryWriter(ms);
-
-bw.Write(new List<int> { 1, 2, 3 });      // writes count + elements
-bw.Write(new List<string> { "a", null }); // null -> "" (empty string)
-
-bw.Flush();
-ms.Position = 0;
-
-using BinaryReader br = new BinaryReader(ms);
-List<int>    ints    = br.ReadIntList();
-List<string> strings = br.ReadStringList();
-```
-
-### Serializable enums
-Annotate an enum with `[SerializableEnum]` to define the on-the-wire numeric type. This avoids boxing and keeps the binary format explicit and stable.
-
-```csharp
-using System.IO;
-using DeusaldSharp;
-
-[SerializableEnum(SerializableEnumType.Byte)]
-public enum WeaponType : byte
-{
-    Sword = 1,
-    Bow   = 2
-}
-
-using MemoryStream ms = new MemoryStream();
-using BinaryWriter bw = new BinaryWriter(ms);
-
-bw.WriteSerializableEnum(WeaponType.Sword);
-bw.WriteSerializableEnumList(new System.Collections.Generic.List<WeaponType> { WeaponType.Sword, WeaponType.Bow });
-
-bw.Flush();
-ms.Position = 0;
-
-using BinaryReader br = new BinaryReader(ms);
-WeaponType one = br.ReadSerializableEnum<WeaponType>();
-
-System.Collections.Generic.List<WeaponType> many = br.ReadSerializableEnumList<WeaponType>();
-```
-Notes
-* List serialization format is always: int count followed by count elements.
-* Write(List<string>) writes v ?? string.Empty.
-* Serializable enums require the `[SerializableEnum]` attribute; otherwise reading/writing throws.
+`Local` times are converted to UTC, `Unspecified` times are treated as UTC.
 
 ---
 
-## Proto module (ProtoMsgBase / ProtoField)
+## Proto
 
-The Proto module is a **lightweight, explicit, binary message format** with **source-generated** serialization.
-It is designed for:
+`DeusaldSharp.Proto`
 
-- deterministic serialization (stable bytes for the same state),
-- schema evolution (forward/backward compatibility),
-- **zero reflection at runtime**,
-- fast skip of unknown fields,
-- a wire format that is easy to debug.
+A compact binary message format with **source-generated** serialization, for game networking and save files:
 
-It is intentionally **not** Protocol Buffers–compatible. It’s a pragmatic binary format aimed at game networking,
-save files, and internal tooling where stability and control matter more than varint compactness.
+- no reflection at runtime, deterministic output,
+- forward / backward compatible (fields are identified by ID, unknown fields are skipped),
+- **safe on untrusted data** - malformed or malicious payloads throw `InvalidDataException`.
 
----
-
-### How it works
-
-1. You create a **partial** message type that derives from `ProtoMsgBase`.
-2. You mark instance fields with `[ProtoField(<ushort id>)]`.
-3. The source generator bundled in the **DeusaldSharp.Proto** package emits `Serialize(BinaryWriter)` and `Deserialize(BinaryReader)`
-   into a generated `<Namespace>.<Type>.DeusaldSharpProto.cs` file at build time.
-
-> If a type derives from `ProtoMsgBase` but is not `partial`, you’ll get a build error.
-
-Supported message shapes:
-
-- `public` and `internal` messages, messages split across several `partial` declarations.
-- Nested message types - every containing type must be `partial` too (DSHP012).
-- Inheritance - `[ProtoField]` fields of base messages are serialized by derived messages. Base fields must not be `private`
-  (DSHP011) and field IDs must be unique across the whole inheritance chain (DSHP010).
-- `[field: ProtoField(n)]` on auto-properties with a setter. `readonly` fields / get-only properties (DSHP008) and
-  `static` / `const` fields (DSHP009) are rejected.
-
----
+It is intentionally not Protocol Buffers compatible.
 
 ### Quick start
 
 ```csharp
-using DeusaldSharp;
-
-public partial class LoginMsg : ProtoMsgBase
-{
-    [ProtoField(1)] public int    UserId;
-    [ProtoField(2)] public string Name = "";
-    [ProtoField(3)] public bool   IsGuest;
-}
-
-// Serialize
-var msg  = new LoginMsg { UserId = 42, Name = "Ada", IsGuest = false };
-byte[] bytes = msg.Serialize();
-
-// Deserialize (instance)
-var copy = new LoginMsg();
-copy.Deserialize(bytes);
-
-// Deserialize (generic helper)
-LoginMsg copy2 = ProtoMsgBase.Deserialize<LoginMsg>(bytes);
-```
-
----
-
-### Wire format
-
-Each field is serialized as a **length-delimited record**:
-
-```
-[ushort fieldId][int payloadLength][payloadBytes...]
-```
-
-Fields are written in ascending `fieldId` order (the generator sorts them).
-Unknown `fieldId`s are skipped using the validated `payloadLength` (see *Error handling*).
-
-**Important:** serialization requires a **seekable** stream (e.g. `MemoryStream`) because the generator writes
-`payloadLength` after the payload is written.
-
----
-
-### Field IDs and compatibility
-
-Rules enforced at compile time:
-
-- `ProtoField` IDs must be **non-zero** `ushort`
-- IDs must be **unique within a message** (duplicates are a generator error)
-
-Compatibility behavior:
-
-- **New reader reading old data:** missing fields keep the value of a freshly constructed message (field initializers are respected).
-  This also holds when you reuse an instance: `msg.Deserialize(bytes)` resets absent fields first.
-- **Old reader reading new data:** unknown fields are skipped safely
-- **Reordering fields:** safe; meaning is defined by ID, not order
-
----
-
-### Supported field types
-
-The generator supports:
-
-**Primitives & string**
-- `bool, byte, sbyte, short, ushort, int, uint, long, ulong, float, double, char, string`
-
-**Special built-ins**
-- `Guid, DateTime, TimeSpan, Version, System.Net.HttpStatusCode`
-
-**Serializable enums**
-- Any enum marked with `[SerializableEnum(...)]` (see the SerializableEnum module)
-
-**Nullable value types**
-- `Nullable<T>` where `T` is a supported primitive/special/serializable-enum
-
-**Nested messages**
-- Any non-nullable reference type deriving from `ProtoMsgBase`
-- Nullable reference nested message (e.g. `ChildMsg?`) is supported as well
-
-**Lists and arrays**
-- `List<T>` / `T[]` where `T` is any supported primitive/special/serializable-enum
-- `List<T>` / `T[]` where `T : ProtoMsgBase` (items may be `null`)
-- Nullable list reference `List<T>?`
-
-**Nullable reference types**
-- `string?` and `Version?` are supported. A `null` string / `Version` field is simply not written, so the reader keeps its default.
-
-If a field type is not supported, you’ll get a build error pointing at the field.
-
----
-
-### Nullability rules on the wire
-
-**Nullable value types (`int?`, `Guid?`, etc.)**
-
-```
-[bool hasValue][value if hasValue]
-```
-
-**Nullable nested message (`ChildMsg?`)**
-
-```
-[bool hasValue][nested payload bytes...]
-```
-
-The nested message bytes are stored inside the field payload (the outer field already has a length).
-
-**Object lists (`List<ChildMsg>`)**
-
-```
-[int count]
-  repeat count times:
-    [bool hasItem]
-      false -> null element
-      true  -> [int itemLen][item bytes...]
-```
-
----
-
-### Examples
-
-#### 1) Serializable enum field
-
-```csharp
-using DeusaldSharp;
-
-[SerializableEnum(SerializableEnumType.SByte)]
-public enum PlayerState : sbyte
-{
-    Idle = 0,
-    Playing = 1,
-    Disconnected = -1
-}
-
-public partial class StateMsg : ProtoMsgBase
-{
-    [ProtoField(1)] public PlayerState State;
-    [ProtoField(2)] public PlayerState? Previous;
-}
-```
-
-#### 2) Nested messages + nullable nested messages
-
-```csharp
-using DeusaldSharp;
-
 public partial class Vec2Msg : ProtoMsgBase
 {
     [ProtoField(1)] public float X;
     [ProtoField(2)] public float Y;
 }
 
-public partial class SpawnMsg : ProtoMsgBase
+public partial class LoginMsg : ProtoMsgBase
 {
-    [ProtoField(1)] public int     EntityId;
-    [ProtoField(2)] public Vec2Msg Position = new Vec2Msg();
-    [ProtoField(3)] public Vec2Msg? Velocity; // nullable nested message
+    [ProtoField(1)] public int     UserId;
+    [ProtoField(2)] public string? Name;
+    [ProtoField(3)] public bool    IsGuest;
+    [ProtoField(4)] public Vec2Msg Position = new Vec2Msg();
 }
+
+byte[] bytes = new LoginMsg { UserId = 42, Name = "Ada" }.Serialize();
+
+LoginMsg copy = ProtoMsgBase.Deserialize<LoginMsg>(bytes); // new instance
+copy.Deserialize(bytes);                                   // or into an existing instance
+
+// Stream variants: the message takes the rest of the stream when deserializing
+copy.Serialize(binaryWriter);
+copy.Deserialize(binaryReader);
 ```
 
-#### 3) Lists (including lists of messages)
+1. Derive a **`partial`** class from `ProtoMsgBase`.
+2. Mark fields with `[ProtoField(id)]` - IDs are non-zero `ushort`s, unique per message.
+3. The generator bundled in the `DeusaldSharp.Proto` NuGet package writes the serialization code at build time.
+
+### Supported field types
+
+| Kind | Types |
+|---|---|
+| Primitives | `bool`, `byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `float`, `double`, `char`, `string` |
+| Built-ins | `Guid`, `DateTime`, `TimeSpan`, `Version`, `System.Net.HttpStatusCode` |
+| Enums | enums marked with [`[SerializableEnum]`](#serializable-enums) |
+| Nullable | `T?` for the types above; `string?`, `Version?` |
+| Messages | nested messages, `ChildMsg?` |
+| Collections | `List<T>` and `T[]` of all of the above (message items may be `null`), `List<T>?` |
 
 ```csharp
-using System.Collections.Generic;
-using DeusaldSharp;
+[SerializableEnum(SerializableEnumType.SByte)]
+public enum PlayerState : sbyte { Idle = 0, Playing = 1, Disconnected = -1 }
 
 public partial class InventoryMsg : ProtoMsgBase
 {
-    [ProtoField(1)] public List<int> ItemIds = new();
-    [ProtoField(2)] public List<Vec2Msg> Checkpoints = new(); // items may be null if you put nulls in the list
-    [ProtoField(3)] public List<string>? Tags;                // nullable list reference
+    [ProtoField(1)] public List<int>     ItemIds     = new();
+    [ProtoField(2)] public List<Vec2Msg> Checkpoints = new(); // items may be null
+    [ProtoField(3)] public List<string>? Tags;                // nullable list
+    [ProtoField(4)] public PlayerState   State;
+    [ProtoField(5)] public PlayerState?  Previous;
+    [ProtoField(6)] public Vec2Msg?      Velocity;            // nullable nested message
 }
 ```
+
+### Message shapes
+
+- `public` or `internal` messages, split across several `partial` declarations.
+- **Nested** message types - every containing type must be `partial` too.
+- **Inheritance** - fields of base messages are serialized by derived messages (base fields must not be `private`,
+  IDs must be unique across the whole chain):
+
+  ```csharp
+  public abstract partial class EntityMsg : ProtoMsgBase { [ProtoField(1)] public int EntityId; }
+  public partial class PlayerMsg : EntityMsg            { [ProtoField(2)] public int Hp; }
+  ```
+- Auto-properties: `[field: ProtoField(n)] public int Score { get; set; }`.
+
+### Compatibility rules
+
+- **New reader, old data**: missing fields keep the value of a freshly constructed message (field initializers are
+  respected) - also when deserializing into a reused instance.
+- **Old reader, new data**: unknown fields are skipped.
+- Reordering fields is safe; never reuse an ID for a different meaning.
+- A `null` `string` / `Version` field is not written, so the reader keeps its default.
+
+### Wire format
+
+Fields are written in ascending ID order, each as a length-delimited record:
+
+```
+[ushort fieldId][int payloadLength][payload]
+```
+
+| Value | Payload |
+|---|---|
+| nullable value `T?` | `[bool hasValue][value]` |
+| nullable message | `[bool hasValue][message fields...]` |
+| message list | `[int count]` then per item `[bool hasItem]` + `[int itemLength][item]` |
+
+Serialization needs a seekable stream (the length is written after the payload); `Serialize()` handles that for you.
+
+### Security
+
+`Deserialize` is safe to call on bytes from untrusted clients:
+
+- field / item lengths and collection counts are validated against the remaining bytes **before** allocating,
+- negative or oversized lengths can't cause infinite loops or huge allocations,
+- nesting depth is limited by `ProtoMsgBase.MaxDepth` (default `DEFAULT_MAX_DEPTH` = 64; the root is level 1), so deeply
+  nested payloads can't overflow the stack,
+- every decoding failure is reported as `InvalidDataException` (with the cause as `InnerException`).
+
+```csharp
+try
+{
+    PlayerInputMsg input = ProtoMsgBase.Deserialize<PlayerInputMsg>(packet);
+}
+catch (InvalidDataException)
+{
+    DisconnectCheater(client);
+}
+```
+
+### Build diagnostics
+
+| ID | Problem |
+|---|---|
+| DSHP001 | Message is not `partial` |
+| DSHP002 / DSHP003 | Invalid or duplicate field ID |
+| DSHP004 | Unsupported field type |
+| DSHP005 - DSHP007 | Field of a generic type parameter (or a `List` / array of it) without a `new()` constraint |
+| DSHP008 | `readonly` field or property without a setter |
+| DSHP009 | `static` or `const` field |
+| DSHP010 | Field ID already used by a base message |
+| DSHP011 | Base message field is `private` |
+| DSHP012 | Containing type of a nested message is not `partial` |
 
 ---
 
-### Error handling
+## Upgrading to 11.0
 
-- Unsupported field types / duplicate IDs / non-partial messages → **build-time errors** (generator diagnostics DSHP001-DSHP012)
-- Malformed, truncated or malicious payloads → `System.IO.InvalidDataException` (the original exception, if any, is the `InnerException`).
-  `Deserialize` is safe to call on untrusted network data:
-  - field and item lengths and collection counts are validated against the remaining bytes **before** anything is allocated,
-  - a negative or oversized length can't cause an infinite loop or a huge allocation,
-  - nesting depth is limited by `ProtoMsgBase.MaxDepth` (default `ProtoMsgBase.DEFAULT_MAX_DEPTH` = 64; the root message is level 1),
-    so a deeply nested payload can't overflow the stack.
-- Serializable-enum misuse (missing attribute, invalid underlying type) → runtime exceptions from the SerializableEnum helpers
+11.0 splits the library into module packages and fixes many bugs - some fixes change behavior or the binary format.
 
-## Injector
+**Packaging**
+- `DeusaldSharp` is now a meta-package; modules are separate packages / dlls (same namespace, no code changes).
+- The Proto source generator ships inside `DeusaldSharp.Proto`. **Remove the old `DeusaldSharp.Analyzers` package**,
+  otherwise the generator runs twice.
 
-`Injector` is a lightweight dependency injection container. You register objects in it (**bind**) and then let it fill
-members marked with the `[Inject]` attribute (**inject**). It is deliberately minimal: no lifetimes, no scopes, no
-automatic construction — you create the objects yourself and the container only wires them together.
+**Binary format** - client and server must be upgraded together, and stored data written by 10.x must be re-created:
+- `TimeSpan` is written as int64 ticks (was a `double` of milliseconds).
+- `Version` is written with all four components (16 bytes, was 12).
+- Unsigned serializable enums are no longer sign-extended.
+- `ComputeHmacSha256Hex` uses UTF-8 (results differ for non-ASCII input).
 
-The `[Inject]` attribute can be placed on **fields and properties**, both `public` and `private`, and injection is
-resolved by the **exact declared type** of that member.
+**Behavior**
+- `Glicko`: corrected g(φ) in the 1v1 `Update` and `GetWinProbability` (values change); new `DecayPlayer` signature.
+- `Clamp` throws when `min > max`; float comparisons use a real tolerance (`MathUtils.EPSILON` = 1e-6).
+- `FlagsMemory` throws for out-of-range indexes.
+- Clocks tick at the exact rate, skip missed frames and have `TickException`; both are `IDisposable`.
+- Exceptions in message receivers and coroutines propagate to the caller instead of breaking the bus / controller.
+- Proto: malformed data throws `InvalidDataException`; messages deeper than `MaxDepth` (64) are rejected.
+- `Vector2.Reflect(normal)` returns `Vector2` (recompile code built against 10.x).
 
-### Binding
+---
 
-```csharp
-Injector injector = new Injector();
+## Building
 
-// Bind under the generic type argument
-injector.Bind<IPlayerService>(new PlayerService());
-
-// Bind under the concrete type (the generic argument is inferred)
-injector.Bind(new Logger());
-
-// Bind an object under every interface it implements at once
-injector.BindAllInterfaces(new MatchmakingService()); // binds IMatchmaking, ITickable, ...
-
-// Resolve manually
-IPlayerService players = injector.Get<IPlayerService>();
+```
+dotnet build -c Release   # builds all modules, copies the netstandard2.1 dlls into UnityPackage.NetStandard2.1
+dotnet test               # runs all tests
+dotnet pack -c Release    # creates the NuGet packages
 ```
 
-The type used for the binding is the **generic type argument**, not the runtime type of the object. `Bind<IPlayerService>(new PlayerService())`
-makes the object resolvable as `IPlayerService` only — asking for `PlayerService` will throw. The same applies to
-`BindAllInterfaces`, which binds only the interfaces, never the concrete class. Binding the same type twice replaces the
-previous binding.
-
-Every `Injector` binds **itself** on construction, so `Get<Injector>()` works and `[Inject] Injector` members are filled
-like any other dependency.
-
-### Injecting
-
-```csharp
-public class GameLoop
-{
-    [Inject] public  IPlayerService Players { get; set; }
-    [Inject] private Logger         _Logger;
-
-    public void Tick() => _Logger.Log(Players.Count);
-}
-
-GameLoop loop = new GameLoop();
-injector.Inject(loop); // Players and _Logger are now filled
-```
-
-`TriggerInjectOnBinders()` injects into everything that is bound in the container, which is the usual way to wire up a
-whole system after all bindings are registered. Each object is injected only once, even when it is bound under several
-types (for example through `BindAllInterfaces`):
-
-```csharp
-Injector injector = new Injector();
-
-injector.Bind<IPlayerService>(new PlayerService());
-injector.Bind(new Logger());
-injector.BindAllInterfaces(new GameLoop());
-
-injector.TriggerInjectOnBinders(); // every bound object gets its [Inject] members filled
-```
-
-### Notes
-
-- Members **without** the `[Inject]` attribute are never touched.
-- Injecting an object that has no `[Inject]` members is a no-op, not an error.
-- Requesting or injecting a type that was never bound throws `KeyNotFoundException` — bind everything before calling
-  `Inject` / `TriggerInjectOnBinders`.
-- Resolution is by exact declared type, so a member declared as `PlayerService` is not satisfied by a
-  `Bind<IPlayerService>` binding.
-
-## Ansi Console Colors
-
-`Ansi` is a static class providing ANSI escape code constants and helpers for colorizing console output. It supports three levels of color control:
-
-- **Named constants** — 8 standard foreground and background colors, plus bright foreground variants, available as plain `string` constants with zero allocation.
-- **True-color methods** — `Fg(r, g, b)` and `Bg(r, g, b)` for full 24-bit RGB control, accepted by any terminal that supports ANSI true color.
-- **`RESET`** — a constant that clears all active formatting. Always append it after colored text to prevent color bleeding into subsequent output.
-
-> **Terminal support:** Windows Terminal, macOS Terminal, and most Linux terminals support ANSI escape codes out of the box. The legacy Windows Console Host (cmd.exe) requires virtual terminal processing to be enabled — .NET 5+ enables it automatically; on older runtimes you may need to set it manually via `SetConsoleMode`.
-
-### Example
-
-```csharp
-// Named foreground color
-Console.WriteLine(Ansi.GREEN + "Success!" + Ansi.RESET);
-
-// Named background + foreground combination
-Console.WriteLine(Ansi.BG_RED + Ansi.WHITE + " ERROR " + Ansi.RESET + " Something went wrong.");
-
-// Bright variant
-Console.WriteLine(Ansi.BRIGHT_BLUE + "Info message" + Ansi.RESET);
-
-// 24-bit true color — foreground
-Console.WriteLine(Ansi.Fg(255, 165, 0) + "Orange text" + Ansi.RESET);
-
-// 24-bit true color — background via RGB
-Console.WriteLine(Ansi.Bg(30, 30, 30) + Ansi.WHITE + " Dark background " + Ansi.RESET);
-
-// 24-bit true color — background via System.Drawing.Color
-Console.WriteLine(Ansi.Bg(Color.CornflowerBlue) + " CornflowerBlue background " + Ansi.RESET);
-
-// Building a colored table row
-string row = Ansi.Bg(50, 50, 80) + Ansi.BRIGHT_WHITE
-           + $" {"Player",-12} {"Score",6} "
-           + Ansi.RESET;
-Console.WriteLine(row);
-```
-
-### Available constants
-
-| Constant | Effect |
-|---|---|
-| `RESET` | Clears all formatting |
-| `BLACK` `RED` `GREEN` `YELLOW` `BLUE` `MAGENTA` `CYAN` `WHITE` | Standard foreground colors |
-| `BG_BLACK` `BG_RED` `BG_GREEN` `BG_YELLOW` `BG_BLUE` `BG_MAGENTA` `BG_CYAN` `BG_WHITE` | Standard background colors |
-| `BRIGHT_RED` `BRIGHT_GREEN` `BRIGHT_BLUE` `BRIGHT_WHITE` | Bright foreground variants |
-| `Fg(r, g, b)` | 24-bit true-color foreground |
-| `Bg(r, g, b)` / `Bg(Color)` | 24-bit true-color background |
+- The version of every package, assembly and the Unity `package.json` is set in one place: `<Version>` in `Directory.Build.props`.
+- Pushing a `v*` tag publishes all packages to NuGet (GitHub Actions).
