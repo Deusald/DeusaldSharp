@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -31,9 +32,36 @@ namespace DeusaldSharp
     [PublicAPI]
     public static class TaskExtensions
     {
-        public static async void Forget(this Task task)
+        /// <summary>
+        /// Global fallback handler for exceptions thrown by tasks passed to <see cref="Forget"/>
+        /// when no per-call handler was provided. Cancellation is never reported.
+        /// </summary>
+        public static Action<Exception>? UnhandledException { get; set; }
+
+        /// <summary>
+        /// Runs the task without awaiting it. Exceptions never escape to the synchronization context
+        /// (which would crash the process); they are passed to <paramref name="onException"/> or,
+        /// if that is null, to <see cref="UnhandledException"/>.
+        /// </summary>
+        public static async void Forget(this Task task, Action<Exception>? onException = null)
         {
-            await task;
+            try
+            {
+                // No ConfigureAwait(false) on purpose: the handler should run on the caller context (e.g. Unity main thread).
+                await task;
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception exception)
+            {
+                try
+                {
+                    (onException ?? UnhandledException)?.Invoke(exception);
+                }
+                catch
+                {
+                    // A throwing handler must not crash the process either.
+                }
+            }
         }
     }
 }

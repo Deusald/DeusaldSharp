@@ -164,7 +164,7 @@ namespace DeusaldSharp
         /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
         public bool Equals(TVector3<T> other)
         {
-            return x.Equals(other.x) && y.Equals(other.y);
+            return x.Equals(other.x) && y.Equals(other.y) && z.Equals(other.z);
         }
 
         /// <summary> Returns true if the given vector is exactly equal to this vector. </summary>
@@ -175,7 +175,7 @@ namespace DeusaldSharp
 
         public override int GetHashCode()
         {
-            return Tuple.Create(x, y).GetHashCode();
+            return Tuple.Create(x, y, z).GetHashCode();
         }
 
         #endregion Equals

@@ -57,5 +57,104 @@ namespace DeusaldSharpTests
                 Assert.That(b, Is.EqualTo(TestEnum.B));
             });
         }
+
+        [System.Flags]
+        private enum TestFlags
+        {
+            None = 0,
+            A    = 1,
+            B    = 2
+        }
+
+        /// <summary> Numbers are parsed with invariant culture regardless of current culture. </summary>
+        [Test]
+        [TestOf(nameof(Helpers.TakeSimpleType))]
+        public void Helpers_TakeSimpleType_UsesInvariantCulture()
+        {
+            // Arrange
+            string[]                         args            = { "1.5" };
+            System.Globalization.CultureInfo previousCulture = System.Globalization.CultureInfo.CurrentCulture;
+
+            try
+            {
+                System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
+
+                // Act
+                double value    = args.TakeSimpleType(0, 0d);
+                double fromList =args.TakeFromList(0, new System.Collections.Generic.List<double> { 1.5d }, 0d);
+
+                // Assert
+                Assert.Multiple(() =>
+                {
+                    Assert.That(value,    Is.EqualTo(1.5d));
+                    Assert.That(fromList, Is.EqualTo(1.5d));
+                });
+            }
+            finally
+            {
+                System.Globalization.CultureInfo.CurrentCulture = previousCulture;
+            }
+        }
+
+        /// <summary> Negative index returns default value instead of throwing. </summary>
+        [Test]
+        [TestOf(nameof(Helpers))]
+        public void Helpers_ArgumentTaker_NegativeIndex_ReturnsDefault()
+        {
+            // Arrange
+            string[] args = { "10", "B" };
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(args.TakeSimpleType(-1, 7),                                               Is.EqualTo(7));
+                Assert.That(args.TakeString(-1, "def"),                                               Is.EqualTo("def"));
+                Assert.That(args.TakeUsername(-1, "def"),                                             Is.EqualTo("def"));
+                Assert.That(args.TakeEnum(-1, TestEnum.A),                                            Is.EqualTo(TestEnum.A));
+                Assert.That(args.TakeFromList(-1, new System.Collections.Generic.List<int> { 10 }, 3), Is.EqualTo(3));
+            });
+        }
+
+        /// <summary> Undefined numeric values are rejected for non-flags enums but allowed for flags enums. </summary>
+        [Test]
+        [TestOf(nameof(Helpers.TakeEnum))]
+        public void Helpers_TakeEnum_UndefinedValue()
+        {
+            // Arrange
+            string[] args = { "999", "1", "3" };
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(args.TakeEnum(0, TestEnum.A),     Is.EqualTo(TestEnum.A));
+                Assert.That(args.TakeEnum(1, TestEnum.A),     Is.EqualTo(TestEnum.B));
+                Assert.That(args.TakeEnum(2, TestFlags.None), Is.EqualTo(TestFlags.A | TestFlags.B));
+            });
+        }
+
+        /// <summary> GetRandomBool returns both values. </summary>
+        [Test]
+        [TestOf(nameof(Helpers.GetRandomBool))]
+        public void Helpers_GetRandomBool_ReturnsBothValues()
+        {
+            // Arrange
+            bool seenTrue  = false;
+            bool seenFalse = false;
+
+            // Act
+            for (int x = 0; x < 1000 && !(seenTrue && seenFalse); ++x)
+            {
+                bool value = Helpers.GetRandomBool();
+                seenTrue  |= value;
+                seenFalse |= !value;
+            }
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(seenTrue,  Is.True);
+                Assert.That(seenFalse, Is.True);
+            });
+        }
     }
 }

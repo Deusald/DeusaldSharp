@@ -36,7 +36,8 @@ namespace DeusaldSharp
     {
         private static readonly bool                 _HasAttribute;
         private static readonly SerializableEnumType _AttrWireType;
-        private static readonly int                  _EnumSize = Unsafe.SizeOf<TEnum>(); // 1/2/4/8 expected
+        private static readonly int                  _EnumSize     = Unsafe.SizeOf<TEnum>(); // 1/2/4/8 expected
+        private static readonly bool                 _IsSignedEnum = IsSignedUnderlyingType();
 
         static SerializableEnumCache()
         {
@@ -50,6 +51,39 @@ namespace DeusaldSharp
             {
                 _HasAttribute = true;
                 _AttrWireType = attr.EnumType;
+            }
+        }
+
+        /// <summary>Number of bytes one value occupies on the wire (1 when the enum has no attribute, as a safe minimum).</summary>
+        internal static int MinWireSize
+        {
+            get
+            {
+                if (!_HasAttribute) return 1;
+                return _AttrWireType switch
+                {
+                    SerializableEnumType.Byte   => 1,
+                    SerializableEnumType.SByte  => 1,
+                    SerializableEnumType.UShort => 2,
+                    SerializableEnumType.Short  => 2,
+                    SerializableEnumType.UInt   => 4,
+                    SerializableEnumType.Int    => 4,
+                    _                           => 8
+                };
+            }
+        }
+
+        private static bool IsSignedUnderlyingType()
+        {
+            switch (Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum))))
+            {
+                case TypeCode.SByte:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                    return true;
+                default:
+                    return false;
             }
         }
 
@@ -85,6 +119,7 @@ namespace DeusaldSharp
         /// <summary>
         /// Interprets the enum raw bits as a signed value using the enum storage size.
         /// This enables correct serialization of negative enum values without boxing.
+        /// Must only be used for enums with a signed underlying type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static long SignExtendEnumBits(ulong rawBits)
@@ -102,9 +137,10 @@ namespace DeusaldSharp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteWithWireType(BinaryWriter writer, SerializableEnumType wireType, ulong u)
         {
-            // If the chosen wire type is signed, we must sign-extend based on enum storage size.
+            // If the chosen wire type is signed and the enum is signed, we must sign-extend based on enum storage size.
             // Example: (sbyte)-1 has raw bits 0xFF; casting ulong->long would produce 255, which overflows sbyte.
-            long s = IsSignedWireType(wireType) ? SignExtendEnumBits(u) : unchecked((long)u);
+            // Unsigned enums are never sign-extended: (byte)200 must stay 200, not become -56.
+            long s = IsSignedWireType(wireType) && _IsSignedEnum ? SignExtendEnumBits(u) : unchecked((long)u);
 
             try
             {
@@ -170,9 +206,9 @@ namespace DeusaldSharp
                 ulong mask      = (1UL << bits) - 1UL;
                 ulong truncated = u & mask;
 
-                if (IsSignedWireType(wireType))
+                if (IsSignedWireType(wireType) && _IsSignedEnum)
                 {
-                    // Allow proper sign-extension for signed wire values.
+                    // Allow proper sign-extension for signed wire values read into signed enums.
                     bool  signBitSet = (truncated & (1UL << (bits - 1))) != 0UL;
                     ulong upper      = u & ~mask;
 
@@ -191,6 +227,7 @@ namespace DeusaldSharp
                 }
                 else
                 {
+                    // Unsigned enum (or unsigned wire type): a negative signed wire value has upper bits set and is rejected here.
                     if ((u & ~mask) != 0UL)
                         throw new InvalidOperationException($"Wire value does not fit into enum storage ({typeof(TEnum).Name}, {_EnumSize} bytes) while reading {wireType}.");
                 }

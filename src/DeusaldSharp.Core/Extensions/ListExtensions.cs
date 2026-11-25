@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using JetBrains.Annotations;
@@ -33,15 +32,11 @@ namespace DeusaldSharp
     {
         public static IList<T> Shuffle<T>(this IList<T> list)
         {
-            RandomNumberGenerator rng = RandomNumberGenerator.Create();
-            int                   n   = list.Count;
+            int n = list.Count;
             while (n > 1)
             {
-                byte[] box = new byte[4];
-                rng.GetBytes(box);
-                int randomIndex                  = BitConverter.ToInt32(box, 0);
-                if (randomIndex < 0) randomIndex *= -1;
-                randomIndex %= n;
+                // Unbiased index in [0, n) from a cryptographic RNG (rejection sampling inside GetInt32).
+                int randomIndex = RandomNumberGenerator.GetInt32(n);
                 n--;
                 (list[randomIndex], list[n]) = (list[n], list[randomIndex]);
             }

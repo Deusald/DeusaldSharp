@@ -39,10 +39,21 @@ namespace DeusaldSharp
 
         public static byte[] HexStringToByteArray(this string hex)
         {
-            int    numberChars                                    = hex.Length;
-            byte[] bytes                                          = new byte[numberChars / 2];
-            for (int i = 0; i < numberChars; i += 2) bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            if (hex == null) throw new ArgumentNullException(nameof(hex));
+            if (hex.Length % 2 != 0) throw new FormatException("Hex string must have an even number of characters.");
+
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int x = 0; x < bytes.Length; ++x)
+                bytes[x] = (byte)((HexCharToNibble(hex[x * 2]) << 4) | HexCharToNibble(hex[x * 2 + 1]));
             return bytes;
+        }
+
+        private static int HexCharToNibble(char c)
+        {
+            if (c >= '0' && c <= '9') return c - '0';
+            if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+            if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+            throw new FormatException($"Invalid hex character '{c}'.");
         }
 
         public static string ByteArrayToBase64String(this byte[] ba)

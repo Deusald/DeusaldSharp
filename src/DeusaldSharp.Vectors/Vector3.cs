@@ -107,8 +107,8 @@ namespace DeusaldSharp
             }
         }
 
-        /// <summary> Checks if all vector components are not infinity (Read Only). </summary>
-        public bool IsValid => !float.IsInfinity(x) && !float.IsInfinity(y) && !float.IsInfinity(z);
+        /// <summary> Checks if all vector components are finite numbers - not infinity and not NaN (Read Only). </summary>
+        public bool IsValid => float.IsFinite(x) && float.IsFinite(y) && float.IsFinite(z);
 
         #endregion Properties
 
@@ -255,17 +255,21 @@ namespace DeusaldSharp
             return DistanceSquared(this, Zero);
         }
 
-        /// <summary> Makes this vector have a magnitude of 1. </summary>
+        /// <summary> Makes this vector have a magnitude of 1. Zero and non-finite vectors are left unchanged. </summary>
         public void Normalize()
         {
-            var length = Length();
+            // Scale by the largest component first so the squared length can't underflow (tiny vectors) or overflow (huge vectors).
+            var maxAbs = MathF.Max(MathF.Abs(x), MathF.Max(MathF.Abs(y), MathF.Abs(z)));
 
-            if (length.IsFloatZero()) return;
+            if (!(maxAbs > 0f) || float.IsInfinity(maxAbs)) return;
 
-            var invLength = 1f / length;
-            x *= invLength;
-            y *= invLength;
-            z *= invLength;
+            var scaledX = x / maxAbs;
+            var scaledY = y / maxAbs;
+            var scaledZ = z / maxAbs;
+            var length  = MathF.Sqrt(scaledX * scaledX + scaledY * scaledY + scaledZ * scaledZ);
+            x = scaledX / length;
+            y = scaledY / length;
+            z = scaledZ / length;
         }
 
         /// <summary> Returns given vector with a magnitude of 1. </summary>
@@ -420,6 +424,9 @@ namespace DeusaldSharp
 
         #region Operators
 
+        // Note: == and != are approximate (per-component MathUtils.AreFloatsEquals, Unity-like), while Equals and
+        // GetHashCode are exact so they stay consistent for dictionaries/sets. Because of that a == b does not imply
+        // a.Equals(b), and NaN components are never == to anything.
         public static bool operator ==(Vector3 a, Vector3 b)
         {
             return a.x.AreFloatsEquals(b.x)

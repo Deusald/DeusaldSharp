@@ -416,6 +416,147 @@ namespace DeusaldSharpTests
             Assert.Throws<InvalidOperationException>(() => br.ReadSerializableEnum<SmallStorageButUIntWire>());
         }
 
+        [SerializableEnum(SerializableEnumType.Int)]
+        private enum ByteEnumIntWire : byte
+        {
+            High = 200
+        }
+
+        [SerializableEnum(SerializableEnumType.Int)]
+        private enum IntEnumIntWire
+        {
+            High  = 200,
+            Large = 40000
+        }
+
+        [SerializableEnum(SerializableEnumType.Int)]
+        private enum UShortEnumIntWire : ushort
+        {
+            Large = 40000
+        }
+
+        [SerializableEnum(SerializableEnumType.Long)]
+        private enum UShortEnumLongWire : ushort
+        {
+            Large = 40000
+        }
+
+        [Test]
+        public void SerializableEnum_UnsignedEnumWithTopBitSet_IsNotSignExtended()
+        {
+            (BinaryWriter bw, MemoryStream ms) = CreateWriter();
+            bw.WriteSerializableEnum(ByteEnumIntWire.High);
+            bw.WriteSerializableEnum(UShortEnumIntWire.Large);
+            bw.WriteSerializableEnum(UShortEnumLongWire.Large);
+            bw.WriteSerializableEnum(ByteEnumIntWire.High);
+            bw.WriteSerializableEnum(UShortEnumIntWire.Large);
+            bw.Flush();
+
+            BinaryReader br = CreateReader(ms);
+
+            // Round trip with the same enum type.
+            Assert.That(br.ReadSerializableEnum<ByteEnumIntWire>(),    Is.EqualTo(ByteEnumIntWire.High));
+            Assert.That(br.ReadSerializableEnum<UShortEnumIntWire>(),  Is.EqualTo(UShortEnumIntWire.Large));
+            Assert.That(br.ReadSerializableEnum<UShortEnumLongWire>(), Is.EqualTo(UShortEnumLongWire.Large));
+
+            // The wire value is the real numeric value, so an int-backed enum with the same wire type reads it correctly.
+            Assert.That(br.ReadSerializableEnum<IntEnumIntWire>(), Is.EqualTo(IntEnumIntWire.High));
+            Assert.That(br.ReadSerializableEnum<IntEnumIntWire>(), Is.EqualTo(IntEnumIntWire.Large));
+        }
+
+        [Test]
+        public void SerializableEnum_NegativeWireValueIntoUnsignedEnum_Throws()
+        {
+            (BinaryWriter bw, MemoryStream ms) = CreateWriter();
+            bw.Write(-56);
+            bw.Flush();
+
+            BinaryReader br = CreateReader(ms);
+            Assert.Throws<InvalidOperationException>(() => br.ReadSerializableEnum<ByteEnumIntWire>());
+        }
+
         #endregion SerializableEnum
+
+        #region Regression
+
+        [TestCase(0L)]
+        [TestCase(1L)]
+        [TestCase(12345678901L)]
+        [TestCase(-987654321L)]
+        [TestCase(long.MaxValue)]
+        [TestCase(long.MinValue)]
+        public void TimeSpan_RoundTripsExactTicks(long ticks)
+        {
+            (BinaryWriter bw, MemoryStream ms) = CreateWriter();
+            bw.Write(TimeSpan.FromTicks(ticks));
+            bw.Flush();
+
+            BinaryReader br = CreateReader(ms);
+            Assert.That(br.ReadTimeSpan().Ticks, Is.EqualTo(ticks));
+            Assert.That(ms.Length,               Is.EqualTo(8));
+        }
+
+        [Test]
+        public void Version_TwoThreeAndFourParts_RoundTrip()
+        {
+            Version[] versions = { new Version(1, 2), new Version(1, 2, 3), new Version(1, 2, 3, 4), new Version(0, 0, 0, 0) };
+
+            (BinaryWriter bw, MemoryStream ms) = CreateWriter();
+            foreach (Version v in versions) bw.Write(v);
+            bw.Write(versions);
+            bw.Flush();
+
+            BinaryReader br = CreateReader(ms);
+            foreach (Version v in versions)
+            {
+                Version read = br.ReadVersion();
+                Assert.That(read,          Is.EqualTo(v));
+                Assert.That(read.Build,    Is.EqualTo(v.Build));
+                Assert.That(read.Revision, Is.EqualTo(v.Revision));
+            }
+
+            Assert.That(br.ReadVersionArray(), Is.EqualTo(versions));
+        }
+
+        [TestCase(-1, 0,  -1, -1)]
+        [TestCase(1,  -1, -1, -1)]
+        [TestCase(1,  2,  -2, -1)]
+        [TestCase(1,  2,  3,  -2)]
+        [TestCase(1,  2,  -1, 4)]
+        public void Version_InvalidComponents_ThrowsInvalidData(int major, int minor, int build, int revision)
+        {
+            (BinaryWriter bw, MemoryStream ms) = CreateWriter();
+            bw.Write(major);
+            bw.Write(minor);
+            bw.Write(build);
+            bw.Write(revision);
+            bw.Flush();
+
+            BinaryReader br = CreateReader(ms);
+            Assert.Throws<InvalidDataException>(() => br.ReadVersion());
+        }
+
+        [Test]
+        public void ReadGuid_ShortStream_ThrowsEndOfStream()
+        {
+            MemoryStream ms = new MemoryStream(new byte[10]);
+            BinaryReader br = new BinaryReader(ms);
+            Assert.Throws<EndOfStreamException>(() => br.ReadGuid());
+        }
+
+        [Test]
+        public void WriteStringArray_NullElement_WritesEmptyString()
+        {
+            (BinaryWriter bw, MemoryStream ms) = CreateWriter();
+            bw.WriteArray(new[] { "a", null!, "c" });
+            bw.Write(new List<string> { "a", null!, "c" });
+            bw.Flush();
+
+            BinaryReader br = CreateReader(ms);
+            Assert.That(br.ReadStringArray(), Is.EqualTo(new[] { "a", "", "c" }));
+            Assert.That(br.ReadStringList(),  Is.EqualTo(new[] { "a", "", "c" }));
+        }
+
+        #endregion Regression
     }
 }

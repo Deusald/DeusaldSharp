@@ -382,5 +382,122 @@ namespace DeusaldSharpTests
                 Assert.That(hasAllBitsOnFour, Is.True);
             });
         }
+
+        /// <summary> MathMod must not overflow for big operands and must always return value in [0, |b|). </summary>
+        [Test]
+        [TestOf(nameof(MathUtils.MathMod))]
+        public void MathUtils_MathMod_NoOverflow()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(50000.MathMod(50000),        Is.EqualTo(0));
+                Assert.That(50001.MathMod(50000),        Is.EqualTo(1));
+                Assert.That((-1).MathMod(5),             Is.EqualTo(4));
+                Assert.That((-5).MathMod(5),             Is.EqualTo(0));
+                Assert.That(7.MathMod(3),                Is.EqualTo(1));
+                Assert.That(5.MathMod(-3),               Is.EqualTo(2));
+                Assert.That((-5).MathMod(-3),            Is.EqualTo(1));
+                Assert.That(int.MinValue.MathMod(3),     Is.EqualTo(1));
+                Assert.That(int.MinValue.MathMod(-1),    Is.EqualTo(0));
+                Assert.That((-1).MathMod(int.MinValue),  Is.EqualTo(int.MaxValue));
+                Assert.That(int.MaxValue.MathMod(1000),  Is.EqualTo(647));
+            });
+        }
+
+        /// <summary> InverseLerp with equal range ends returns 0 instead of a. </summary>
+        [Test]
+        [TestOf(nameof(MathUtils.InverseLerp))]
+        public void MathUtils_InverseLerp_EqualRange_ReturnsZero()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(MathUtils.InverseLerp(5f, 5f, 7f),     Is.EqualTo(0f));
+                Assert.That(MathUtils.InverseLerp(5d, 5d, 7d),     Is.EqualTo(0d));
+                Assert.That(MathUtils.InverseLerp(5m, 5m, 7m),     Is.EqualTo(0m));
+            });
+        }
+
+        /// <summary> IsOdd works for negative numbers. </summary>
+        [Test]
+        [TestOf(nameof(MathUtils.IsOdd))]
+        public void MathUtils_IsOdd_Negative()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That((-3).IsOdd(),         Is.True);
+                Assert.That((-4).IsOdd(),         Is.False);
+                Assert.That(int.MinValue.IsOdd(), Is.False);
+                Assert.That(3.IsOdd(),            Is.True);
+            });
+        }
+
+        /// <summary> NumberOfSetBits counts the sign bit for negative signed values. </summary>
+        [Test]
+        [TestOf(nameof(MathUtils.NumberOfSetBits))]
+        public void MathUtils_NumberOfSetBits_Negative()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(((sbyte)-1).NumberOfSetBits(),    Is.EqualTo(8));
+                Assert.That(((short)-1).NumberOfSetBits(),    Is.EqualTo(16));
+                Assert.That((-1).NumberOfSetBits(),           Is.EqualTo(32));
+                Assert.That((-1L).NumberOfSetBits(),          Is.EqualTo(64));
+                Assert.That(int.MinValue.NumberOfSetBits(),   Is.EqualTo(1));
+                Assert.That(sbyte.MinValue.NumberOfSetBits(), Is.EqualTo(1));
+            });
+        }
+
+        /// <summary> IsSingleBitOn handles min values of signed types. </summary>
+        [Test]
+        [TestOf(nameof(MathUtils.IsSingleBitOn))]
+        public void MathUtils_IsSingleBitOn_MinValues()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(sbyte.MinValue.IsSingleBitOn(), Is.True);
+                Assert.That(short.MinValue.IsSingleBitOn(), Is.True);
+                Assert.That(int.MinValue.IsSingleBitOn(),   Is.True);
+                Assert.That(long.MinValue.IsSingleBitOn(),  Is.True);
+                Assert.That(((sbyte)-1).IsSingleBitOn(),    Is.False);
+                Assert.That(((short)-1).IsSingleBitOn(),    Is.False);
+            });
+        }
+
+        /// <summary> AreFloatsEquals uses a real tolerance and handles infinities and NaN. </summary>
+        [Test]
+        [TestOf(nameof(MathUtils.AreFloatsEquals))]
+        public void MathUtils_AreFloatsEquals_Tolerance()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That((0.1f + 0.2f).AreFloatsEquals(0.3f),                           Is.True);
+                Assert.That(1f.AreFloatsEquals(1f + 1e-7f),                                Is.True);
+                Assert.That(1f.AreFloatsEquals(1.001f),                                    Is.False);
+                Assert.That(1000000f.AreFloatsEquals(1000000.06f),                         Is.True);
+                Assert.That(float.PositiveInfinity.AreFloatsEquals(float.PositiveInfinity), Is.True);
+                Assert.That(float.PositiveInfinity.AreFloatsEquals(float.NegativeInfinity), Is.False);
+                Assert.That(float.PositiveInfinity.AreFloatsEquals(float.MaxValue),        Is.False);
+                Assert.That(float.NaN.AreFloatsEquals(float.NaN),                          Is.False);
+                Assert.That(1e-7f.IsFloatZero(),                                           Is.True);
+                Assert.That(1e-3f.IsFloatZero(),                                           Is.False);
+                Assert.That(MathUtils.EPSILON_SQUARE,                                      Is.GreaterThan(0f));
+            });
+        }
+
+        /// <summary> Clamp with min greater than max throws like Math.Clamp. </summary>
+        [Test]
+        [TestOf(nameof(MathUtils.Clamp))]
+        public void MathUtils_Clamp_MinGreaterThanMax_Throws()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<System.ArgumentException>(() => 5.Clamp(10, 1));
+                Assert.Throws<System.ArgumentException>(() => 5f.Clamp(10f, 1f));
+                Assert.Throws<System.ArgumentException>(() => 5d.Clamp(10d, 1d));
+                Assert.Throws<System.ArgumentException>(() => ((byte)5).Clamp(10, 1));
+                Assert.Throws<System.ArgumentException>(() => 5m.Clamp(10m, 1m));
+                Assert.That(5.Clamp(5, 5), Is.EqualTo(5));
+            });
+        }
     }
 }

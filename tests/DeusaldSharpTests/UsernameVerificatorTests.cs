@@ -248,5 +248,53 @@ namespace DeusaldSharpTests
             // Assert
             Assert.That(cleaned, Is.EqualTo(""));
         }
+
+        [Test]
+        [TestOf(nameof(UsernameVerificator.CheckCharactersRequirement))]
+        public void UsernameVerificator_CheckCharactersRequirement_TrailingNewline_IsFalse()
+        {
+            // Arrange
+            UsernameVerificator verificator = new UsernameVerificator(1, 32, true, @"A-Za-z0-9 _");
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(verificator.CheckCharactersRequirement("admin\n"), Is.False);
+                Assert.That(verificator.CheckUsernameRequirements("admin\n"),  Is.False);
+                Assert.That(verificator.CheckCharactersRequirement("admin"),   Is.True);
+            });
+        }
+
+        [Test]
+        [TestOf(nameof(UsernameVerificator.CheckUsernameRequirements))]
+        public void UsernameVerificator_NullUsername_IsFalse()
+        {
+            // Arrange
+            UsernameVerificator verificator = new UsernameVerificator(0, 32, true, @"A-Za-z0-9 _");
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(verificator.CheckUsernameRequirements(null),          Is.False);
+                Assert.That(verificator.CheckUsernameLengthRequirement(null),     Is.False);
+                Assert.That(verificator.CheckUsernameWhitespaceRequirement(null), Is.False);
+                Assert.That(verificator.CheckCharactersRequirement(null),         Is.False);
+                Assert.That(verificator.CleanUsername(null),                      Is.EqualTo(string.Empty));
+            });
+        }
+
+        [Test]
+        [TestOf(nameof(UsernameVerificator.CleanUsername))]
+        public void UsernameVerificator_CleanUsername_TruncationDoesNotLeaveTrailingSpace()
+        {
+            // Arrange
+            UsernameVerificator verificator = new UsernameVerificator(0, 5, true, @"A-Za-z0-9 _");
+
+            // Act
+            string cleaned = verificator.CleanUsername("  Adam Smith");
+
+            // Assert
+            Assert.That(cleaned, Is.EqualTo("Adam"));
+        }
     }
 }

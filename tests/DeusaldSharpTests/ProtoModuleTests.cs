@@ -473,7 +473,8 @@ namespace DeusaldSharpTests
             using MemoryStream ms = new MemoryStream();
             AppendField(ms, 1, payload: Array.Empty<byte>());
 
-            Assert.Throws<EndOfStreamException>(() => ProtoMsgBase.Deserialize<StringOnlyMsg>(ms.ToArray()));
+            InvalidDataException exception = Assert.Throws<InvalidDataException>(() => ProtoMsgBase.Deserialize<StringOnlyMsg>(ms.ToArray()))!;
+            Assert.That(exception.InnerException, Is.InstanceOf<EndOfStreamException>());
         }
 
         [Test]
@@ -489,7 +490,7 @@ namespace DeusaldSharpTests
                 bw.Flush();
             }
 
-            Assert.Throws<EndOfStreamException>(() => ProtoMsgBase.Deserialize<DuplicateFieldMsg>(ms.ToArray()));
+            Assert.Throws<InvalidDataException>(() => ProtoMsgBase.Deserialize<DuplicateFieldMsg>(ms.ToArray()));
         }
 
         [Test]

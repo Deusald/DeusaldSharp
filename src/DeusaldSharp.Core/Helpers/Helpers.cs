@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -36,21 +37,19 @@ namespace DeusaldSharp
     {
         public static bool GetRandomBool()
         {
-            RandomNumberGenerator rng   = RandomNumberGenerator.Create();
-            byte[]                bytes = new byte[1];
-            rng.GetBytes(bytes);
-            return bytes[0] % 2 == 1;
+            return RandomNumberGenerator.GetInt32(2) == 1;
         }
 
         #region Arguments
 
+        /// <summary> Converts argument at index to T using the invariant culture. Returns defaultValue when index is out of range or conversion fails. </summary>
         public static T TakeSimpleType<T>(this string[] args, int index, T defaultValue) where T : IConvertible
         {
-            if (args.Length <= index) return defaultValue;
+            if (!IsValidIndex(args, index)) return defaultValue;
 
             try
             {
-                return (T)Convert.ChangeType(args[index], typeof(T));
+                return (T)Convert.ChangeType(args[index], typeof(T), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -60,17 +59,18 @@ namespace DeusaldSharp
 
         public static string TakeUsername(this string[] args, int index, string defaultValue)
         {
-            if (args.Length <= index) return defaultValue;
-            return int.TryParse(args[index], out int id) ? $"user{id}" : args[index];
+            if (!IsValidIndex(args, index)) return defaultValue;
+            return int.TryParse(args[index], NumberStyles.Integer, CultureInfo.InvariantCulture, out int id) ? $"user{id}" : args[index];
         }
 
+        /// <summary> Converts argument at index to T using the invariant culture and returns it if it is one of possibleValues, otherwise defaultValue. </summary>
         public static T TakeFromList<T>(this string[] args, int index, List<T> possibleValues, T defaultValue) where T : IConvertible
         {
-            if (args.Length <= index) return defaultValue;
+            if (!IsValidIndex(args, index)) return defaultValue;
 
             try
             {
-                T value = (T)Convert.ChangeType(args[index], typeof(T));
+                T value = (T)Convert.ChangeType(args[index], typeof(T), CultureInfo.InvariantCulture);
                 if (possibleValues.Contains(value)) return value;
                 return defaultValue;
             }
@@ -82,14 +82,22 @@ namespace DeusaldSharp
 
         public static string TakeString(this string[] args, int index, string defaultValue)
         {
-            if (args.Length <= index) return defaultValue;
+            if (!IsValidIndex(args, index)) return defaultValue;
             return args[index];
         }
 
+        /// <summary> Parses argument at index as enum T. For non-[Flags] enums numeric values that don't map to a defined member return defaultValue. </summary>
         public static T TakeEnum<T>(this string[] args, int index, T defaultValue) where T : struct, Enum
         {
-            if (args.Length <= index) return defaultValue;
-            return Enum.TryParse(args[index], out T value) ? value : defaultValue;
+            if (!IsValidIndex(args, index)) return defaultValue;
+            if (!Enum.TryParse(args[index], out T value)) return defaultValue;
+            if (!typeof(T).IsDefined(typeof(FlagsAttribute), false) && !Enum.IsDefined(typeof(T), value)) return defaultValue;
+            return value;
+        }
+
+        private static bool IsValidIndex(string[] args, int index)
+        {
+            return index >= 0 && index < args.Length;
         }
 
         #endregion Arguments

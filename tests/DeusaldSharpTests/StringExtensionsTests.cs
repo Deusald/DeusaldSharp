@@ -23,6 +23,7 @@
 
 #nullable enable
 using System;
+using System.Globalization;
 using DeusaldSharp;
 using NUnit.Framework;
 // ReSharper disable VariableCanBeNotNullable
@@ -128,6 +129,44 @@ namespace DeusaldSharpTests
             const string expected = "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8";
 
             Assert.That(message.ComputeHmacSha256Hex(key), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ComputeHmacSha256Hex_Rfc4231TestCase2_MatchesExpected()
+        {
+            const string expected = "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843";
+            Assert.That("what do ya want for nothing?".ComputeHmacSha256Hex("Jefe"), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ComputeHmacSha256Hex_NonAsciiCharacters_ProduceDifferentMacs()
+        {
+            const string key = "secret";
+            Assert.That("pay 100€".ComputeHmacSha256Hex(key), Is.Not.EqualTo("pay 100£".ComputeHmacSha256Hex(key)));
+            Assert.That("pay".ComputeHmacSha256Hex("klucz€"),  Is.Not.EqualTo("pay".ComputeHmacSha256Hex("klucz£")));
+        }
+
+        // --- Culture invariance -------------------------------------------------
+
+        [Test]
+        public void CasingMethods_UnderTurkishCulture_AreCultureInvariant()
+        {
+            CultureInfo previous = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = new CultureInfo("tr-TR");
+
+                Assert.That("I".ToSnakeCase(),                                 Is.EqualTo("i"));
+                Assert.That("ID".ToSnakeCase(),                                Is.EqualTo("i_d"));
+                Assert.That("id".FirstToUpper(),                               Is.EqualTo("Id"));
+                Assert.That("i".FirstToUpper(),                                Is.EqualTo("I"));
+                Assert.That("x".ComputeHmacSha256Hex("k"),                     Does.Match("^[0-9a-f]{64}$"));
+                Assert.That(new byte[] { 0xAB, 0xCD }.ByteArrayToHexString(), Is.EqualTo("abcd"));
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = previous;
+            }
         }
 
         // --- Base64Encode / Base64Decode --------------------------------------

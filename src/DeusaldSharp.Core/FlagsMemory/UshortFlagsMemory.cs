@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -34,6 +35,8 @@ namespace DeusaldSharp
     [PublicAPI]
     public struct UshortFlagsMemory
     {
+        private const int _BIT_COUNT = 16;
+
         public static UshortFlagsMemory Empty => new(0);
 
         private readonly ushort _Value;
@@ -43,13 +46,25 @@ namespace DeusaldSharp
         public ushort Raw => _Value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsSet(int index) => (_Value & (1 << index)) != 0;
+        public bool IsSet(int index)
+        {
+            CheckIndex(index);
+            return (_Value & (1 << index)) != 0;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public UshortFlagsMemory Set(int index) => new((ushort)(_Value | (1 << index)));
+        public UshortFlagsMemory Set(int index)
+        {
+            CheckIndex(index);
+            return new((ushort)(_Value | (1 << index)));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public UshortFlagsMemory Clear(int index) => new((ushort)(_Value & ~(1 << index)));
+        public UshortFlagsMemory Clear(int index)
+        {
+            CheckIndex(index);
+            return new((ushort)(_Value & ~(1 << index)));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public UshortFlagsMemory SetTo(int index, bool value) => value ? Set(index) : Clear(index);
@@ -60,10 +75,17 @@ namespace DeusaldSharp
 
         public static UshortFlagsMemory OneUpToIndex(int index)
         {
+            if ((uint)index > _BIT_COUNT) throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {_BIT_COUNT}.");
             ushort value = 0;
             for (int x = 0; x < index; ++x)
                 value = (ushort)(value | (1 << x));
             return new UshortFlagsMemory(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CheckIndex(int index)
+        {
+            if ((uint)index >= _BIT_COUNT) throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {_BIT_COUNT - 1}.");
         }
 
         public override string ToString()

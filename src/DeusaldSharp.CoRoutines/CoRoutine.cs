@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 
 namespace DeusaldSharp
@@ -45,8 +46,10 @@ namespace DeusaldSharp
 
         private CoRoCtrl.WaitUntilCondition? _Condition;
         private ICoHandle?                   _WaitUntilDone;
-        private float?                       _SecondsToWait;
-        private CoState?                     _CoState;
+        private float                        _SecondsToWait;
+        private CoState                      _CoState;
+        private bool                         _IsExecuting;
+        private bool                         _IsDisposed;
 
         private readonly uint                 _CoId;
         private readonly IEnumerator<ICoData> _Enumerator;
@@ -86,7 +89,7 @@ namespace DeusaldSharp
 
         public void Kill()
         {
-            _CoState = CoState.End;
+            End();
         }
 
         public void MoveCoRoutine(float deltaTime)
@@ -101,7 +104,8 @@ namespace DeusaldSharp
 
                     if (_SecondsToWait > 0f) break;
 
-                    CoRoutineNextStep();
+                    // Overshoot (zero or negative) is carried over to the next WaitForSeconds so repeating waits don't drift
+                    CoRoutineNextStep(_SecondsToWait);
                     break;
                 }
 
@@ -109,7 +113,7 @@ namespace DeusaldSharp
                 {
                     if (_WaitUntilDone is { IsAlive: true }) break;
 
-                    CoRoutineNextStep();
+                    CoRoutineNextStep(0f);
                     break;
                 }
 
@@ -117,7 +121,7 @@ namespace DeusaldSharp
                 {
                     if (_Condition != null && !_Condition()) break;
 
-                    CoRoutineNextStep();
+                    CoRoutineNextStep(0f);
                     break;
                 }
 
@@ -125,13 +129,13 @@ namespace DeusaldSharp
                 {
                     if (_Condition != null && _Condition()) break;
 
-                    CoRoutineNextStep();
+                    CoRoutineNextStep(0f);
                     break;
                 }
 
                 case CoState.Running:
                 {
-                    CoRoutineNextStep();
+                    CoRoutineNextStep(0f);
                     break;
                 }
             }
@@ -174,17 +178,26 @@ namespace DeusaldSharp
 
         #region Private Methods
 
-        private void CoRoutineNextStep()
+        private void CoRoutineNextStep(float carriedSeconds)
         {
             _CoState = CoState.Running;
 
-            bool isEnd = !_Enumerator.MoveNext();
+            bool hasNext = false;
+            _IsExecuting = true;
 
-            if (isEnd)
+            try
             {
-                _CoState = CoState.End;
-                return;
+                hasNext = _Enumerator.MoveNext();
             }
+            finally
+            {
+                _IsExecuting = false;
+
+                // Finished, faulted or killed from inside its own body (directly or via tag/mask)
+                if (!hasNext || _CoState == CoState.End) End();
+            }
+
+            if (_CoState == CoState.End) return;
 
             ICoData currentState = _Enumerator.Current!;
 
@@ -197,8 +210,9 @@ namespace DeusaldSharp
 
                 case CoDataType.WaitForSeconds:
                 {
+                    // Carried debt is limited to one wait length, so after a long stall the waits don't fire every frame
                     _CoState       = CoState.WaitingForSeconds;
-                    _SecondsToWait = ((CoDataWaitForSeconds)currentState).SecondsToWait;
+                    _SecondsToWait = Math.Max(((CoDataWaitForSeconds)currentState).SecondsToWait + carriedSeconds, 0f);
                     return;
                 }
 
@@ -225,6 +239,19 @@ namespace DeusaldSharp
             }
         }
 
+        /// <summary> Marks CoRoutine as ended. Unregisters it and disposes the enumerator (exactly once),
+        /// unless the enumerator is executing right now - then it's done when MoveNext returns. </summary>
+        private void End()
+        {
+            _CoState = CoState.End;
+
+            if (_IsExecuting || _IsDisposed) return;
+
+            _IsDisposed = true;
+            UnRegister();
+            _Enumerator.Dispose();
+        }
+
         private void Register()
         {
             _CoRoCtrl.OrderToCoRoutinesViaCoTag  += OrderToCoRoutinesViaCoTag;
@@ -234,39 +261,23 @@ namespace DeusaldSharp
         private void OrderToCoRoutinesViaCoTag(CoRoCtrl.CallbackOrder order, CoTag coTag)
         {
             if (coTag != CoTag) return;
-
-            switch (order)
-            {
-                case CoRoCtrl.CallbackOrder.Kill:
-                {
-                    _CoState = CoState.End;
-                    return;
-                }
-
-                case CoRoCtrl.CallbackOrder.Pause:
-                {
-                    IsPaused = true;
-                    return;
-                }
-
-                case CoRoCtrl.CallbackOrder.Unpause:
-                {
-                    IsPaused = false;
-                    return;
-                }
-            }
+            ExecuteOrder(order);
         }
 
         private void OrderToCoRoutinesViaCoMask(CoRoCtrl.CallbackOrder order, uint coMask, CoRoCtrl.MaskType maskType)
         {
             if (maskType == CoRoCtrl.MaskType.All && !CoMask.HasAllBitsOn(coMask)) return;
             if (maskType == CoRoCtrl.MaskType.Any && !CoMask.HasAnyBitOn(coMask)) return;
+            ExecuteOrder(order);
+        }
 
+        private void ExecuteOrder(CoRoCtrl.CallbackOrder order)
+        {
             switch (order)
             {
                 case CoRoCtrl.CallbackOrder.Kill:
                 {
-                    _CoState = CoState.End;
+                    End();
                     return;
                 }
 

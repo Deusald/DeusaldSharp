@@ -70,20 +70,38 @@ namespace DeusaldSharp
 
         public void Inject(object objectToFill)
         {
-            IEnumerable<PropertyInfo> properties = objectToFill.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                                               .Where(prop => prop.IsDefined(typeof(InjectAttribute)));
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
-            foreach (PropertyInfo propertyInfo in properties)
+            HashSet<MethodInfo> injectedAccessors = new HashSet<MethodInfo>();
+
+            // Private members of base classes are not returned for a derived type, so the hierarchy is walked manually
+            for (Type? type = objectToFill.GetType(); type != null && type != typeof(object); type = type.BaseType)
             {
-                propertyInfo.SetValue(objectToFill, _Binders[propertyInfo.PropertyType]);
-            }
+                IEnumerable<PropertyInfo> properties = type.GetProperties(flags)
+                                                           .Where(prop => prop.IsDefined(typeof(InjectAttribute)));
 
-            IEnumerable<FieldInfo> fields = objectToFill.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                                        .Where(field => field.IsDefined(typeof(InjectAttribute)));
+                foreach (PropertyInfo propertyInfo in properties)
+                {
+                    // Overridden property is injected only once
+                    MethodInfo? getter = propertyInfo.GetMethod?.GetBaseDefinition();
+                    MethodInfo? setter = propertyInfo.SetMethod?.GetBaseDefinition();
 
-            foreach (FieldInfo fieldInfo in fields)
-            {
-                fieldInfo.SetValue(objectToFill, _Binders[fieldInfo.FieldType]);
+                    if ((getter != null && injectedAccessors.Contains(getter))
+                     || (setter != null && injectedAccessors.Contains(setter))) continue;
+
+                    if (getter != null) injectedAccessors.Add(getter);
+                    if (setter != null) injectedAccessors.Add(setter);
+
+                    propertyInfo.SetValue(objectToFill, _Binders[propertyInfo.PropertyType]);
+                }
+
+                IEnumerable<FieldInfo> fields = type.GetFields(flags)
+                                                    .Where(field => field.IsDefined(typeof(InjectAttribute)));
+
+                foreach (FieldInfo fieldInfo in fields)
+                {
+                    fieldInfo.SetValue(objectToFill, _Binders[fieldInfo.FieldType]);
+                }
             }
         }
     }

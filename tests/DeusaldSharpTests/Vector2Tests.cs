@@ -1940,5 +1940,69 @@ namespace DeusaldSharpTests
                 Assert.That(two[1], Is.EqualTo(11f));
             });
         }
+
+        /// <summary> Normalize works for very small and very big components. </summary>
+        [Test]
+        [TestOf(nameof(Vector2.Normalize))]
+        public void Vector2_Normalize_ExtremeMagnitudes()
+        {
+            // Arrange
+            Vector2 tiny = new Vector2(1e-30f, 1e-30f);
+            Vector2 huge = new Vector2(1e20f, 0f);
+            Vector2 zero = Vector2.Zero;
+
+            // Act
+            tiny.Normalize();
+            huge.Normalize();
+            zero.Normalize();
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(tiny.x, Is.EqualTo(0.70710678f).Within(1e-6f));
+                Assert.That(tiny.y, Is.EqualTo(0.70710678f).Within(1e-6f));
+                Assert.That(huge.x, Is.EqualTo(1f).Within(1e-6f));
+                Assert.That(huge.y, Is.EqualTo(0f));
+                Assert.That(zero,   Is.EqualTo(Vector2.Zero));
+            });
+        }
+
+        /// <summary> Instance Reflect returns Vector2. </summary>
+        [Test]
+        [TestOf(nameof(Vector2.Reflect))]
+        public void Vector2_Reflect_Instance_ReturnsVector2()
+        {
+            // Arrange
+            Vector2 dir = new Vector2(1f, -1f);
+
+            // Act
+            object reflected = dir.Reflect(Vector2.Up);
+
+            // Assert
+            Assert.That(reflected, Is.EqualTo(new Vector2(1f, 1f)));
+        }
+
+        /// <summary> IsValid rejects NaN and infinity; == works for infinities and is approximate. </summary>
+        [Test]
+        [TestOf(nameof(Vector2.IsValid))]
+        public void Vector2_IsValid_And_Equality_NonFinite()
+        {
+            // Arrange
+            Vector2 inf       = new Vector2(float.PositiveInfinity, 0f);
+            Vector2 infTwo    = new Vector2(float.PositiveInfinity, 0f);
+            Vector2 nan       = new Vector2(float.NaN, 0f);
+            Vector2 almostOne = new Vector2(1f + 1e-7f, 1f);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(inf.IsValid,              Is.False);
+                Assert.That(nan.IsValid,              Is.False);
+                Assert.That(Vector2.One.IsValid,      Is.True);
+                Assert.That(inf == infTwo,            Is.True);
+                Assert.That(inf.Equals(infTwo),       Is.True);
+                Assert.That(Vector2.One == almostOne, Is.True);
+            });
+        }
     }
 }

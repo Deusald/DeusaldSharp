@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -34,6 +35,8 @@ namespace DeusaldSharp
     [PublicAPI]
     public struct UlongFlagsMemory
     {
+        private const int _BIT_COUNT = 64;
+
         public static UlongFlagsMemory Empty => new(default);
 
         private readonly ulong _Value;
@@ -43,13 +46,25 @@ namespace DeusaldSharp
         public ulong Raw => _Value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsSet(int index) => (_Value & (1ul << index)) != 0;
+        public bool IsSet(int index)
+        {
+            CheckIndex(index);
+            return (_Value & (1ul << index)) != 0;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public UlongFlagsMemory Set(int index) => new(_Value | (1ul << index));
+        public UlongFlagsMemory Set(int index)
+        {
+            CheckIndex(index);
+            return new(_Value | (1ul << index));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public UlongFlagsMemory Clear(int index) => new(_Value & ~(1ul << index));
+        public UlongFlagsMemory Clear(int index)
+        {
+            CheckIndex(index);
+            return new(_Value & ~(1ul << index));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public UlongFlagsMemory SetTo(int index, bool value) => value ? Set(index) : Clear(index);
@@ -60,10 +75,17 @@ namespace DeusaldSharp
 
         public static UlongFlagsMemory OneUpToIndex(int index)
         {
+            if ((uint)index > _BIT_COUNT) throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {_BIT_COUNT}.");
             ulong value = 0;
             for (int x = 0; x < index; ++x)
                 value = value | (1ul << x);
             return new UlongFlagsMemory(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CheckIndex(int index)
+        {
+            if ((uint)index >= _BIT_COUNT) throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {_BIT_COUNT - 1}.");
         }
 
         public override string ToString()

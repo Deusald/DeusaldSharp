@@ -24,15 +24,31 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DeusaldSharp
 {
     internal static class MessagesPool<T> where T : class, new()
     {
+        #region Types
+
+        private sealed class ReferenceComparer : IEqualityComparer<T>
+        {
+            public bool Equals(T? x, T? y) => ReferenceEquals(x, y);
+            public int  GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj);
+        }
+
+        #endregion Types
+
         #region Variables
 
-        internal static         int     NumberOfFreeMessages => _FreeMessages.Count;
-        private static readonly List<T> _FreeMessages = new List<T>();
+        internal static int NumberOfFreeMessages => _FreeMessages.Count;
+
+        private static readonly Stack<T>                  _FreeMessages    = new Stack<T>();
+        private static readonly HashSet<T>                _FreeMessagesSet = new HashSet<T>(new ReferenceComparer());
+        private static readonly PropertyInfo[]            _Properties      = CollectProperties();
+        private static readonly FieldInfo[]               _Fields          = CollectFields();
+        private static readonly Dictionary<Type, object?> _DefaultValues   = new Dictionary<Type, object?>();
 
         #endregion Variables
 
@@ -40,31 +56,71 @@ namespace DeusaldSharp
 
         public static T Get()
         {
-            if (_FreeMessages.Count != 0)
-            {
-                T result = _FreeMessages[0];
-                _FreeMessages.RemoveAt(0);
-                return result;
-            }
+            if (_FreeMessages.Count == 0) return new T();
 
-            return new T();
+            T result = _FreeMessages.Pop();
+            _FreeMessagesSet.Remove(result);
+            return result;
         }
 
         public static void Return(T message)
         {
-            if (_FreeMessages.Contains(message)) return;
+            if (!_FreeMessagesSet.Add(message)) return;
 
-            Type           type       = message.GetType();
-            PropertyInfo[] properties = type.GetProperties();
-
-            foreach (var property in properties)
+            foreach (PropertyInfo property in _Properties)
             {
-                property.SetValue(message, null);
+                property.SetValue(message, GetDefaultValue(property.PropertyType));
             }
 
-            _FreeMessages.Add(message);
+            foreach (FieldInfo field in _Fields)
+            {
+                field.SetValue(message, GetDefaultValue(field.FieldType));
+            }
+
+            _FreeMessages.Push(message);
         }
 
         #endregion Public Methods
+
+        #region Private Methods
+
+        private static PropertyInfo[] CollectProperties()
+        {
+            List<PropertyInfo> result = new List<PropertyInfo>();
+
+            foreach (PropertyInfo property in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                if (!property.CanWrite || property.GetIndexParameters().Length != 0) continue;
+                result.Add(property);
+            }
+
+            return result.ToArray();
+        }
+
+        private static FieldInfo[] CollectFields()
+        {
+            List<FieldInfo> result = new List<FieldInfo>();
+
+            foreach (FieldInfo field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public))
+            {
+                if (field.IsInitOnly) continue;
+                result.Add(field);
+            }
+
+            return result.ToArray();
+        }
+
+        private static object? GetDefaultValue(Type type)
+        {
+            if (!type.IsValueType) return null;
+
+            if (_DefaultValues.TryGetValue(type, out object? value)) return value;
+
+            value                = Activator.CreateInstance(type);
+            _DefaultValues[type] = value;
+            return value;
+        }
+
+        #endregion Private Methods
     }
 }

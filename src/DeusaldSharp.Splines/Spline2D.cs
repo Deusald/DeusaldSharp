@@ -103,12 +103,13 @@ namespace DeusaldSharp
             }
         }
 
-        /// <summary> The accuracy of sampling curve in calculating its length. </summary>
+        /// <summary> The accuracy of sampling curve in calculating its length. Must be at least 1. </summary>
         public int LengthSamplesPerSegment
         {
             get => _LengthSamplesPerSegment;
             set
             {
+                ValidateLengthSamplesPerSegment(value);
                 _LengthSamplesPerSegment = value;
                 _LengthSamplesDirty      = true;
             }
@@ -152,7 +153,8 @@ namespace DeusaldSharp
 
         public Spline2D(List<Vector2> controlPoints, bool closed = false, float curvature = 0.5f, int lengthSamplesPerSegment = 5)
         {
-            _Closed                  = closed;
+            ValidateLengthSamplesPerSegment(lengthSamplesPerSegment);
+            _Closed                 = closed;
             _Curvature               = curvature;
             _LengthSamplesPerSegment = lengthSamplesPerSegment;
             _TangentsDirty           = true;
@@ -254,8 +256,10 @@ namespace DeusaldSharp
 
         #region Interpolate
 
-        /// <summary> Interpolate position on given percent on the entire curve. </summary>
-        /// <param name="t"> Percent of the curve. Should be from 0.0f to 1.0f. </param>
+        /// <summary> Interpolate position on given percent on the entire curve.
+        /// Empty spline returns Vector2.Zero, spline with a single point returns that point. </summary>
+        /// <param name="t"> Percent of the curve. Should be from 0.0f to 1.0f.
+        /// Open spline clamps it to that range, closed spline wraps it around. </param>
         public Vector2 Interpolate(float t)
         {
             RecalculateTangents();
@@ -278,18 +282,30 @@ namespace DeusaldSharp
         {
             RecalculateTangents();
 
-            int toIndex = fromIndex + 1;
-            int count   = Count;
+            int count = Count;
 
-            if (toIndex >= Count)
+            if (count == 0)
+                return Vector2.Zero;
+
+            if (count == 1)
+                return _Points[0];
+
+            int toIndex;
+
+            if (_Closed)
             {
-                if (_Closed)
-                {
-                    fromIndex = fromIndex % count;
-                    toIndex   = toIndex % count;
-                }
-                else
+                fromIndex = fromIndex.MathMod(count);
+                toIndex   = (fromIndex + 1) % count;
+            }
+            else
+            {
+                if (fromIndex < 0)
+                    return _Points[0];
+
+                if (fromIndex >= count - 1)
                     return _Points[count - 1];
+
+                toIndex = fromIndex + 1;
             }
 
             if (t.AreFloatsEquals(0f))
@@ -342,18 +358,22 @@ namespace DeusaldSharp
         {
             RecalculateTangents();
 
-            int toIndex = fromIndex + 1;
-            int count   = Count;
+            int count = Count;
 
-            if (toIndex >= Count)
+            if (count < 2)
+                return Vector2.Zero;
+
+            int toIndex;
+
+            if (_Closed)
             {
-                if (_Closed)
-                {
-                    fromIndex = fromIndex % count;
-                    toIndex   = toIndex % count;
-                }
-                else
-                    toIndex = fromIndex;
+                fromIndex = fromIndex.MathMod(count);
+                toIndex   = (fromIndex + 1) % count;
+            }
+            else
+            {
+                fromIndex = fromIndex.Clamp(0, count - 1);
+                toIndex   = fromIndex == count - 1 ? fromIndex : fromIndex + 1;
             }
 
             // Pre-calculate power
@@ -384,6 +404,10 @@ namespace DeusaldSharp
 
             RecalculateTangents();
             RecalculateLength();
+
+            if (_Distances.Count == 0)
+                return 0f;
+
             return _Distances[index * _LengthSamplesPerSegment - 1].Distance;
         }
 
@@ -400,17 +424,29 @@ namespace DeusaldSharp
 
             float length = Length;
 
-            if (distance >= length)
+            if (!(length > 0f))
+                return 0f;
+
+            if (_Closed)
             {
-                if (_Closed)
-                    distance = distance % length;
-                else
+                if (distance < 0f || distance >= length)
+                {
+                    distance %= length;
+                    if (distance < 0f) distance += length;
+                }
+            }
+            else
+            {
+                if (distance <= 0f)
+                    return 0f;
+
+                if (distance >= length)
                     return 1f;
             }
 
-            if (_PreviousSearchedDistance.Distance < distance ||
-                (_PreviousSearchedDistance.Index != 0 && _Distances[_PreviousSearchedDistance.Index - 1].Distance > distance))
-                _PreviousSearchedDistance = new DistanceToT(0f, 0f, 0);
+            // The cached sample can be used as the search start only if it doesn't lie after the searched distance.
+            if (_PreviousSearchedDistance.Index > _Distances.Count || _PreviousSearchedDistance.Distance > distance)
+                _PreviousSearchedDistance = default;
 
             for (int i = _PreviousSearchedDistance.Index; i < _Distances.Count; ++i)
             {
@@ -444,8 +480,26 @@ namespace DeusaldSharp
 
         #region Private Methods
 
+        private static void ValidateLengthSamplesPerSegment(int value)
+        {
+            if (value < 1)
+                throw new ArgumentOutOfRangeException(nameof(LengthSamplesPerSegment), value, "Length samples per segment must be at least 1.");
+        }
+
         private Segment GetSegment(float t)
         {
+            if (float.IsNaN(t))
+                t = 0f;
+
+            if (_Closed)
+            {
+                // Wrap into [0, 1) - positive modulo.
+                t = float.IsInfinity(t) ? 0f : t - MathF.Floor(t);
+                if (t >= 1f) t = 0f; // Floating point rounding for tiny negative t
+            }
+            else
+                t = t.Clamp(0f, 1f);
+
             int   count        = _Closed ? Count : Count - 1;
             float segmentIndex = t * count;
             int   index        = (int) segmentIndex;
@@ -461,7 +515,12 @@ namespace DeusaldSharp
             int lastIndex = count - 1;
 
             if (count < 2)
+            {
+                // Not enough points for tangents - drop stale ones from the previous shape.
+                _Tangents.Clear();
+                _TangentsDirty = false;
                 return;
+            }
 
             _Tangents.Clear();
             _Tangents.Capacity = count;
@@ -495,12 +554,18 @@ namespace DeusaldSharp
 
             int count = Count;
 
+            // Samples are about to change, so the search cache in DistanceToLinearT is no longer valid.
+            _PreviousSearchedDistance = default;
+            _Distances.Clear();
+
             if (count < 2)
+            {
+                _LengthSamplesDirty = false;
                 return;
+            }
 
             int numberOfSamples = _LengthSamplesPerSegment * (_Closed ? count : count - 1);
 
-            _Distances.Clear();
             _Distances.Capacity = numberOfSamples;
 
             float   distanceSum  = 0f;

@@ -78,25 +78,27 @@ namespace DeusaldSharp
         #region Public Methods
 
         /// <summary> Execute all CoRoutines.
-        /// WARNING: You should always execute engine tick first and at the end call this method. </summary>
+        /// WARNING: You should always execute engine tick first and at the end call this method.
+        /// Exception thrown inside a CoRoutine kills that CoRoutine and propagates to the caller.
+        /// Remaining CoRoutines are executed with the next Update. </summary>
         public void Update(float deltaTime)
         {
             _DeltaTime = deltaTime;
-            MoveCoRoutines(_CoRoutines.First, deltaTime);
+            MoveCoRoutines(deltaTime);
         }
 
         /// <summary> Kill all CoRoutines form all segments and clear RoRoutineController for fresh start. </summary>
         public void Reset()
         {
+            CoRoutine[] coRoutines = new CoRoutine[_CoRoutines.Count];
+            _CoRoutines.CopyTo(coRoutines, 0);
+            _CoRoutines.Clear();
             _CurrentExecutedCoRoutine = null;
 
-            for (LinkedListNode<CoRoutine>? node = _CoRoutines.First; node != null;)
+            foreach (CoRoutine coRoutine in coRoutines)
             {
-                node.Value.UnRegister();
-                node = node.Next;
+                coRoutine.Kill();
             }
-
-            _CoRoutines.Clear();
         }
 
         /// <summary> This method returns current executed CoHandle. This method must be called inside CoRoutine body. </summary>
@@ -151,11 +153,21 @@ namespace DeusaldSharp
         /// <summary> Creates new CoRoutine and perform first execution.  </summary>
         public ICoHandle RunCoRoutine(IEnumerator<ICoData> newCoRoutine, CoTag coTag = default, uint coMask = 0)
         {
-            CoRoutine coRoutine = new CoRoutine(newCoRoutine, _GetNextCoId, coTag, coMask, this);
-            AddNewCoRoutine(coRoutine);
+            CoRoutine                  coRoutine = new CoRoutine(newCoRoutine, _GetNextCoId, coTag, coMask, this);
+            LinkedListNode<CoRoutine>? previous  = _CurrentExecutedCoRoutine;
 
-            coRoutine.MoveCoRoutine(_DeltaTime);
-            coRoutine.InnerCreatedAndMoved = true;
+            // New CoRoutine is the current one during its first step, so GetCurrentCoHandle returns its own handle
+            _CurrentExecutedCoRoutine = AddNewCoRoutine(coRoutine);
+
+            try
+            {
+                coRoutine.MoveCoRoutine(_DeltaTime);
+            }
+            finally
+            {
+                _CurrentExecutedCoRoutine      = previous;
+                coRoutine.InnerCreatedAndMoved = true;
+            }
 
             return coRoutine;
         }
@@ -203,41 +215,46 @@ namespace DeusaldSharp
 
         #region Private Methods
 
-        private void MoveCoRoutines(LinkedListNode<CoRoutine>? first, float deltaTime)
+        private void MoveCoRoutines(float deltaTime)
         {
-            for (LinkedListNode<CoRoutine>? node = first; node != null;)
+            try
             {
-                _CurrentExecutedCoRoutine = node;
-
-                if (!node.Value.InnerCreatedAndMoved)
+                for (LinkedListNode<CoRoutine>? node = _CoRoutines.First; node != null;)
                 {
-                    node.Value.MoveCoRoutine(deltaTime);
+                    CoRoutine coRoutine = node.Value;
+                    _CurrentExecutedCoRoutine = node;
+
+                    try
+                    {
+                        if (!coRoutine.InnerCreatedAndMoved) coRoutine.MoveCoRoutine(deltaTime);
+                    }
+                    finally
+                    {
+                        coRoutine.InnerCreatedAndMoved = false;
+                    }
+
+                    LinkedListNode<CoRoutine>? next = node.Next;
+
+                    // Ended CoRoutines are already unregistered and disposed, node can be detached by Reset called inside CoRoutine
+                    if (!coRoutine.IsAlive && node.List != null) node.List.Remove(node);
+
+                    node = next;
                 }
-
-                LinkedListNode<CoRoutine>? next = node.Next;
-                node.Value.InnerCreatedAndMoved = false;
-
-                if (!node.Value.IsAlive)
-                {
-                    node.List!.Remove(node);
-                }
-
-                node = next;
             }
-
-            _CurrentExecutedCoRoutine = null;
+            finally
+            {
+                _CurrentExecutedCoRoutine = null;
+            }
         }
 
-        private void AddNewCoRoutine(CoRoutine coRoutine)
+        private LinkedListNode<CoRoutine> AddNewCoRoutine(CoRoutine coRoutine)
         {
-            if (_CurrentExecutedCoRoutine != null)
+            if (_CurrentExecutedCoRoutine?.List != null)
             {
-                _CurrentExecutedCoRoutine.List!.AddAfter(_CurrentExecutedCoRoutine, coRoutine);
+                return _CurrentExecutedCoRoutine.List.AddAfter(_CurrentExecutedCoRoutine, coRoutine);
             }
-            else
-            {
-                _CoRoutines.AddLast(coRoutine);
-            }
+
+            return _CoRoutines.AddLast(coRoutine);
         }
 
         #endregion Private Methods

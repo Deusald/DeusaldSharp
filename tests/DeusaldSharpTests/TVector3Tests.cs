@@ -80,5 +80,25 @@ namespace DeusaldSharpTests
                 Assert.That(two[2], Is.EqualTo(12));
             });
         }
+
+        /// <summary> Equals and GetHashCode take the z component into account. </summary>
+        [Test]
+        [TestOf(nameof(TVector3<int>.Equals))]
+        public void TVector3_Equals_IncludesZ()
+        {
+            // Arrange
+            TVector3<int> one   = new TVector3<int>(1, 2, 3);
+            TVector3<int> two   = new TVector3<int>(1, 2, 4);
+            TVector3<int> three = new TVector3<int>(1, 2, 3);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(one.Equals(two),                         Is.False);
+                Assert.That(one.Equals(three),                       Is.True);
+                Assert.That(one.GetHashCode(),                       Is.EqualTo(three.GetHashCode()));
+                Assert.That(new HashSet<TVector3<int>> { one, two }, Has.Count.EqualTo(2));
+            });
+        }
     }
 }

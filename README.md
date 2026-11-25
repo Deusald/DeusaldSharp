@@ -82,6 +82,17 @@ serverClock.Log += Console.WriteLine;
 serverClock.Kill();
 ```
 
+### Clock notes
+
+- Both clocks are `IDisposable`; `Kill()` / `Dispose()` stop the clock thread and wait (up to 2 s) for it to finish, so no tick runs after they return.
+- Subscribe to `TickException` to handle exceptions thrown by a `Tick` handler - the clock reports them and keeps ticking.
+  Without a subscriber the exception is rethrown on the clock thread, which terminates the process (fail-fast).
+- If a tick takes longer than the interval, the clock skips the missed frames instead of firing them back-to-back.
+
+```csharp
+serverClock.TickException += exception => logger.LogError(exception, "Tick failed");
+```
+
 ## CoRoutines
 
 DeusaldSharp contains an implementation of Unity style coroutines logic. It can be used to execute part of the game
@@ -116,6 +127,29 @@ if (coHandle.IsAlive) coHandle.Kill();
 ## Extensions & Helpers
 
 Group of useful extensions and helper methods.
+
+### Fire-and-forget tasks
+
+`Forget()` runs a task without awaiting it and without the "not awaited" warning. Exceptions never crash the process:
+they go to the per-call handler, or to the global `TaskExtensions.UnhandledException` handler. Cancellation is ignored.
+
+```csharp
+// once at startup
+DeusaldSharp.TaskExtensions.UnhandledException = e => Debug.LogException(e);  // Unity
+DeusaldSharp.TaskExtensions.UnhandledException = e => logger.LogError(e, ""); // server
+
+SaveAsync().Forget();                                   // uses the global handler
+SendAsync().Forget(e => ShowError("Couldn't send", e)); // per-call handler
+```
+
+> Set the global handler in every project - when neither handler is set, exceptions from forgotten tasks are swallowed.
+> `DeusaldSharp.TaskExtensions` is written fully qualified because `System.Threading.Tasks.TaskExtensions` has the same name.
+
+### Reading untrusted binary data
+
+All `BinaryReader` list/array readers validate the length prefix: a negative length, or one that cannot fit in the
+remaining bytes of a seekable stream, throws `InvalidDataException` before anything is allocated. On non-seekable streams
+memory grows only with the data actually received.
 
 ```csharp
 [Flags]
@@ -174,6 +208,9 @@ MathUtils.InverseLerp(1, 10, 7.75f); // 0.75f
 ## Messages
 
 Module that enables a possibility to listen for specific messages in a class.
+
+> `MsgCtrl` is static and **not thread-safe** - use it from a single thread (e.g. the game loop / Unity main thread).
+> An exception thrown by a receiver propagates to the caller of `Send`; the bus keeps working and still-queued messages are delivered on the next `Send`.
 
 ```csharp
 private class ExampleMsg
@@ -331,11 +368,28 @@ List<(GlickoData, double)> opponents = new()
 
 GlickoData updated = Glicko.Update(a, opponents);
 
-// Win probability
+// Win probability (uses both players' deviations)
 double p = Glicko.GetWinProbability(a, b);
+```
 
-Decay (inactivity)
-GlickoData decayed = Glicko.DecayPlayer(a, lastPlayedUtc, out bool didDecay);
+### Decay (inactivity)
+
+Inactive players' rating deviation grows by one Glicko-2 rating period for every elapsed `period` after a deadline
+(rating and volatility stay the same, deviation is capped at `DEFAULT_DEVIATION`). Reaching the deadline applies the
+first period. Store the returned `nextDecayDeadline` - it keeps partially elapsed periods, so a player who logs in every
+day decays gradually, not in bursts. Reset the deadline to `now + gracePeriod` when the player plays a game.
+
+```csharp
+// after a game: player.DecayDeadline = DateTime.UtcNow + TimeSpan.FromDays(14);
+
+GlickoData decayed = Glicko.DecayPlayer(player.Glicko, player.DecayDeadline, DateTime.UtcNow, TimeSpan.FromDays(1),
+                                        out long periodsApplied, out DateTime nextDecayDeadline);
+
+if (periodsApplied > 0)
+{
+    player.Glicko        = decayed;
+    player.DecayDeadline = nextDecayDeadline;
+}
 ```
 
 ## Binary serializers (BinaryWriter/BinaryReader extensions)
@@ -423,9 +477,18 @@ save files, and internal tooling where stability and control matter more than va
 1. You create a **partial** message type that derives from `ProtoMsgBase`.
 2. You mark instance fields with `[ProtoField(<ushort id>)]`.
 3. The source generator bundled in the **DeusaldSharp.Proto** package emits `Serialize(BinaryWriter)` and `Deserialize(BinaryReader)`
-   into a generated `.g.cs` file at build time.
+   into a generated `<Namespace>.<Type>.DeusaldSharpProto.cs` file at build time.
 
 > If a type derives from `ProtoMsgBase` but is not `partial`, you’ll get a build error.
+
+Supported message shapes:
+
+- `public` and `internal` messages, messages split across several `partial` declarations.
+- Nested message types - every containing type must be `partial` too (DSHP012).
+- Inheritance - `[ProtoField]` fields of base messages are serialized by derived messages. Base fields must not be `private`
+  (DSHP011) and field IDs must be unique across the whole inheritance chain (DSHP010).
+- `[field: ProtoField(n)]` on auto-properties with a setter. `readonly` fields / get-only properties (DSHP008) and
+  `static` / `const` fields (DSHP009) are rejected.
 
 ---
 
@@ -464,7 +527,7 @@ Each field is serialized as a **length-delimited record**:
 ```
 
 Fields are written in ascending `fieldId` order (the generator sorts them).
-Unknown `fieldId`s are skipped by reading `payloadLength` and seeking forward.
+Unknown `fieldId`s are skipped using the validated `payloadLength` (see *Error handling*).
 
 **Important:** serialization requires a **seekable** stream (e.g. `MemoryStream`) because the generator writes
 `payloadLength` after the payload is written.
@@ -480,7 +543,8 @@ Rules enforced at compile time:
 
 Compatibility behavior:
 
-- **New reader reading old data:** missing fields stay at default (`0`, `false`, `null`, etc.)
+- **New reader reading old data:** missing fields keep the value of a freshly constructed message (field initializers are respected).
+  This also holds when you reuse an instance: `msg.Deserialize(bytes)` resets absent fields first.
 - **Old reader reading new data:** unknown fields are skipped safely
 - **Reordering fields:** safe; meaning is defined by ID, not order
 
@@ -506,10 +570,13 @@ The generator supports:
 - Any non-nullable reference type deriving from `ProtoMsgBase`
 - Nullable reference nested message (e.g. `ChildMsg?`) is supported as well
 
-**Lists**
-- `List<T>` where `T` is any supported primitive/special/serializable-enum
-- `List<T>` where `T : ProtoMsgBase` (items may be `null`)
+**Lists and arrays**
+- `List<T>` / `T[]` where `T` is any supported primitive/special/serializable-enum
+- `List<T>` / `T[]` where `T : ProtoMsgBase` (items may be `null`)
 - Nullable list reference `List<T>?`
+
+**Nullable reference types**
+- `string?` and `Version?` are supported. A `null` string / `Version` field is simply not written, so the reader keeps its default.
 
 If a field type is not supported, you’ll get a build error pointing at the field.
 
@@ -602,8 +669,13 @@ public partial class InventoryMsg : ProtoMsgBase
 
 ### Error handling
 
-- Unsupported field types / duplicate IDs / non-partial messages → **build-time errors** (generator diagnostics)
-- Truncated/corrupt payloads → runtime exceptions from `BinaryReader` (fail-fast)
+- Unsupported field types / duplicate IDs / non-partial messages → **build-time errors** (generator diagnostics DSHP001-DSHP012)
+- Malformed, truncated or malicious payloads → `System.IO.InvalidDataException` (the original exception, if any, is the `InnerException`).
+  `Deserialize` is safe to call on untrusted network data:
+  - field and item lengths and collection counts are validated against the remaining bytes **before** anything is allocated,
+  - a negative or oversized length can't cause an infinite loop or a huge allocation,
+  - nesting depth is limited by `ProtoMsgBase.MaxDepth` (default `ProtoMsgBase.DEFAULT_MAX_DEPTH` = 64; the root message is level 1),
+    so a deeply nested payload can't overflow the stack.
 - Serializable-enum misuse (missing attribute, invalid underlying type) → runtime exceptions from the SerializableEnum helpers
 
 ## Injector

@@ -28,7 +28,7 @@ using System.Threading;
 namespace DeusaldSharp
 {
     /// <summary> Clock for multiplayer game servers. </summary>
-    public class GameServerClock
+    public class GameServerClock : IDisposable
     {
         #region Public Types
 
@@ -39,7 +39,7 @@ namespace DeusaldSharp
         #region Properties
 
         /// <summary> Is Clock still executing. </summary>
-        public bool IsAlive { get; private set; }
+        public bool IsAlive => _IsAlive;
 
         #endregion Properties
 
@@ -51,9 +51,20 @@ namespace DeusaldSharp
         /// <summary> Used to log information about Clock. </summary>
         public event Action<string>? Log;
 
+        /// <summary> Raised when a Tick handler throws. When there is a subscriber the clock keeps ticking,
+        /// without subscribers the exception is rethrown on the clock thread (which terminates the process). </summary>
+        public event Action<Exception>? TickException;
+
+        private const int _KILL_JOIN_TIMEOUT_MS = 2000;
+
         private readonly AutoResetEvent _AutoResetEvent;
-        private readonly long           _DeltaTimeInMs;
+        private readonly object         _EventLock = new object();
+        private readonly Thread         _ClockThread;
+        private readonly double         _StopwatchTicksPerFrame;
         private readonly ushort         _LogEveryXFrame;
+
+        private volatile bool _IsAlive;
+        private          bool _IsEventDisposed;
 
         #endregion Variables
 
@@ -61,27 +72,43 @@ namespace DeusaldSharp
 
         public GameServerClock(ushort ticksPerSecond, ushort logEveryXFrame)
         {
-            IsAlive         = true;
-            _LogEveryXFrame = logEveryXFrame;
-            _AutoResetEvent = new AutoResetEvent(true);
-            _DeltaTimeInMs  = (long)(1.0m / ticksPerSecond * MathUtils.SEC_TO_MILLISECONDS);
+            if (ticksPerSecond == 0) throw new ArgumentOutOfRangeException(nameof(ticksPerSecond), "Number of ticks per second must be greater than 0.");
 
-            Thread clockThread = new Thread(ClockLoop)
+            _IsAlive                = true;
+            _LogEveryXFrame         = logEveryXFrame;
+            _AutoResetEvent         = new AutoResetEvent(false);
+            _StopwatchTicksPerFrame = (double)Stopwatch.Frequency / ticksPerSecond;
+
+            _ClockThread = new Thread(ClockLoop)
             {
                 IsBackground = true,
                 Priority     = ThreadPriority.AboveNormal
             };
 
-            clockThread.Start();
+            _ClockThread.Start();
         }
 
         #endregion Special Methods
 
         #region Public Methods
 
+        /// <summary> Stops the clock. When called from other thread than the clock thread, it waits (with a timeout)
+        /// for the currently executed tick to finish, so no tick is executed after this method returns. </summary>
         public void Kill()
         {
-            IsAlive = false;
+            _IsAlive = false;
+
+            lock (_EventLock)
+            {
+                if (!_IsEventDisposed) _AutoResetEvent.Set();
+            }
+
+            if (Thread.CurrentThread != _ClockThread) _ClockThread.Join(_KILL_JOIN_TIMEOUT_MS);
+        }
+
+        public void Dispose()
+        {
+            Kill();
         }
 
         #endregion Public Methods
@@ -91,51 +118,90 @@ namespace DeusaldSharp
         private void ClockLoop()
         {
             ulong  frameNumber                   = 0;
-            long   nextTick                      = _DeltaTimeInMs;
+            double nextTick                      = 0;
             long   frameStart                    = 0;
             double sumTickLength                 = 0;
             ulong  framesSinceLastLog            = 0;
-            long   longestTickLenghtSinceLastLog = 0;
+            double longestTickLenghtSinceLastLog = 0;
             ulong  longestTickFrameNumber        = 0;
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            stopwatch.Start();
 
-            while (IsAlive)
+            try
             {
-                long previousFrameStart = frameStart;
-                frameStart = stopwatch.ElapsedMilliseconds;
-                Tick?.Invoke(frameNumber, (frameStart - previousFrameStart) * MathUtils.MILLISECONDS_TO_SECONDS);
-                long frameEnd = stopwatch.ElapsedMilliseconds;
-
-                long frameLenght = frameEnd - frameStart;
-                sumTickLength += frameLenght;
-
-                if (frameLenght > longestTickLenghtSinceLastLog)
+                while (_IsAlive)
                 {
-                    longestTickLenghtSinceLastLog = frameLenght;
-                    longestTickFrameNumber        = frameNumber;
+                    long previousFrameStart = frameStart;
+                    frameStart = stopwatch.ElapsedTicks;
+                    InvokeTick(frameNumber, (frameStart - previousFrameStart) / (double)Stopwatch.Frequency);
+                    long frameEnd = stopwatch.ElapsedTicks;
+
+                    double frameLenght = (frameEnd - frameStart) * MathUtils.SEC_TO_MILLISECONDS / (double)Stopwatch.Frequency;
+                    sumTickLength += frameLenght;
+
+                    if (frameLenght > longestTickLenghtSinceLastLog)
+                    {
+                        longestTickLenghtSinceLastLog = frameLenght;
+                        longestTickFrameNumber        = frameNumber;
+                    }
+
+                    ++frameNumber;
+                    ++framesSinceLastLog;
+
+                    if (framesSinceLastLog == _LogEveryXFrame)
+                    {
+                        Log?.Invoke(
+                            $"Frame {frameNumber}. Average frame length since last log {(sumTickLength / framesSinceLastLog):0.000} ms. Longest tick length {longestTickLenghtSinceLastLog:0.000} ms in frame {longestTickFrameNumber}.");
+                        sumTickLength                 = 0;
+                        framesSinceLastLog            = 0;
+                        longestTickLenghtSinceLastLog = 0;
+                        longestTickFrameNumber        = 0;
+                    }
+
+                    nextTick += _StopwatchTicksPerFrame;
+
+                    // After a stall don't fire a burst of catch-up ticks, skip missed frames instead
+                    long now = stopwatch.ElapsedTicks;
+                    if (now - nextTick > _StopwatchTicksPerFrame) nextTick = now + _StopwatchTicksPerFrame;
+
+                    WaitUntil(stopwatch, nextTick);
                 }
+            }
+            finally
+            {
+                _IsAlive = false;
 
-                ++frameNumber;
-                ++framesSinceLastLog;
-
-                if (framesSinceLastLog == _LogEveryXFrame)
+                lock (_EventLock)
                 {
-                    Log?.Invoke(
-                        $"Frame {frameNumber}. Average frame length since last log {(sumTickLength / framesSinceLastLog):0.000} ms. Longest tick length {longestTickLenghtSinceLastLog} ms in frame {longestTickFrameNumber}.");
-                    sumTickLength                 = 0;
-                    framesSinceLastLog            = 0;
-                    longestTickLenghtSinceLastLog = 0;
-                    longestTickFrameNumber        = 0;
+                    _IsEventDisposed = true;
+                    _AutoResetEvent.Dispose();
                 }
+            }
+        }
 
-                if (stopwatch.ElapsedMilliseconds < nextTick)
-                {
-                    _AutoResetEvent.WaitOne((int)(nextTick - stopwatch.ElapsedMilliseconds));
-                }
+        private void InvokeTick(ulong frameNumber, double deltaTime)
+        {
+            try
+            {
+                Tick?.Invoke(frameNumber, deltaTime);
+            }
+            catch (Exception exception)
+            {
+                Action<Exception>? tickException = TickException;
+                if (tickException == null) throw;
+                tickException(exception);
+            }
+        }
 
-                nextTick += _DeltaTimeInMs;
+        private void WaitUntil(Stopwatch stopwatch, double targetTicks)
+        {
+            while (_IsAlive)
+            {
+                double remainingMs = (targetTicks - stopwatch.ElapsedTicks) * MathUtils.SEC_TO_MILLISECONDS / Stopwatch.Frequency;
+                if (remainingMs <= 0) return;
+
+                if (remainingMs >= 1.0) _AutoResetEvent.WaitOne((int)remainingMs);
+                else Thread.Yield();
             }
         }
 

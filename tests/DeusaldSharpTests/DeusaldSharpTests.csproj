@@ -29,13 +29,4 @@
       <ProjectReference Include="..\..\src\DeusaldSharp.Vectors\DeusaldSharp.Vectors.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Include="$(CompilerGeneratedFilesOutputPath)\**\*.g.cs" Visible="false" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="obj\Generated\DeusaldSharp.Analyzers\" />
-      <Folder Include="obj\Generated\DeusaldSharp.Analyzers\DeusaldSharp.Analyzers.ProtoGenerator\" />
-    </ItemGroup>
-    
 </Project>

@@ -54,8 +54,12 @@ namespace DeusaldSharp
         /// <summary> Multiply radians by this value to calculate value in degrees. </summary>
         public const float RAD_TO_DEG = 180f / MathF.PI;
 
-        /// <summary> Squared float epsilon value. </summary>
-        public const float EPSILON_SQUARE = float.Epsilon * float.Epsilon;
+        /// <summary> Tolerance used by <see cref="AreFloatsEquals"/> and <see cref="IsFloatZero"/>.
+        /// Absolute for values with magnitude up to 1, relative to the larger magnitude above that. </summary>
+        public const float EPSILON = 1e-6f;
+
+        /// <summary> Squared <see cref="EPSILON"/> value. </summary>
+        public const float EPSILON_SQUARE = EPSILON * EPSILON;
 
         #endregion Variables
 
@@ -66,67 +70,83 @@ namespace DeusaldSharp
         /// <summary> Return clamped value between min and max. </summary>
         public static byte Clamp(this byte value, byte min, byte max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static sbyte Clamp(this sbyte value, sbyte min, sbyte max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static short Clamp(this short value, short min, short max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static ushort Clamp(this ushort value, ushort min, ushort max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static int Clamp(this int value, int min, int max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static uint Clamp(this uint value, uint min, uint max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static long Clamp(this long value, long min, long max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static ulong Clamp(this ulong value, ulong min, ulong max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static decimal Clamp(this decimal value, decimal min, decimal max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static double Clamp(this double value, double min, double max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return Math.Min(Math.Max(value, min), max);
         }
 
         /// <summary> Return clamped value between min and max. </summary>
         public static float Clamp(this float value, float min, float max)
         {
+            if (min > max) ThrowMinGreaterThanMax(min, max);
             return MathF.Min(MathF.Max(value, min), max);
+        }
+
+        private static void ThrowMinGreaterThanMax<T>(T min, T max)
+        {
+            throw new ArgumentException($"'{min}' cannot be greater than {max}.", nameof(min));
         }
 
         #endregion Clamp
@@ -170,8 +190,8 @@ namespace DeusaldSharp
         /// <param name="value"> Value between start and end. </param>
         public static decimal InverseLerp(decimal a, decimal b, decimal value)
         {
-            if (Math.Abs(b - a) == decimal.Zero)
-                return a;
+            if (b == a)
+                return decimal.Zero;
 
             return (value - a) / (b - a);
         }
@@ -183,7 +203,7 @@ namespace DeusaldSharp
         public static double InverseLerp(double a, double b, double value)
         {
             if (Math.Abs(b - a) < double.Epsilon)
-                return a;
+                return 0d;
 
             return (value - a) / (b - a);
         }
@@ -194,8 +214,8 @@ namespace DeusaldSharp
         /// <param name="value"> Value between start and end. </param>
         public static float InverseLerp(float a, float b, float value)
         {
-            if (Math.Abs(b - a) < float.Epsilon)
-                return a;
+            if (MathF.Abs(b - a) < float.Epsilon)
+                return 0f;
 
             return (value - a) / (b - a);
         }
@@ -204,12 +224,17 @@ namespace DeusaldSharp
 
         #region Int Utils
 
-        public static bool IsOdd(this int i)  => i % 2 == 1;
+        public static bool IsOdd(this int i)  => i % 2 != 0;
         public static bool IsEven(this int i) => i % 2 == 0;
-        
+
+        /// <summary> Mathematical (Euclidean) modulo - the result is always in range [0, |b|). </summary>
         public static int MathMod(this int a, int b)
         {
-            return (Math.Abs(a * b) + a) % b;
+            if (b == -1) return 0; // int.MinValue % -1 throws OverflowException
+            int r = a % b;
+            if (r >= 0) return r;
+            // r > -|b| here, so adding |b| can't overflow; computed without Math.Abs to support b == int.MinValue.
+            return b > 0 ? r + b : r - b;
         }
 
         #endregion Int Utils
@@ -222,16 +247,21 @@ namespace DeusaldSharp
             return MathF.Round(value, decimalPoint, MidpointRounding.ToEven);
         }
 
-        /// <summary> Check that the given value is zero by comparing it to the epsilon float value. </summary>
+        /// <summary> Check that the given value is zero within the <see cref="EPSILON"/> tolerance. </summary>
         public static bool IsFloatZero(this float value)
         {
             return value.AreFloatsEquals(0f);
         }
 
-        /// <summary> Check that the given values are equal, taking into account the epsilon float tolerance. </summary>
+        /// <summary> Check that the given values are equal within the <see cref="EPSILON"/> tolerance
+        /// (absolute for magnitudes up to 1, relative above). Equal infinities are equal, NaN is never equal. </summary>
         public static bool AreFloatsEquals(this float one, float two)
         {
-            return Math.Abs(one - two) < float.Epsilon;
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if (one == two) return true;
+            if (float.IsInfinity(one) || float.IsInfinity(two)) return false;
+            float scale = MathF.Max(1f, MathF.Max(MathF.Abs(one), MathF.Abs(two)));
+            return MathF.Abs(one - two) <= EPSILON * scale;
         }
 
         #endregion Float Utils
@@ -383,33 +413,13 @@ namespace DeusaldSharp
         /// <summary> Check how many individual bits are set in the given value. </summary>
         public static ushort NumberOfSetBits(this sbyte value)
         {
-            ushort       count = 0;
-            const ushort one   = 1;
-            const ushort zero  = 0;
-
-            while (value > 0)
-            {
-                count +=  (value & 1) == 0 ? zero : one;
-                value >>= 1;
-            }
-
-            return count;
+            return unchecked((byte)value).NumberOfSetBits();
         }
         
         /// <summary> Check how many individual bits are set in the given value. </summary>
         public static ushort NumberOfSetBits(this short value)
         {
-            ushort       count = 0;
-            const ushort one   = 1;
-            const ushort zero  = 0;
-
-            while (value > 0)
-            {
-                count +=  (value & 1) == 0 ? zero : one;
-                value >>= 1;
-            }
-
-            return count;
+            return unchecked((ushort)value).NumberOfSetBits();
         }
         
         /// <summary> Check how many individual bits are set in the given value. </summary>
@@ -431,17 +441,7 @@ namespace DeusaldSharp
         /// <summary> Check how many individual bits are set in the given value. </summary>
         public static ushort NumberOfSetBits(this int value)
         {
-            ushort       count = 0;
-            const ushort one   = 1;
-            const ushort zero  = 0;
-
-            while (value > 0)
-            {
-                count +=  (value & 1) == 0 ? zero : one;
-                value >>= 1;
-            }
-
-            return count;
+            return unchecked((uint)value).NumberOfSetBits();
         }
         
         /// <summary> Check how many individual bits are set in the given value. </summary>
@@ -463,17 +463,7 @@ namespace DeusaldSharp
         /// <summary> Check how many individual bits are set in the given value. </summary>
         public static ushort NumberOfSetBits(this long value)
         {
-            ushort       count = 0;
-            const ushort one   = 1;
-            const ushort zero  = 0;
-
-            while (value > 0)
-            {
-                count +=  (value & 1) == 0 ? zero : one;
-                value >>= 1;
-            }
-
-            return count;
+            return unchecked((ulong)value).NumberOfSetBits();
         }
         
         /// <summary> Check how many individual bits are set in the given value. </summary>
@@ -505,13 +495,13 @@ namespace DeusaldSharp
         /// <summary> Checks if the value has only one bit set. </summary>
         public static bool IsSingleBitOn(this sbyte value)
         {
-            return value != 0 && (value & (value - 1)) == 0;
+            return unchecked((byte)value).IsSingleBitOn();
         }
         
         /// <summary> Checks if the value has only one bit set. </summary>
         public static bool IsSingleBitOn(this short value)
         {
-            return value != 0 && (value & (value - 1)) == 0;
+            return unchecked((ushort)value).IsSingleBitOn();
         }
         
         /// <summary> Checks if the value has only one bit set. </summary>
@@ -523,7 +513,7 @@ namespace DeusaldSharp
         /// <summary> Checks if the value has only one bit set. </summary>
         public static bool IsSingleBitOn(this int value)
         {
-            return value != 0 && (value & (value - 1)) == 0;
+            return unchecked((uint)value).IsSingleBitOn();
         }
 
         
@@ -536,7 +526,7 @@ namespace DeusaldSharp
         /// <summary> Checks if the value has only one bit set. </summary>
         public static bool IsSingleBitOn(this long value)
         {
-            return value != 0 && (value & (value - 1)) == 0;
+            return unchecked((ulong)value).IsSingleBitOn();
         }
         
         /// <summary> Checks if the value has only one bit set. </summary>

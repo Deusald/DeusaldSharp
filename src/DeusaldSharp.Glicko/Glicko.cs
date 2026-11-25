@@ -60,7 +60,7 @@ namespace DeusaldSharp
                 double muOpponent  = (opponent.Rating - DEFAULT_RATING) / _SCALE;
                 double phiOpponent = opponent.Deviation / _SCALE;
 
-                double g = 1.0 / Math.Sqrt(1.0 + (3.0 * phiOpponent * phiOpponent) / (Math.PI * Math.PI));
+                double g = G(phiOpponent);
                 double e = 1.0 / (1.0 + Math.Exp(-g * (muPlayer - muOpponent)));
 
                 gTable[j] = g;
@@ -95,103 +95,81 @@ namespace DeusaldSharp
         }
 
 
-        public static GlickoData DecayPlayer(GlickoData player, DateTime decayTime, out bool decayed)
+        /// <summary>
+        /// Increases the rating deviation of an inactive player by one Glicko-2 rating period for every <paramref name="period"/>
+        /// that elapsed since <paramref name="decayDeadline"/>. Reaching the deadline applies the first period.
+        /// Rating and volatility are not changed; deviation is capped at <see cref="DEFAULT_DEVIATION"/>.
+        /// </summary>
+        /// <param name="player"> Player data to decay. </param>
+        /// <param name="decayDeadline"> Moment the first decay period applies, e.g. last game time + grace period. </param>
+        /// <param name="now"> Current time. Pass <see cref="DateTime.UtcNow"/>; it is a parameter to keep the method deterministic. </param>
+        /// <param name="period"> Length of one decay period, e.g. one day. </param>
+        /// <param name="periodsApplied"> Number of periods applied; 0 when the deadline has not been reached yet. </param>
+        /// <param name="nextDecayDeadline">
+        /// Deadline to store for the next call: <paramref name="decayDeadline"/> moved by the applied periods (always after <paramref name="now"/>
+        /// when periods were applied), so partially elapsed periods are not lost. Equals <paramref name="decayDeadline"/> when nothing was applied.
+        /// </param>
+        /// <remarks> Local times are converted to UTC; <see cref="DateTimeKind.Unspecified"/> times are treated as UTC. </remarks>
+        public static GlickoData DecayPlayer(GlickoData   player,
+                                             DateTime     decayDeadline,
+                                             DateTime     now,
+                                             TimeSpan     period,
+                                             out long     periodsApplied,
+                                             out DateTime nextDecayDeadline)
         {
-            int numberOfDecays = (int)(1 + (DateTime.UtcNow - decayTime).TotalDays);
+            if (period <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(period), period, "Decay period must be positive.");
 
-            if (numberOfDecays <= 2)
+            decayDeadline = ToUtc(decayDeadline);
+            now           = ToUtc(now);
+
+            if (now < decayDeadline)
             {
-                decayed = false;
+                periodsApplied    = 0;
+                nextDecayDeadline = decayDeadline;
                 return player;
             }
 
-            for (int x = 0; x < numberOfDecays; ++x)
-            {
-                double phiPlayer = player.Deviation / _SCALE;
-                phiPlayer        = Math.Sqrt(phiPlayer * phiPlayer + player.Volatility * player.Volatility);
-                player.Deviation = phiPlayer * _SCALE;
-            }
+            periodsApplied    = (now - decayDeadline).Ticks / period.Ticks + 1;
+            nextDecayDeadline = decayDeadline + TimeSpan.FromTicks(period.Ticks * periodsApplied);
 
-            if (player.Deviation >= 350) player.Deviation = 350;
-            decayed = true;
+            // Applying k periods one by one (phi^2 + sigma^2 each time) equals a single step of phi^2 + k * sigma^2.
+            double phiPlayer = player.Deviation / _SCALE;
+            double phiDecay  = Math.Sqrt(phiPlayer * phiPlayer + periodsApplied * player.Volatility * player.Volatility);
+            player.Deviation = Math.Min(phiDecay * _SCALE, DEFAULT_DEVIATION);
             return player;
+
+            static DateTime ToUtc(DateTime time)
+            {
+                return time.Kind switch
+                {
+                    DateTimeKind.Local       => time.ToUniversalTime(),
+                    DateTimeKind.Unspecified => DateTime.SpecifyKind(time, DateTimeKind.Utc),
+                    _                        => time
+                };
+            }
         }
 
         public static double GetWinProbability(GlickoData player, GlickoData opponent)
         {
-            double muPlayer = (player.Rating - DEFAULT_RATING) / _SCALE;
-
+            double muPlayer    = (player.Rating - DEFAULT_RATING) / _SCALE;
+            double phiPlayer   = player.Deviation / _SCALE;
             double muOpponent  = (opponent.Rating - DEFAULT_RATING) / _SCALE;
             double phiOpponent = opponent.Deviation / _SCALE;
 
-            // Compute the e and g function values
-            double g = G();
-            return E();
-
-            // Computes the value of the g function for a rating
-            double G()
-            {
-                double scale = phiOpponent / Math.PI;
-                return 1.0 / Math.Sqrt(1.0 + 3.0 + scale * scale);
-            }
-
-            // Computes the value of the e function in terms of a g function value
-            // and another rating
-            double E()
-            {
-                double exponent = -1.0 * g * (muPlayer - muOpponent);
-                return 1.0 / (1.0 + Math.Exp(exponent));
-            }
+            // Both ratings are uncertain, so the combined deviation is used in the g function
+            double g = G(Math.Sqrt(phiPlayer * phiPlayer + phiOpponent * phiOpponent));
+            return 1.0 / (1.0 + Math.Exp(-g * (muPlayer - muOpponent)));
         }
 
         private static GlickoData UpdatePlayer(GlickoData player, GlickoData opponent, double score)
         {
-            double muPlayer    = (player.Rating - DEFAULT_RATING) / _SCALE;
-            double phiPlayer   = player.Deviation / _SCALE;
-            double sigmaPlayer = player.Volatility;
+            return Update(player, new List<(GlickoData, double)> { (opponent, score) });
+        }
 
-            double muOpponent  = (opponent.Rating - DEFAULT_RATING) / _SCALE;
-            double phiOpponent = opponent.Deviation / _SCALE;
-
-            // Compute the e and g function values
-            double g = G();
-            double e = E();
-
-            // Compute 1/v and v
-            double invV = g * g * e * (1.0 - e);
-            double v    = 1.0 / invV;
-
-            // Compute the delta value from the g, e, and v
-            // values
-            double dInner = g * (score - e);
-            double d      = v * dInner;
-
-            // Compute new rating, deviation and volatility values
-            double newSigma = Math.Exp(Convergence(d, v, phiPlayer, sigmaPlayer) / 2.0);
-            double newPhi   = 1.0 / Math.Sqrt((1.0 / (phiPlayer * phiPlayer + newSigma * newSigma)) + invV);
-            double newMu    = muPlayer + newPhi * newPhi * dInner;
-
-            return new GlickoData
-            {
-                Rating     = newMu * _SCALE + DEFAULT_RATING,
-                Deviation  = newPhi * _SCALE,
-                Volatility = newSigma
-            };
-
-            // Computes the value of the g function for a rating
-            double G()
-            {
-                double scale = phiOpponent / Math.PI;
-                return 1.0 / Math.Sqrt(1.0 + 3.0 + scale * scale);
-            }
-
-            // Computes the value of the e function in terms of a g function value
-            // and another rating
-            double E()
-            {
-                double exponent = -1.0 * g * (muPlayer - muOpponent);
-                return 1.0 / (1.0 + Math.Exp(exponent));
-            }
+        // Computes the value of the g function for a deviation in the Glicko-2 scale
+        private static double G(double phi)
+        {
+            return 1.0 / Math.Sqrt(1.0 + 3.0 * phi * phi / (Math.PI * Math.PI));
         }
 
         private static double Convergence(double d, double v, double p, double s)

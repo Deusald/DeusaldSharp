@@ -23,7 +23,6 @@
 
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using JetBrains.Annotations;
 
 namespace DeusaldSharp
@@ -36,21 +35,46 @@ namespace DeusaldSharp
             string fileName = Path.GetFileName(sourceName);
             if (File.GetAttributes(sourceName).HasFlag(FileAttributes.Directory))
             {
-                archive.CreateEntryFromDirectory(sourceName, Path.Combine(entryName, fileName));
+                archive.CreateEntryFromDirectory(sourceName, CombineEntryName(entryName, fileName));
             }
             else
             {
-                archive.CreateEntryFromFile(sourceName, Path.Combine(entryName, fileName), CompressionLevel.Fastest);
+                archive.CreateEntryFromFile(sourceName, CombineEntryName(entryName, fileName), CompressionLevel.Fastest);
             }
         }
 
         public static void CreateEntryFromDirectory(this ZipArchive archive, string sourceDirName, string entryName = "")
         {
-            string[] files = Directory.GetFiles(sourceDirName).Concat(Directory.GetDirectories(sourceDirName)).ToArray();
-            foreach (var file in files)
+            string[] files       = Directory.GetFiles(sourceDirName);
+            string[] directories = Directory.GetDirectories(sourceDirName);
+
+            // Keep empty directories in the archive as explicit "dir/" entries (the root itself needs no entry).
+            if (files.Length == 0 && directories.Length == 0 && entryName.Length > 0)
             {
-                archive.CreateEntryFromAny(file, entryName);
+                archive.CreateEntry(NormalizeEntryName(entryName).TrimEnd('/') + "/");
+                return;
             }
+
+            foreach (string file in files) archive.CreateEntryFromAny(file, entryName);
+
+            foreach (string directory in directories)
+            {
+                // Skip junctions / symbolic links to avoid infinite recursion and escaping the source tree.
+                if (File.GetAttributes(directory).HasFlag(FileAttributes.ReparsePoint)) continue;
+                archive.CreateEntryFromAny(directory, entryName);
+            }
+        }
+
+        private static string CombineEntryName(string entryName, string name)
+        {
+            // Zip entry names always use '/' as separator, regardless of the OS.
+            string normalized = NormalizeEntryName(entryName).TrimEnd('/');
+            return normalized.Length == 0 ? name : normalized + "/" + name;
+        }
+
+        private static string NormalizeEntryName(string entryName)
+        {
+            return entryName.Replace('\\', '/');
         }
     }
 }

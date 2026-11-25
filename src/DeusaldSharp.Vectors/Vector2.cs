@@ -89,8 +89,8 @@ namespace DeusaldSharp
             }
         }
 
-        /// <summary> Checks if all vector components are not infinity (Read Only). </summary>
-        public bool IsValid => !float.IsInfinity(x) && !float.IsInfinity(y);
+        /// <summary> Checks if all vector components are finite numbers - not infinity and not NaN (Read Only). </summary>
+        public bool IsValid => float.IsFinite(x) && float.IsFinite(y);
 
         /// <summary> Get the skew vector such that dot(skew_vec, other) == cross(vec, other)
         /// https://brilliant.org/wiki/3d-coordinate-geometry-skew-lines/ </summary>
@@ -218,16 +218,19 @@ namespace DeusaldSharp
             return DistanceSquared(this, Zero);
         }
 
-        /// <summary> Makes this vector have a magnitude of 1. </summary>
+        /// <summary> Makes this vector have a magnitude of 1. Zero and non-finite vectors are left unchanged. </summary>
         public void Normalize()
         {
-            var length = Length();
+            // Scale by the largest component first so the squared length can't underflow (tiny vectors) or overflow (huge vectors).
+            var maxAbs = MathF.Max(MathF.Abs(x), MathF.Abs(y));
 
-            if (length.IsFloatZero()) return;
+            if (!(maxAbs > 0f) || float.IsInfinity(maxAbs)) return;
 
-            var invLength = 1f / length;
-            x *= invLength;
-            y *= invLength;
+            var scaledX = x / maxAbs;
+            var scaledY = y / maxAbs;
+            var length  = MathF.Sqrt(scaledX * scaledX + scaledY * scaledY);
+            x = scaledX / length;
+            y = scaledY / length;
         }
 
         /// <summary> Returns given vector with a magnitude of 1. </summary>
@@ -313,7 +316,7 @@ namespace DeusaldSharp
         }
 
         /// <summary> Reflects a vector off the vector defined by a normal. </summary>
-        public Vector3 Reflect(Vector2 normal)
+        public Vector2 Reflect(Vector2 normal)
         {
             return Reflect(this, normal);
         }
@@ -442,6 +445,9 @@ namespace DeusaldSharp
 
         #region Operators
 
+        // Note: == and != are approximate (per-component MathUtils.AreFloatsEquals, Unity-like), while Equals and
+        // GetHashCode are exact so they stay consistent for dictionaries/sets. Because of that a == b does not imply
+        // a.Equals(b), and NaN components are never == to anything.
         public static bool operator ==(Vector2 a, Vector2 b)
         {
             return a.x.AreFloatsEquals(b.x) && a.y.AreFloatsEquals(b.y);

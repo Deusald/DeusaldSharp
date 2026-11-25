@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -34,6 +35,8 @@ namespace DeusaldSharp
     [PublicAPI]
     public struct ByteFlagsMemory
     {
+        private const int _BIT_COUNT = 8;
+
         public static ByteFlagsMemory Empty => new(0);
  
         private readonly byte _Value;
@@ -43,13 +46,25 @@ namespace DeusaldSharp
         public byte Raw => _Value;
  
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsSet(int index) => (_Value & (1 << index)) != 0;
+        public bool IsSet(int index)
+        {
+            CheckIndex(index);
+            return (_Value & (1 << index)) != 0;
+        }
  
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ByteFlagsMemory Set(int index) => new((byte)(_Value | (1 << index)));
+        public ByteFlagsMemory Set(int index)
+        {
+            CheckIndex(index);
+            return new((byte)(_Value | (1 << index)));
+        }
  
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ByteFlagsMemory Clear(int index) => new((byte)(_Value & ~(1 << index)));
+        public ByteFlagsMemory Clear(int index)
+        {
+            CheckIndex(index);
+            return new((byte)(_Value & ~(1 << index)));
+        }
  
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ByteFlagsMemory SetTo(int index, bool value) => value ? Set(index) : Clear(index);
@@ -60,12 +75,19 @@ namespace DeusaldSharp
  
         public static ByteFlagsMemory OneUpToIndex(int index)
         {
+            if ((uint)index > _BIT_COUNT) throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {_BIT_COUNT}.");
             byte value = 0;
             for (int x = 0; x < index; ++x)
                 value = (byte)(value | (1 << x));
             return new ByteFlagsMemory(value);
         }
  
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CheckIndex(int index)
+        {
+            if ((uint)index >= _BIT_COUNT) throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {_BIT_COUNT - 1}.");
+        }
+
         public override string ToString()
         {
             var sb = new System.Text.StringBuilder("[ByteFlagsMemory ");

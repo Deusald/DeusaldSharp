@@ -102,6 +102,38 @@ namespace DeusaldSharpTests
             [Inject] public Injector Injector { get; set; }
         }
 
+        private class BaseTarget
+        {
+            [Inject] private IService _BaseService;
+            [Inject] private Logger   _BaseLogger { get; set; }
+
+            private int _OverrideInjectCount;
+
+            [Inject]
+            public virtual IService Overridden
+            {
+                get => null;
+                set => ++_OverrideInjectCount;
+            }
+
+            public IService GetBaseService()     => _BaseService;
+            public Logger   GetBaseLogger()      => _BaseLogger;
+            public int      GetOverrideInjects() => _OverrideInjectCount;
+        }
+
+        private class DerivedTarget : BaseTarget
+        {
+            [Inject] private Logger _DerivedLogger;
+
+            public override IService Overridden
+            {
+                get => base.Overridden;
+                set => base.Overridden = value;
+            }
+
+            public Logger GetDerivedLogger() => _DerivedLogger;
+        }
+
         #endregion Types
 
 #pragma warning restore CS0649
@@ -357,6 +389,33 @@ namespace DeusaldSharpTests
             {
                 Assert.That(target.Service, Is.SameAs(service));
                 Assert.That(target.InjectCount, Is.EqualTo(1));
+            });
+        }
+
+        /// <summary> Private [Inject] members declared in base classes are injected too, overridden properties only once. </summary>
+        [Test]
+        [TestOf(nameof(Injector.Inject))]
+        public void Injector_Inject_BaseClassPrivateMembers()
+        {
+            // Arrange
+            Injector      injector = new Injector();
+            Service       service  = new Service();
+            Logger        logger   = new Logger();
+            DerivedTarget target   = new DerivedTarget();
+
+            injector.Bind<IService>(service);
+            injector.Bind(logger);
+
+            // Act
+            injector.Inject(target);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(target.GetBaseService(),     Is.SameAs(service));
+                Assert.That(target.GetBaseLogger(),      Is.SameAs(logger));
+                Assert.That(target.GetDerivedLogger(),   Is.SameAs(logger));
+                Assert.That(target.GetOverrideInjects(), Is.EqualTo(1));
             });
         }
 

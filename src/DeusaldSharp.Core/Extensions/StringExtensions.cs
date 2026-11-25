@@ -40,7 +40,7 @@ namespace DeusaldSharp
         public static string ToSnakeCase(this string text)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
-            if (text.Length < 2) return text.ToLower();
+            if (text.Length < 2) return text.ToLowerInvariant();
 
             StringBuilder sb = new StringBuilder();
             sb.Append(char.ToLowerInvariant(text[0]));
@@ -115,17 +115,16 @@ namespace DeusaldSharp
 
         public static string ComputeHmacSha256Hex(this string message, string key)
         {
-            ASCIIEncoding encoding = new ASCIIEncoding();
-
-            byte[] textBytes = encoding.GetBytes(message);
-            byte[] keyBytes  = encoding.GetBytes(key);
+            // UTF-8 so that non-ASCII characters don't collapse to '?' (which would make different messages share a MAC).
+            byte[] textBytes = Encoding.UTF8.GetBytes(message);
+            byte[] keyBytes  = Encoding.UTF8.GetBytes(key);
 
             byte[] hashBytes;
 
             using (HMACSHA256 hash = new HMACSHA256(keyBytes))
                 hashBytes = hash.ComputeHash(textBytes);
 
-            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
         }
 
         public static string Base64Encode(this string text)
@@ -143,8 +142,8 @@ namespace DeusaldSharp
         public static string FirstToUpper(this string text)
         {
             if (text.Length == 0) return text;
-            if (text.Length == 1) return char.ToUpper(text[0]).ToString();
-            return char.ToUpper(text[0]) + text.Substring(1);
+            if (text.Length == 1) return char.ToUpperInvariant(text[0]).ToString();
+            return char.ToUpperInvariant(text[0]) + text.Substring(1);
         }
 
         public static string SplitPascalCase(this string text)

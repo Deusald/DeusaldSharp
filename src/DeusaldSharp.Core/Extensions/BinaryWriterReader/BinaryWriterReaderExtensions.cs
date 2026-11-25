@@ -32,6 +32,59 @@ namespace DeusaldSharp
     [PublicAPI]
     public static class BinaryWriterReaderExtensions
     {
+        private const int _GUID_SIZE                 = 16;
+        private const int _VERSION_SIZE              = 16; // Major, Minor, Build, Revision as int32
+        private const int _MAX_UNTRUSTED_PREALLOCATE = 1024;
+
+        #region Collection Helpers
+
+        /// <summary>
+        /// Reads a collection length prefix and validates it, as it comes from untrusted data.
+        /// On seekable streams the length must fit the remaining bytes, given the minimal wire size of one element.
+        /// </summary>
+        private static int ReadCollectionLength(BinaryReader reader, int minElementSize)
+        {
+            int size = reader.ReadInt32();
+            if (size < 0) throw new InvalidDataException($"Invalid collection length {size}.");
+
+            Stream stream = reader.BaseStream;
+            if (!stream.CanSeek) return size;
+
+            long remaining = stream.Length - stream.Position;
+            if ((long)size * minElementSize > remaining)
+                throw new InvalidDataException($"Collection length {size} exceeds the {remaining} bytes remaining in the stream.");
+
+            return size;
+        }
+
+        private static List<T> ReadList<T>(BinaryReader reader, int minElementSize, Func<BinaryReader, T> readElement)
+        {
+            int size = ReadCollectionLength(reader, minElementSize);
+            return ReadElements(reader, size, readElement);
+        }
+
+        private static T[] ReadArray<T>(BinaryReader reader, int minElementSize, Func<BinaryReader, T> readElement)
+        {
+            int size = ReadCollectionLength(reader, minElementSize);
+
+            // Non-seekable stream: the length was not validated, so grow with the data actually received.
+            if (!reader.BaseStream.CanSeek) return ReadElements(reader, size, readElement).ToArray();
+
+            T[] array = new T[size];
+            for (int x = 0; x < size; ++x) array[x] = readElement(reader);
+            return array;
+        }
+
+        private static List<T> ReadElements<T>(BinaryReader reader, int size, Func<BinaryReader, T> readElement)
+        {
+            int     capacity = reader.BaseStream.CanSeek ? size : Math.Min(size, _MAX_UNTRUSTED_PREALLOCATE);
+            List<T> list     = new List<T>(capacity);
+            for (int x = 0; x < size; ++x) list.Add(readElement(reader));
+            return list;
+        }
+
+        #endregion Collection Helpers
+
         #region Primitive Lists
 
         // BYTE
@@ -43,10 +96,7 @@ namespace DeusaldSharp
 
         public static List<byte> ReadByteList(this BinaryReader reader)
         {
-            int        size = reader.ReadInt32();
-            List<byte> list = new List<byte>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadByte());
-            return list;
+            return ReadList(reader, 1, r => r.ReadByte());
         }
 
         // SBYTE
@@ -58,10 +108,7 @@ namespace DeusaldSharp
 
         public static List<sbyte> ReadSByteList(this BinaryReader reader)
         {
-            int         size = reader.ReadInt32();
-            List<sbyte> list = new List<sbyte>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadSByte());
-            return list;
+            return ReadList(reader, 1, r => r.ReadSByte());
         }
 
         // BOOL
@@ -73,10 +120,7 @@ namespace DeusaldSharp
 
         public static List<bool> ReadBoolList(this BinaryReader reader)
         {
-            int        size = reader.ReadInt32();
-            List<bool> list = new List<bool>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadBoolean());
-            return list;
+            return ReadList(reader, 1, r => r.ReadBoolean());
         }
 
         // SHORT
@@ -88,10 +132,7 @@ namespace DeusaldSharp
 
         public static List<short> ReadShortList(this BinaryReader reader)
         {
-            int         size = reader.ReadInt32();
-            List<short> list = new List<short>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadInt16());
-            return list;
+            return ReadList(reader, 2, r => r.ReadInt16());
         }
 
         // USHORT
@@ -103,10 +144,7 @@ namespace DeusaldSharp
 
         public static List<ushort> ReadUShortList(this BinaryReader reader)
         {
-            int          size = reader.ReadInt32();
-            List<ushort> list = new List<ushort>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadUInt16());
-            return list;
+            return ReadList(reader, 2, r => r.ReadUInt16());
         }
 
         // INT
@@ -118,10 +156,7 @@ namespace DeusaldSharp
 
         public static List<int> ReadIntList(this BinaryReader reader)
         {
-            int       size = reader.ReadInt32();
-            List<int> list = new List<int>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadInt32());
-            return list;
+            return ReadList(reader, 4, r => r.ReadInt32());
         }
 
         // UINT
@@ -133,10 +168,7 @@ namespace DeusaldSharp
 
         public static List<uint> ReadUIntList(this BinaryReader reader)
         {
-            int        size = reader.ReadInt32();
-            List<uint> list = new List<uint>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadUInt32());
-            return list;
+            return ReadList(reader, 4, r => r.ReadUInt32());
         }
 
         // LONG
@@ -148,10 +180,7 @@ namespace DeusaldSharp
 
         public static List<long> ReadLongList(this BinaryReader reader)
         {
-            int        size = reader.ReadInt32();
-            List<long> list = new List<long>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadInt64());
-            return list;
+            return ReadList(reader, 8, r => r.ReadInt64());
         }
 
         // ULONG
@@ -163,10 +192,7 @@ namespace DeusaldSharp
 
         public static List<ulong> ReadULongList(this BinaryReader reader)
         {
-            int         size = reader.ReadInt32();
-            List<ulong> list = new List<ulong>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadUInt64());
-            return list;
+            return ReadList(reader, 8, r => r.ReadUInt64());
         }
 
         // FLOAT
@@ -178,10 +204,7 @@ namespace DeusaldSharp
 
         public static List<float> ReadFloatList(this BinaryReader reader)
         {
-            int         size = reader.ReadInt32();
-            List<float> list = new List<float>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadSingle());
-            return list;
+            return ReadList(reader, 4, r => r.ReadSingle());
         }
 
         // DOUBLE
@@ -193,10 +216,7 @@ namespace DeusaldSharp
 
         public static List<double> ReadDoubleList(this BinaryReader reader)
         {
-            int          size = reader.ReadInt32();
-            List<double> list = new List<double>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadDouble());
-            return list;
+            return ReadList(reader, 8, r => r.ReadDouble());
         }
 
         // CHAR
@@ -208,10 +228,7 @@ namespace DeusaldSharp
 
         public static List<char> ReadCharList(this BinaryReader reader)
         {
-            int        size = reader.ReadInt32();
-            List<char> list = new List<char>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadChar());
-            return list;
+            return ReadList(reader, 1, r => r.ReadChar());
         }
 
         // STRING
@@ -223,10 +240,7 @@ namespace DeusaldSharp
 
         public static List<string> ReadStringList(this BinaryReader reader)
         {
-            int          size = reader.ReadInt32();
-            List<string> list = new List<string>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadString());
-            return list;
+            return ReadList(reader, 1, r => r.ReadString());
         }
 
         #endregion Primitive Lists
@@ -242,10 +256,7 @@ namespace DeusaldSharp
 
         public static byte[] ReadByteArray(this BinaryReader reader)
         {
-            int    size  = reader.ReadInt32();
-            byte[] array = new byte[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadByte();
-            return array;
+            return ReadArray(reader, 1, r => r.ReadByte());
         }
 
         // SBYTE
@@ -257,10 +268,7 @@ namespace DeusaldSharp
 
         public static sbyte[] ReadSByteArray(this BinaryReader reader)
         {
-            int     size  = reader.ReadInt32();
-            sbyte[] array = new sbyte[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadSByte();
-            return array;
+            return ReadArray(reader, 1, r => r.ReadSByte());
         }
 
         // BOOL
@@ -272,10 +280,7 @@ namespace DeusaldSharp
 
         public static bool[] ReadBoolArray(this BinaryReader reader)
         {
-            int    size  = reader.ReadInt32();
-            bool[] array = new bool[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadBoolean();
-            return array;
+            return ReadArray(reader, 1, r => r.ReadBoolean());
         }
 
         // SHORT
@@ -287,10 +292,7 @@ namespace DeusaldSharp
 
         public static short[] ReadShortArray(this BinaryReader reader)
         {
-            int     size  = reader.ReadInt32();
-            short[] array = new short[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadInt16();
-            return array;
+            return ReadArray(reader, 2, r => r.ReadInt16());
         }
 
         // USHORT
@@ -302,10 +304,7 @@ namespace DeusaldSharp
 
         public static ushort[] ReadUShortArray(this BinaryReader reader)
         {
-            int      size  = reader.ReadInt32();
-            ushort[] array = new ushort[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadUInt16();
-            return array;
+            return ReadArray(reader, 2, r => r.ReadUInt16());
         }
 
         // INT
@@ -317,10 +316,7 @@ namespace DeusaldSharp
 
         public static int[] ReadIntArray(this BinaryReader reader)
         {
-            int   size  = reader.ReadInt32();
-            int[] array = new int[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadInt32();
-            return array;
+            return ReadArray(reader, 4, r => r.ReadInt32());
         }
 
         // UINT
@@ -332,10 +328,7 @@ namespace DeusaldSharp
 
         public static uint[] ReadUIntArray(this BinaryReader reader)
         {
-            int    size  = reader.ReadInt32();
-            uint[] array = new uint[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadUInt32();
-            return array;
+            return ReadArray(reader, 4, r => r.ReadUInt32());
         }
 
         // LONG
@@ -347,10 +340,7 @@ namespace DeusaldSharp
 
         public static long[] ReadLongArray(this BinaryReader reader)
         {
-            int    size  = reader.ReadInt32();
-            long[] array = new long[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadInt64();
-            return array;
+            return ReadArray(reader, 8, r => r.ReadInt64());
         }
 
         // ULONG
@@ -362,10 +352,7 @@ namespace DeusaldSharp
 
         public static ulong[] ReadULongArray(this BinaryReader reader)
         {
-            int     size  = reader.ReadInt32();
-            ulong[] array = new ulong[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadUInt64();
-            return array;
+            return ReadArray(reader, 8, r => r.ReadUInt64());
         }
 
         // FLOAT
@@ -377,10 +364,7 @@ namespace DeusaldSharp
 
         public static float[] ReadFloatArray(this BinaryReader reader)
         {
-            int     size  = reader.ReadInt32();
-            float[] array = new float[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadSingle();
-            return array;
+            return ReadArray(reader, 4, r => r.ReadSingle());
         }
 
         // DOUBLE
@@ -392,10 +376,7 @@ namespace DeusaldSharp
 
         public static double[] ReadDoubleArray(this BinaryReader reader)
         {
-            int      size  = reader.ReadInt32();
-            double[] array = new double[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadDouble();
-            return array;
+            return ReadArray(reader, 8, r => r.ReadDouble());
         }
 
         // CHAR
@@ -407,25 +388,19 @@ namespace DeusaldSharp
 
         public static char[] ReadCharArray(this BinaryReader reader)
         {
-            int    size  = reader.ReadInt32();
-            char[] array = new char[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadChar();
-            return array;
+            return ReadArray(reader, 1, r => r.ReadChar());
         }
 
         // STRING
         public static void WriteArray(this BinaryWriter writer, string[] values)
         {
             writer.Write(values.Length);
-            foreach (string v in values) writer.Write(v);
+            foreach (string v in values) writer.Write(v ?? string.Empty);
         }
 
         public static string[] ReadStringArray(this BinaryReader reader)
         {
-            int      size  = reader.ReadInt32();
-            string[] array = new string[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadString();
-            return array;
+            return ReadArray(reader, 1, r => r.ReadString());
         }
 
         #endregion Primitive Arrays
@@ -439,7 +414,9 @@ namespace DeusaldSharp
 
         public static Guid ReadGuid(this BinaryReader reader)
         {
-            return new Guid(reader.ReadBytes(16));
+            byte[] bytes = reader.ReadBytes(_GUID_SIZE);
+            if (bytes.Length != _GUID_SIZE) throw new EndOfStreamException("Unable to read beyond the end of the stream while reading a Guid.");
+            return new Guid(bytes);
         }
 
         public static void Write(this BinaryWriter writer, List<Guid> values)
@@ -450,10 +427,7 @@ namespace DeusaldSharp
 
         public static List<Guid> ReadGuidList(this BinaryReader reader)
         {
-            int        size = reader.ReadInt32();
-            List<Guid> list = new List<Guid>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadGuid());
-            return list;
+            return ReadList(reader, _GUID_SIZE, r => r.ReadGuid());
         }
 
         public static void Write(this BinaryWriter writer, Guid[] values)
@@ -464,10 +438,7 @@ namespace DeusaldSharp
 
         public static Guid[] ReadGuidArray(this BinaryReader reader)
         {
-            int    size  = reader.ReadInt32();
-            Guid[] array = new Guid[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadGuid();
-            return array;
+            return ReadArray(reader, _GUID_SIZE, r => r.ReadGuid());
         }
 
         #endregion GUID
@@ -493,10 +464,7 @@ namespace DeusaldSharp
 
         public static List<DateTime> ReadDateTimeList(this BinaryReader reader)
         {
-            int            size = reader.ReadInt32();
-            List<DateTime> list = new List<DateTime>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadDateTime());
-            return list;
+            return ReadList(reader, 8, r => r.ReadDateTime());
         }
 
         public static void Write(this BinaryWriter writer, DateTime[] values)
@@ -507,10 +475,7 @@ namespace DeusaldSharp
 
         public static DateTime[] ReadDateTimeArray(this BinaryReader reader)
         {
-            int        size  = reader.ReadInt32();
-            DateTime[] array = new DateTime[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadDateTime();
-            return array;
+            return ReadArray(reader, 8, r => r.ReadDateTime());
         }
 
         #endregion DateTime
@@ -519,12 +484,13 @@ namespace DeusaldSharp
 
         public static void Write(this BinaryWriter binaryWriter, TimeSpan timeSpan)
         {
-            binaryWriter.Write(timeSpan.TotalMilliseconds);
+            // Ticks are exact; a double of milliseconds is lossy and rounds on some runtimes.
+            binaryWriter.Write(timeSpan.Ticks);
         }
 
         public static TimeSpan ReadTimeSpan(this BinaryReader binaryReader)
         {
-            return TimeSpan.FromMilliseconds(binaryReader.ReadDouble());
+            return TimeSpan.FromTicks(binaryReader.ReadInt64());
         }
         
         public static void Write(this BinaryWriter writer, List<TimeSpan> values)
@@ -535,10 +501,7 @@ namespace DeusaldSharp
 
         public static List<TimeSpan> ReadTimeSpanList(this BinaryReader reader)
         {
-            int            size = reader.ReadInt32();
-            List<TimeSpan> list = new List<TimeSpan>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadTimeSpan());
-            return list;
+            return ReadList(reader, 8, r => r.ReadTimeSpan());
         }
 
         public static void Write(this BinaryWriter writer, TimeSpan[] values)
@@ -549,10 +512,7 @@ namespace DeusaldSharp
 
         public static TimeSpan[] ReadTimeSpanArray(this BinaryReader reader)
         {
-            int        size  = reader.ReadInt32();
-            TimeSpan[] array = new TimeSpan[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadTimeSpan();
-            return array;
+            return ReadArray(reader, 8, r => r.ReadTimeSpan());
         }
 
         #endregion TimeSpan
@@ -564,11 +524,23 @@ namespace DeusaldSharp
             binaryWriter.Write(version.Major);
             binaryWriter.Write(version.Minor);
             binaryWriter.Write(version.Build);
+            binaryWriter.Write(version.Revision);
         }
 
         public static Version ReadVersion(this BinaryReader binaryReader)
         {
-            return new Version(binaryReader.ReadInt32(), binaryReader.ReadInt32(), binaryReader.ReadInt32());
+            int major    = binaryReader.ReadInt32();
+            int minor    = binaryReader.ReadInt32();
+            int build    = binaryReader.ReadInt32();
+            int revision = binaryReader.ReadInt32();
+
+            // Undefined components are stored as -1 (e.g. Version(1, 2) has Build = -1 and Revision = -1).
+            if (major < 0 || minor < 0 || build < -1 || revision < -1 || (build == -1 && revision != -1))
+                throw new InvalidDataException($"Invalid serialized Version {major}.{minor}.{build}.{revision}.");
+
+            if (build    == -1) return new Version(major, minor);
+            if (revision == -1) return new Version(major, minor, build);
+            return new Version(major, minor, build, revision);
         }
         
         public static void Write(this BinaryWriter writer, List<Version> values)
@@ -579,10 +551,7 @@ namespace DeusaldSharp
 
         public static List<Version> ReadVersionList(this BinaryReader reader)
         {
-            int           size = reader.ReadInt32();
-            List<Version> list = new List<Version>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadVersion());
-            return list;
+            return ReadList(reader, _VERSION_SIZE, r => r.ReadVersion());
         }
 
         public static void Write(this BinaryWriter writer, Version[] values)
@@ -593,10 +562,7 @@ namespace DeusaldSharp
 
         public static Version[] ReadVersionArray(this BinaryReader reader)
         {
-            int       size  = reader.ReadInt32();
-            Version[] array = new Version[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadVersion();
-            return array;
+            return ReadArray(reader, _VERSION_SIZE, r => r.ReadVersion());
         }
 
         #endregion Version
@@ -628,10 +594,7 @@ namespace DeusaldSharp
         public static List<TEnum> ReadSerializableEnumList<TEnum>(this BinaryReader reader)
             where TEnum : unmanaged, Enum
         {
-            int         size = reader.ReadInt32();
-            List<TEnum> list = new List<TEnum>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadSerializableEnum<TEnum>());
-            return list;
+            return ReadList(reader, SerializableEnumCache<TEnum>.MinWireSize, r => r.ReadSerializableEnum<TEnum>());
         }
 
         public static void WriteSerializableEnumArray<TEnum>(this BinaryWriter writer, TEnum[] values)
@@ -644,10 +607,7 @@ namespace DeusaldSharp
         public static TEnum[] ReadSerializableEnumArray<TEnum>(this BinaryReader reader)
             where TEnum : unmanaged, Enum
         {
-            int     size  = reader.ReadInt32();
-            TEnum[] array = new TEnum[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadSerializableEnum<TEnum>();
-            return array;
+            return ReadArray(reader, SerializableEnumCache<TEnum>.MinWireSize, r => r.ReadSerializableEnum<TEnum>());
         }
 
         #endregion SerializableEnum
@@ -672,10 +632,7 @@ namespace DeusaldSharp
 
         public static List<HttpStatusCode> ReadHttpStatusCodeList(this BinaryReader reader)
         {
-            int                  size = reader.ReadInt32();
-            List<HttpStatusCode> list = new List<HttpStatusCode>(size);
-            for (int x = 0; x < size; x++) list.Add(reader.ReadHttpStatusCode());
-            return list;
+            return ReadList(reader, 4, r => r.ReadHttpStatusCode());
         }
 
         public static void Write(this BinaryWriter writer, HttpStatusCode[] values)
@@ -686,10 +643,7 @@ namespace DeusaldSharp
 
         public static HttpStatusCode[] ReadHttpStatusCodeArray(this BinaryReader reader)
         {
-            int              size  = reader.ReadInt32();
-            HttpStatusCode[] array = new HttpStatusCode[size];
-            for (int x = 0; x < size; x++) array[x] = reader.ReadHttpStatusCode();
-            return array;
+            return ReadArray(reader, 4, r => r.ReadHttpStatusCode());
         }
 
         #endregion HttpStatusCode

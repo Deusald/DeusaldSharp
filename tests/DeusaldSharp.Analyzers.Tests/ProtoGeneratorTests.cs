@@ -99,6 +99,6 @@ namespace MyGame
         
         Assert.Contains("partial class ChildMsg",           text);
         Assert.Contains("public override void Serialize",   text);
-        Assert.Contains("public override void Deserialize", text);
+        Assert.Contains("protected override void DeserializeProtoFields", text);
     }
 }

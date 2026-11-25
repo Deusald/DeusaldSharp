@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 
 namespace DeusaldSharp
 {
+    /// <summary> Validates and cleans usernames against length, edge whitespace and allowed characters rules. </summary>
     public class UsernameVerificator
     {
         private readonly int    _MinCharacters;
@@ -32,6 +33,10 @@ namespace DeusaldSharp
         private readonly bool   _WhitespaceRequirement;
         private readonly string _CharactersRequirementRegex; // For example @"A-Za-z0-9 _"
 
+        /// <summary> Creates a new verificator. </summary>
+        /// <param name="charactersRequirementRegex"> Contents of a regex character class (without brackets) listing the allowed characters,
+        /// for example @"A-Za-z0-9 _". Keep it ASCII-only: allowing Unicode ranges/categories (e.g. \p{L}, \w) lets users register
+        /// look-alike (homoglyph) names such as Cyrillic "аdmin" that are visually indistinguishable from existing ones. </param>
         public UsernameVerificator(int minCharacters, int maxCharacters, bool whitespaceRequirement, string charactersRequirementRegex)
         {
             _MinCharacters              = minCharacters;
@@ -40,36 +45,44 @@ namespace DeusaldSharp
             _CharactersRequirementRegex = charactersRequirementRegex;
         }
 
-        public bool CheckUsernameRequirements(string username)
+        /// <summary> Returns true if username passes all requirements. Null username returns false. </summary>
+        public bool CheckUsernameRequirements(string? username)
         {
+            if (username == null) return false;
             return CheckUsernameLengthRequirement(username) && (!_WhitespaceRequirement || CheckUsernameWhitespaceRequirement(username)) && CheckCharactersRequirement(username);
         }
 
-        public bool CheckUsernameLengthRequirement(string username)
+        public bool CheckUsernameLengthRequirement(string? username)
         {
+            if (username == null) return false;
             if (username.Length < _MinCharacters) return false;
             if (username.Length > _MaxCharacters) return false;
             return true;
         }
 
-        public bool CheckUsernameWhitespaceRequirement(string username)
+        public bool CheckUsernameWhitespaceRequirement(string? username)
         {
+            if (username == null) return false;
             if (username.Length < 1) return true;
             if (username[0] == ' ') return false;
             if (username[^1] == ' ') return false;
             return true;
         }
 
-        public bool CheckCharactersRequirement(string username)
+        public bool CheckCharactersRequirement(string? username)
         {
-            return Regex.IsMatch(username, $"^[{_CharactersRequirementRegex}]+$");
+            if (username == null) return false;
+            // \A and \z anchor to the absolute start/end; ^ and $ would accept a trailing "\n".
+            return Regex.IsMatch(username, $@"\A[{_CharactersRequirementRegex}]+\z");
         }
 
-        public string CleanUsername(string username)
+        public string CleanUsername(string? username)
         {
+            if (username == null) return string.Empty;
             username = Regex.Replace(username, $"[^{_CharactersRequirementRegex}]+", "");
-            username = username.Trim();
-            return username.Length > _MaxCharacters ? username.Substring(0, _MaxCharacters) : username;
+            username = username.TrimStart();
+            username = username.Length > _MaxCharacters ? username.Substring(0, _MaxCharacters) : username;
+            return username.TrimEnd(); // Trim after truncation so the result can't end with a space.
         }
     }
 }

@@ -1836,5 +1836,54 @@ namespace DeusaldSharpTests
                 Assert.That(two[2], Is.EqualTo(12f));
             });
         }
+
+        /// <summary> Normalize works for very small and very big components. </summary>
+        [Test]
+        [TestOf(nameof(Vector3.Normalize))]
+        public void Vector3_Normalize_ExtremeMagnitudes()
+        {
+            // Arrange
+            Vector3 tiny = new Vector3(1e-30f, 1e-30f, 1e-30f);
+            Vector3 huge = new Vector3(1e20f, 0f, 0f);
+            Vector3 zero = Vector3.Zero;
+
+            // Act
+            tiny.Normalize();
+            huge.Normalize();
+            zero.Normalize();
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(tiny.x, Is.EqualTo(0.57735027f).Within(1e-6f));
+                Assert.That(tiny.y, Is.EqualTo(0.57735027f).Within(1e-6f));
+                Assert.That(huge.x, Is.EqualTo(1f).Within(1e-6f));
+                Assert.That(huge.y, Is.EqualTo(0f));
+                Assert.That(zero,   Is.EqualTo(Vector3.Zero));
+            });
+        }
+
+        /// <summary> IsValid rejects NaN and infinity; == works for infinities and is approximate. </summary>
+        [Test]
+        [TestOf(nameof(Vector3.IsValid))]
+        public void Vector3_IsValid_And_Equality_NonFinite()
+        {
+            // Arrange
+            Vector3 inf       = new Vector3(float.PositiveInfinity, 0f, 0f);
+            Vector3 infTwo    = new Vector3(float.PositiveInfinity, 0f, 0f);
+            Vector3 nan       = new Vector3(float.NaN, 0f, 0f);
+            Vector3 almostOne = new Vector3(1f + 1e-7f, 1f, 1f);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(inf.IsValid,              Is.False);
+                Assert.That(nan.IsValid,              Is.False);
+                Assert.That(Vector3.One.IsValid,      Is.True);
+                Assert.That(inf == infTwo,            Is.True);
+                Assert.That(inf.Equals(infTwo),       Is.True);
+                Assert.That(Vector3.One == almostOne, Is.True);
+            });
+        }
     }
 }
