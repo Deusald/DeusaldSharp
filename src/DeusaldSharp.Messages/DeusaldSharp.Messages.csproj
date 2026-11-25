@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Lightweight message bus with pooled messages.</Description>
+    </PropertyGroup>
+
+</Project>

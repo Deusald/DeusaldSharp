@@ -6,12 +6,40 @@ Deusald Sharp is a library that contains useful functionalities when creating ga
 
 ### [NuGet](https://www.nuget.org/packages/DeusaldSharp/) [![NuGet](https://img.shields.io/nuget/v/DeusaldSharp?color=blue)](https://www.nuget.org/packages/DeusaldSharp/) [![NuGet](https://img.shields.io/nuget/dt/DeusaldSharp)](https://www.nuget.org/packages/DeusaldSharp/)
 
+The library is split into modules, each published as its own NuGet package (and its own dll). All packages share one version.
+Install `DeusaldSharp` to get everything, or pick only the modules you need:
+
+| Package | Contents | Depends on |
+|---|---|---|
+| `DeusaldSharp` | Meta-package: references every module below | all modules |
+| `DeusaldSharp.Core` | Extensions, BinaryWriter/BinaryReader serializers, Math utils, FlagsMemory, Helpers, Ansi, Username verificator | — |
+| `DeusaldSharp.Clock` | Game Server Clock (Standard and Precision) | Core |
+| `DeusaldSharp.CoRoutines` | Unity-style coroutines | Core |
+| `DeusaldSharp.Vectors` | Vector2, Vector3, TVector2, TVector3 | Core |
+| `DeusaldSharp.Splines` | 2D Spline | Core, Vectors |
+| `DeusaldSharp.Proto` | Proto module (`ProtoMsgBase` / `ProtoField`) with the bundled source generator | Core |
+| `DeusaldSharp.Messages` | Messages system | — |
+| `DeusaldSharp.Glicko` | Glicko-2 style rating | — |
+| `DeusaldSharp.Injector` | Dependency injection container | — |
+
+All modules keep the single `DeusaldSharp` namespace, so switching between the meta-package and individual modules needs no code changes.
+
+> The Proto source generator now ships inside `DeusaldSharp.Proto`. If your project references the old standalone
+> `DeusaldSharp.Analyzers` package, remove it - otherwise the generator runs twice and produces duplicate members.
+
+### Versioning
+
+The version of every package, assembly and the Unity `package.json` lives in one place: `<Version>` in `Directory.Build.props`.
+A Release build copies the module dlls into `UnityPackage.NetStandard2.1` and updates its `package.json` version.
+To create the NuGet packages run `dotnet pack -c Release`.
+
 ### Unity Install
 
 You can add this library to Unity project in 2 ways:
 
 1. In package manager add library as git repository using format:
    `https://github.com/Deusald/DeusaldSharp.git?path=/UnityPackage.NetStandard2.1#vX.X.X`
+   The Unity package contains a separate dll for every module (`DeusaldSharp.Core.dll`, `DeusaldSharp.Clock.dll`, ...).
 2. Add package using Scoped Register: https://openupm.com/packages/com.deusald.deusaldsharp/
 
 ## Features
@@ -394,7 +422,7 @@ save files, and internal tooling where stability and control matter more than va
 
 1. You create a **partial** message type that derives from `ProtoMsgBase`.
 2. You mark instance fields with `[ProtoField(<ushort id>)]`.
-3. The **DeusaldSharp.Analyzers** source generator emits `Serialize(BinaryWriter)` and `Deserialize(BinaryReader)`
+3. The source generator bundled in the **DeusaldSharp.Proto** package emits `Serialize(BinaryWriter)` and `Deserialize(BinaryReader)`
    into a generated `.g.cs` file at build time.
 
 > If a type derives from `ProtoMsgBase` but is not `partial`, you’ll get a build error.

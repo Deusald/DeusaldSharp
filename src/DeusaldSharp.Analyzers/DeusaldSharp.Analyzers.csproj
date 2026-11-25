@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Source generator for the Proto module. Not published on its own: it ships inside the DeusaldSharp.Proto package. -->
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <RootNamespace>DeusaldSharp.Analyzers</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <CopyToUnityPackage>false</CopyToUnityPackage>
+
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Remove="JetBrains.Annotations" />
+        <Compile Remove="$(MSBuildThisFileDirectory)../InternalsVisibleTo.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>

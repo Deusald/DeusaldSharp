@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Core DeusaldSharp utils: extensions, binary serialization helpers, math, flags memory and helpers.</Description>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+    </ItemGroup>
+
+</Project>

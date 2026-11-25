@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Meta-package: no code of its own, depends on every DeusaldSharp module. -->
+    <PropertyGroup>
+        <Description>C# utils that are often useful in game development. Meta-package that references every DeusaldSharp module.</Description>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <CopyToUnityPackage>false</CopyToUnityPackage>
+        <!-- NU5128: no lib/ folder is expected, the package only carries dependencies. -->
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Remove="JetBrains.Annotations" />
+    </ItemGroup>
+
+    <!-- PrivateAssets="none" so analyzers (the Proto source generator) flow to consumers of this meta-package. -->
+    <ItemGroup>
+        <ProjectReference Include="..\DeusaldSharp.Core\DeusaldSharp.Core.csproj"             PrivateAssets="none" />
+        <ProjectReference Include="..\DeusaldSharp.Clock\DeusaldSharp.Clock.csproj"           PrivateAssets="none" />
+        <ProjectReference Include="..\DeusaldSharp.CoRoutines\DeusaldSharp.CoRoutines.csproj" PrivateAssets="none" />
+        <ProjectReference Include="..\DeusaldSharp.Glicko\DeusaldSharp.Glicko.csproj"         PrivateAssets="none" />
+        <ProjectReference Include="..\DeusaldSharp.Injector\DeusaldSharp.Injector.csproj"     PrivateAssets="none" />
+        <ProjectReference Include="..\DeusaldSharp.Messages\DeusaldSharp.Messages.csproj"     PrivateAssets="none" />
+        <ProjectReference Include="..\DeusaldSharp.Proto\DeusaldSharp.Proto.csproj"           PrivateAssets="none" />
+        <ProjectReference Include="..\DeusaldSharp.Splines\DeusaldSharp.Splines.csproj"       PrivateAssets="none" />
+        <ProjectReference Include="..\DeusaldSharp.Vectors\DeusaldSharp.Vectors.csproj"       PrivateAssets="none" />
+    </ItemGroup>
+
+    <!-- Keeps UnityPackage.NetStandard2.1/package.json in step with $(Version). -->
+    <Target Name="SyncUnityPackageVersion" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+        <PropertyGroup>
+            <_UnityJsonPath>$(UnityPackageDir)package.json</_UnityJsonPath>
+            <_UnityJson>$([System.IO.File]::ReadAllText('$(_UnityJsonPath)'))</_UnityJson>
+            <_UnityJsonNew>$([System.Text.RegularExpressions.Regex]::Replace('$(_UnityJson)', '"version":\s*"[^"]*"', '"version": "$(Version)"'))</_UnityJsonNew>
+        </PropertyGroup>
+        <WriteLinesToFile File="$(_UnityJsonPath)" Lines="$([MSBuild]::Escape('$(_UnityJsonNew)'))" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    </Target>
+
+</Project>

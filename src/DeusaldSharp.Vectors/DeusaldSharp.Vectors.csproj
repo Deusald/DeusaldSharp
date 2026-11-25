@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Vector2, Vector3 and typed TVector2/TVector3 with classic vector math.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DeusaldSharp.Core\DeusaldSharp.Core.csproj" />
+    </ItemGroup>
+
+</Project>

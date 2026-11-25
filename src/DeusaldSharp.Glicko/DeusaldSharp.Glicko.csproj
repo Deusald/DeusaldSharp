@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Glicko-2 style player rating calculations.</Description>
+    </PropertyGroup>
+
+</Project>

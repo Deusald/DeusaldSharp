@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>2D splines for paths and curves.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DeusaldSharp.Core\DeusaldSharp.Core.csproj" />
+        <ProjectReference Include="..\DeusaldSharp.Vectors\DeusaldSharp.Vectors.csproj" />
+    </ItemGroup>
+
+</Project>

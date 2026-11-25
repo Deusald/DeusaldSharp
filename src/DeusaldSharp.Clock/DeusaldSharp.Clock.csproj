@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Game server clocks with fixed tick rate (precision and standard).</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DeusaldSharp.Core\DeusaldSharp.Core.csproj" />
+    </ItemGroup>
+
+</Project>

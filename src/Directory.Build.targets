@@ -1,0 +1,9 @@
+<Project>
+
+    <Target Name="CopyToUnityPackage"
+            AfterTargets="PostBuildEvent"
+            Condition="'$(CopyToUnityPackage)' == 'true' And '$(Configuration)' == 'Release' And '$(TargetFramework)' == 'netstandard2.1'">
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(UnityPackageDir)" SkipUnchangedFiles="true" />
+    </Target>
+
+</Project>

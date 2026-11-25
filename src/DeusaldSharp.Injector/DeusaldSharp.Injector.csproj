@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Minimal attribute-based dependency injector.</Description>
+    </PropertyGroup>
+
+</Project>

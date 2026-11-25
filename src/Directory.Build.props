@@ -1,0 +1,27 @@
+<Project>
+
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+    <!-- Defaults for the library modules. DeusaldSharp.Analyzers and the DeusaldSharp meta-package override what they need. -->
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.1;net10.0</TargetFrameworks>
+        <LangVersion>9</LangVersion>
+        <Nullable>enable</Nullable>
+        <RootNamespace>DeusaldSharp</RootNamespace>
+        <Title>$(MSBuildProjectName)</Title>
+        <PackageId>$(MSBuildProjectName)</PackageId>
+
+        <!-- Copy the netstandard2.1 Release build of this module into the Unity package. -->
+        <CopyToUnityPackage>true</CopyToUnityPackage>
+        <UnityPackageDir>$(MSBuildThisFileDirectory)../UnityPackage.NetStandard2.1/</UnityPackageDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="$(MSBuildThisFileDirectory)InternalsVisibleTo.cs" Link="Properties\InternalsVisibleTo.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Proto-style binary messages (ProtoMsgBase / ProtoField) with a bundled source generator that emits Serialize/Deserialize.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DeusaldSharp.Core\DeusaldSharp.Core.csproj" />
+
+        <!-- Build order only: the generator is not referenced by this assembly, it is packed into analyzers/dotnet/cs below. -->
+        <ProjectReference Include="..\DeusaldSharp.Analyzers\DeusaldSharp.Analyzers.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\DeusaldSharp.Analyzers\bin\$(Configuration)\netstandard2.0\DeusaldSharp.Analyzers.dll"
+              Pack="true"
+              PackagePath="analyzers/dotnet/cs"
+              Visible="false" />
+    </ItemGroup>
+
+</Project>

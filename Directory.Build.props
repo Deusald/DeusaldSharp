@@ -1,0 +1,18 @@
+<Project>
+
+    <!-- Single source of truth for the version of every package, assembly and the Unity package.json. -->
+    <PropertyGroup>
+        <Version>10.10.0</Version>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Authors>Adam "Deusald" Orliński</Authors>
+        <Copyright>Copyright ©Adam "Deusald" Orliński 2020</Copyright>
+        <PackageProjectUrl>https://github.com/Deusald/DeusaldSharp</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/Deusald/DeusaldSharp</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageTags>C# Tools Utils</PackageTags>
+    </PropertyGroup>
+
+</Project>
