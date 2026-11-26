@@ -80,8 +80,8 @@ jobs:
             git fetch --depth 1 origin gh-pages
             git worktree add feed FETCH_HEAD
           else
-            git worktree add --detach feed
-            git -C feed rm -rf --quiet .
+            git worktree add --detach --no-checkout feed # no checkout: the repo's LFS files are not needed here
+            git -C feed read-tree --empty
           fi
           touch feed/.nojekyll                # serve files as they are, without Jekyll
           echo '* -text' > feed/.gitattributes # no line ending conversion on the Windows runner
