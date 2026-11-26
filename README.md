@@ -30,10 +30,37 @@ dotnet add package DeusaldSharp            # everything
 dotnet add package DeusaldSharp.Proto      # or just the modules you use
 ```
 
+### GitHub Pages feed
+
+Every release is also published to a static NuGet feed on GitHub Pages. It needs no credentials and has new versions
+within minutes of the release build (NuGet.org indexing can take a while):
+
+```
+dotnet nuget add source https://deusald.github.io/DeusaldSharp/index.json --name deusald-pages
+```
+
+or per repository in `nuget.config`, with package source mapping so only `DeusaldSharp*` packages come from it:
+
+```xml
+<configuration>
+  <packageSources>
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    <add key="deusald-pages" value="https://deusald.github.io/DeusaldSharp/index.json" />
+  </packageSources>
+  <packageSourceMapping>
+    <packageSource key="deusald-pages">
+      <package pattern="DeusaldSharp*" />
+    </packageSource>
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
+</configuration>
+```
+
 ### GitHub Packages
 
-Every release is also published to GitHub Packages, where it is available right after the release build (NuGet.org
-indexing can take a while). GitHub Packages requires authentication even for public packages: create a
+Every release is also published to GitHub Packages. GitHub Packages requires authentication even for public packages: create a
 [personal access token](https://github.com/settings/tokens) with the `read:packages` scope and add the source once:
 
 ```
@@ -399,7 +426,7 @@ Console.WriteLine(Ansi.Bg(Color.CornflowerBlue) + " System.Drawing.Color " + Ans
 - **`LogLevel`** - `Off`, `Trace`, `Debug`, `Info`, `Warn`, `Error`, `Fatal`.
 - **`Platforms`** - `[Flags]` serializable enum: `Windows`, `MacOS`, `Linux`, `iOS`, `Android`, `Xbox`, `PlayStation`,
   `NintendoSwitch` and the groups `Desktop`, `Mobile`, `Console`, `All`.
-- **`DeusaldSharp.Version`** - version of the library (`11.0.2`).
+- **`DeusaldSharp.Version`** - version of the library (`11.0.3`).
 
 ```csharp
 Platforms.Desktop.HasAnyFlag(Platforms.Linux); // true
@@ -920,7 +947,8 @@ The version of every package, assembly and the Unity `package.json` is set in on
 3. Commit, then push a tag `v<Version>` (e.g. `v11.0.0`).
 
 The [Release workflow](https://github.com/Deusald/DeusaldSharp/blob/master/.github/workflows/release.yml) then checks that the tag matches `<Version>` and that the patch
-notes exist, builds and tests the solution, publishes all packages to GitHub Packages and NuGet.org (with symbol
-packages), and creates the GitHub Release with the patch notes and the `.nupkg` files attached.
+notes exist, builds and tests the solution, publishes all packages to GitHub Packages, the GitHub Pages feed (`gh-pages` branch) and
+NuGet.org (with symbol packages), and creates the GitHub Release with the patch notes and the `.nupkg` files attached.
 NuGet.org uses Trusted Publishing (a nuget.org policy for this repository and `release.yml`, no API key secret);
-GitHub Packages uses the built-in `GITHUB_TOKEN`.
+GitHub Packages and the GitHub Pages feed use the built-in `GITHUB_TOKEN`. GitHub Pages must be set to deploy from the
+`gh-pages` branch (Settings → Pages), which the first release creates.

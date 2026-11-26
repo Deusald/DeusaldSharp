@@ -17,6 +17,7 @@ env:
   OUTPUT: 'output' # relative on purpose: dotnet nuget push can't expand wildcards in Windows paths with mixed separators
   NUGET_SOURCE: 'https://api.nuget.org/v3/index.json'
   GITHUB_PACKAGES_SOURCE: 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
+  PAGES_FEED_URL: 'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/'
 
 defaults:
   run:
@@ -68,6 +69,32 @@ jobs:
           for package in "$OUTPUT"/*.nupkg; do
             dotnet nuget push "$package" --api-key "${{ secrets.GITHUB_TOKEN }}" --source "$GITHUB_PACKAGES_SOURCE" --skip-duplicate
           done
+
+      # Static NuGet feed (Sleet) in the gh-pages branch, served by GitHub Pages - readable without credentials.
+      # Pages must be set to deploy from the gh-pages branch; the branch is created on the first release.
+      # The branch is always a single commit (force-pushed), so old feed states don't pile up in the repo history
+      # and versions removed with "sleet delete" free their space for good.
+      - name: 'Push to GitHub Pages feed'
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
+            git fetch --depth 1 origin gh-pages
+            git worktree add feed FETCH_HEAD
+          else
+            git worktree add --detach feed
+            git -C feed rm -rf --quiet .
+          fi
+          touch feed/.nojekyll                # serve files as they are, without Jekyll
+          echo '* -text' > feed/.gitattributes # no line ending conversion on the Windows runner
+          cat > sleet.json <<EOF
+          { "sources": [ { "name": "pages", "type": "local", "path": "$(pwd -W)/feed", "baseURI": "$PAGES_FEED_URL" } ] }
+          EOF
+          dotnet tool install --tool-path .tools sleet
+          .tools/sleet push "$OUTPUT"/*.nupkg --config sleet.json --source pages --skip-existing
+          cd feed
+          git checkout --quiet --orphan feed-commit
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898099+github-actions[bot]@users.noreply.github.com" commit --quiet -m "Published $VERSION"
+          git push --force origin HEAD:gh-pages
 
       # Trusted Publishing: exchanges the workflow's OIDC token for a short-lived (1 hour) NuGet.org API key.
       # Requires a Trusted Publishing policy on nuget.org for this repository and release.yml.
