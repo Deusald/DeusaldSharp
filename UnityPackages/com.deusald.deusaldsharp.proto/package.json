@@ -1,13 +1,13 @@
 {
   "name": "com.deusald.deusaldsharp.proto",
   "displayName": "Deusald Sharp - Proto",
-  "version": "11.0.3",
+  "version": "11.1.0",
   "description": "Proto-style binary messages (ProtoMsgBase / ProtoField). The source generator is not included in the Unity package.",
   "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
   "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
   "licensesUrl": "https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE",
   "dependencies": {
-    "com.deusald.deusaldsharp.core": "11.0.3"
+    "com.deusald.deusaldsharp.core": "11.1.0"
   },
   "author": {
     "name": "Adam Deusald Orlinski",

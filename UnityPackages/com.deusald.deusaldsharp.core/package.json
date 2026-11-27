@@ -1,7 +1,7 @@
 {
   "name": "com.deusald.deusaldsharp.core",
   "displayName": "Deusald Sharp - Core",
-  "version": "11.0.3",
+  "version": "11.1.0",
   "description": "Core DeusaldSharp utils: extensions, binary serialization helpers, math, flags memory and helpers.",
   "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
   "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",

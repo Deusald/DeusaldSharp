@@ -2,7 +2,7 @@
 
     <!-- Single source of truth for the version of every package, assembly and the Unity package.json. -->
     <PropertyGroup>
-        <Version>11.0.3</Version>
+        <Version>11.1.0</Version>
     </PropertyGroup>
 
     <PropertyGroup>

@@ -1,7 +1,7 @@
 {
   "name": "com.deusald.deusaldsharp.injector",
   "displayName": "Deusald Sharp - Injector",
-  "version": "11.0.3",
+  "version": "11.1.0",
   "description": "Minimal attribute-based dependency injector.",
   "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
   "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",

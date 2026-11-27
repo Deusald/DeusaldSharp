@@ -1,7 +1,7 @@
 {
   "name": "com.deusald.deusaldsharp.glicko",
   "displayName": "Deusald Sharp - Glicko",
-  "version": "11.0.3",
+  "version": "11.1.0",
   "description": "Glicko-2 style player rating calculations.",
   "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
   "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",

@@ -1,7 +1,7 @@
 {
   "name": "com.deusald.deusaldsharp.messages",
   "displayName": "Deusald Sharp - Messages",
-  "version": "11.0.3",
+  "version": "11.1.0",
   "description": "Lightweight message bus with pooled messages.",
   "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
   "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
