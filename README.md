@@ -85,18 +85,67 @@ or per repository in `nuget.config` (keep the token in an environment variable, 
 
 ### Unity
 
-1. Package Manager → *Add package from git URL*:
-   `https://github.com/Deusald/DeusaldSharp.git?path=/UnityPackage.NetStandard2.1#vX.X.X`
-2. Or via scoped registry: https://openupm.com/packages/com.deusald.deusaldsharp/
+Every module is a separate Unity package with its own dll, named `com.deusald.deusaldsharp.<module>`
+(`com.deusald.deusaldsharp.core`, `com.deusald.deusaldsharp.vectors`, ...). The `com.deusald.deusaldsharp`
+meta-package has no code of its own and installs every module. Install it to get everything, or install only the
+modules you use - their dependencies on other modules are listed in [Modules](#modules).
 
-The Unity package contains one dll per module (`DeusaldSharp.Core.dll`, `DeusaldSharp.Clock.dll`, ...).
-The Proto source generator is not part of the Unity package.
+The Proto source generator is not part of the Unity packages.
+
+#### OpenUPM (recommended)
+
+Packages from [OpenUPM](https://openupm.com/packages/com.deusald.deusaldsharp/) are signed by Deusald, so the Package
+Manager shows them as signed (Unity 6.3+), installs the module dependencies for you and offers updates.
+
+Add the OpenUPM scoped registry for `com.deusald` once, then add the meta-package or just the modules you use to
+`Packages/manifest.json`:
+
+```json
+"scopedRegistries": [
+  {
+    "name": "package.openupm.com",
+    "url": "https://package.openupm.com",
+    "scopes": [ "com.deusald" ]
+  }
+],
+"dependencies": {
+  "com.deusald.deusaldsharp.splines": "11.1.0",
+  "com.deusald.deusaldsharp.proto": "11.1.0"
+}
+```
+
+or with the OpenUPM CLI:
+
+```
+openupm add com.deusald.deusaldsharp            # everything
+openupm add com.deusald.deusaldsharp.splines    # or just the modules you use
+```
+
+#### Git URL
+
+In the Package Manager choose **Install package from git URL** and add each module from its own folder:
+
+```
+https://github.com/Deusald/DeusaldSharp.git?path=/UnityPackages/com.deusald.deusaldsharp.core#vX.X.X
+```
+
+- Unity does not resolve git dependencies of a package: add every module you use **and the modules it depends on**,
+  all at the same tag. For example `com.deusald.deusaldsharp.splines` needs `com.deusald.deusaldsharp.core` and
+  `com.deusald.deusaldsharp.vectors`. The meta-package installs from git only when all nine modules are added too.
+- Unity shows git packages as "Git", without a signature: signatures are shown only for packages installed from
+  a registry such as OpenUPM.
+- The dlls are stored in Git LFS, so git URL installs need [Git LFS](https://git-lfs.com/) installed.
+- Up to 11.0.3 everything was one package at `?path=/UnityPackage.NetStandard2.1`. That folder no longer exists from
+  11.1.0 on: replace the old git URL with one URL per module. The dlls keep their GUIDs, so references in your
+  project are not affected.
 
 ---
 
 ## Modules
 
-Every module is a separate NuGet package and dll. All packages share one version.
+Every module is a separate NuGet package, Unity package and dll. All packages share one version. The Unity package of
+a module is named like the NuGet package in lowercase with a `com.deusald.` prefix: `DeusaldSharp.Core` →
+`com.deusald.deusaldsharp.core`.
 
 | Package | Contents | Depends on |
 |---|---|---|
@@ -933,22 +982,37 @@ catch (InvalidDataException)
 ## Building
 
 ```
-dotnet build -c Release   # builds all modules, copies the netstandard2.1 dlls into UnityPackage.NetStandard2.1
+dotnet build -c Release   # builds all modules, copies each netstandard2.1 dll into its package in UnityPackages/
 dotnet test               # runs all tests
 dotnet pack -c Release    # creates the NuGet packages
 ```
 
-The version of every package, assembly and the Unity `package.json` is set in one place: `<Version>` in `Directory.Build.props`.
+The version of every package, assembly and Unity `package.json` (including the dependencies between the Unity packages)
+is set in one place: `<Version>` in `Directory.Build.props`.
 
 ### Releasing
 
-1. Set `<Version>` in `Directory.Build.props` and run a Release build (updates the Unity dlls and `package.json`).
+1. Set `<Version>` in `Directory.Build.props` and run a Release build (updates the Unity dlls and every `package.json`).
 2. Add the patch notes as `PatchNotes/<Version>.md` - the file becomes the body of the GitHub Release.
 3. Commit, then push a tag `v<Version>` (e.g. `v11.0.0`).
 
 The [Release workflow](https://github.com/Deusald/DeusaldSharp/blob/master/.github/workflows/release.yml) then checks that the tag matches `<Version>` and that the patch
 notes exist, builds and tests the solution, publishes all packages to GitHub Packages, the GitHub Pages feed (`gh-pages` branch) and
 NuGet.org (with symbol packages), and creates the GitHub Release with the patch notes and the `.nupkg` files attached.
+The workflow also packs every Unity package in `UnityPackages/` and signs it with the Unity organization
+(UPM CLI, one parallel job per package), and attaches the signed `<package-name>-<version>.tgz` files to the same GitHub
+Release. OpenUPM republishes those tarballs, so a new version shows up on OpenUPM shortly after the release. Nothing is
+published unless every package is signed and every test passes. The Unity packages are packed from the committed dlls,
+so the workflow checks that their assembly version matches the tag.
+
+Signing needs the repository secrets `UPM_SERVICE_ACCOUNT_KEY_ID`, `UPM_SERVICE_ACCOUNT_KEY_SECRET` (a Unity service
+account key with the Package Manager Package Signer role) and `UPM_ORG_ID`. To test signing without releasing, run the
+workflow manually (Actions → Release → Run workflow): it validates, signs, builds and tests the chosen branch and
+uploads the signed tarballs as a 7-day workflow artifact.
+
+When adding a module, add its folder in `UnityPackages/` (with `package.json` and the dll `.meta`), raise
+`EXPECTED_PACKAGES` in the workflow and add the package to OpenUPM.
+
 NuGet.org uses Trusted Publishing (a nuget.org policy for this repository and `release.yml`, no API key secret);
 GitHub Packages and the GitHub Pages feed use the built-in `GITHUB_TOKEN`. GitHub Pages must be set to deploy from the
 `gh-pages` branch (Settings → Pages), which the first release creates.

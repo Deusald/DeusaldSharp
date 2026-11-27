@@ -1,0 +1,17 @@
+{
+  "name": "com.deusald.deusaldsharp.injector",
+  "displayName": "Deusald Sharp - Injector",
+  "version": "11.0.3",
+  "description": "Minimal attribute-based dependency injector.",
+  "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
+  "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
+  "licensesUrl": "https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE",
+  "dependencies": {
+  },
+  "author": {
+    "name": "Adam Deusald Orlinski",
+    "email": "deusald@gmail.com",
+    "url": "https://www.deusald.com"
+  },
+  "keywords": ["Tools", "Injector"]
+}

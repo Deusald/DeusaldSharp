@@ -1,16 +1,30 @@
 ﻿name: "Release"
 
-# Push a tag "v<Version>" (e.g. v11.0.0) to release. The tag must match <Version> in Directory.Build.props
-# and PatchNotes/<Version>.md must exist - both are checked before anything is published.
+# Push a tag "v<Version>" (e.g. v11.1.0) to release. The tag must match <Version> in Directory.Build.props,
+# PatchNotes/<Version>.md must exist and every Unity package must carry the same version - all checked first.
+#
+# Jobs: validate -> sign (one parallel job per Unity package) + build (build, test, pack)
+#       -> publish-nuget (GitHub Packages, Pages feed, NuGet.org) -> release (one GitHub Release).
+# Nothing is published unless every package is signed and every test passes.
+#
+# The signed Unity packages are packed from the committed dlls in UnityPackages/ (Git LFS), so run a Release build
+# before tagging; validate checks their assembly version. OpenUPM (trackingMode: githubRelease) republishes the
+# signed <package-name>-<version>.tgz release assets unchanged.
+#
+# Dry run: Actions > Release > Run workflow. Validates, signs, builds and tests the chosen branch with the version from
+# Directory.Build.props and uploads the signed tarballs as a 7-day workflow artifact. It pushes and releases nothing.
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
-  contents: write  # create the GitHub Release
-  packages: write  # push to GitHub Packages
-  id-token: write  # NuGet.org Trusted Publishing (OIDC)
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
   SOLUTION: 'DeusaldSharp.sln'
@@ -18,37 +32,293 @@ env:
   NUGET_SOURCE: 'https://api.nuget.org/v3/index.json'
   GITHUB_PACKAGES_SOURCE: 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
   PAGES_FEED_URL: 'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/'
+  UNITY_PACKAGES_DIR: 'UnityPackages'
+  EXPECTED_PACKAGES: 10 # the meta-package and one package per module: update when adding a module
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  release:
-    name: 'Release'
-    runs-on: windows-latest
+  validate:
+    name: 'Validate'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version:  ${{ steps.version.outputs.version }}
+      packages: ${{ steps.packages.outputs.packages }}
+    env:
+      UPM_SERVICE_ACCOUNT_KEY_ID:     ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_ID }}
+      UPM_SERVICE_ACCOUNT_KEY_SECRET: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_SECRET }}
+      UPM_ORG_ID:                     ${{ secrets.UPM_ORG_ID }}
+
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
+
+      - name: 'Check secrets'
+        run: |
+          for name in UPM_SERVICE_ACCOUNT_KEY_ID UPM_SERVICE_ACCOUNT_KEY_SECRET UPM_ORG_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing repository secret $name"
+              exit 1
+            fi
+          done
+
+      - name: 'Check version and patch notes'
+        id: version
+        run: |
+          PROPS_VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Directory.Build.props)
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            TAG_VERSION="${GITHUB_REF_NAME#v}"
+            if [ "$TAG_VERSION" != "$PROPS_VERSION" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match <Version>$PROPS_VERSION</Version> in Directory.Build.props"
+              exit 1
+            fi
+            if [ ! -s "PatchNotes/$TAG_VERSION.md" ]; then
+              echo "::error::Missing patch notes: PatchNotes/$TAG_VERSION.md"
+              exit 1
+            fi
+          fi
+          echo "Version: $PROPS_VERSION"
+          echo "version=$PROPS_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: 'Check Unity packages'
+        id: packages
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          count=0
+          failed=0
+          packages=()
+          for dir in "$UNITY_PACKAGES_DIR"/com.deusald.deusaldsharp*; do
+            [ -f "$dir/package.json" ] || continue
+            count=$((count + 1))
+            folder="$(basename "$dir")"
+            packages+=("$folder")
+            name="$(jq -r '.name' "$dir/package.json")"
+            pkg_version="$(jq -r '.version' "$dir/package.json")"
+            if [ "$name" != "$folder" ]; then
+              echo "::error file=$dir/package.json::Package name $name does not match its folder $folder"
+              failed=1
+            fi
+            if [ "$pkg_version" != "$VERSION" ]; then
+              echo "::error file=$dir/package.json::$name is $pkg_version, expected $VERSION (run a Release build)"
+              failed=1
+            fi
+
+            # Dependencies on sibling packages must point at the same release ...
+            while IFS=$'\t' read -r dep dep_version; do
+              [ -n "$dep" ] || continue
+              if [ "$dep_version" != "$VERSION" ]; then
+                echo "::error file=$dir/package.json::$name depends on $dep@$dep_version, expected $VERSION"
+                failed=1
+              fi
+            done < <(jq -r '.dependencies // {} | to_entries[] | select(.key | startswith("com.deusald.")) | "\(.key)\t\(.value)"' "$dir/package.json")
+
+            # ... and match the project references of the module (the meta-package depends on every module).
+            actual="$(jq -r '.dependencies // {} | keys[] | select(startswith("com.deusald."))' "$dir/package.json" | sort | xargs)"
+            if [ "$name" = "com.deusald.deusaldsharp" ]; then
+              expected="$(sed -n 's:.*Include="[^"]*DeusaldSharp\.\([A-Za-z0-9]*\)\.csproj".*:\1:p' src/DeusaldSharp/DeusaldSharp.csproj \
+                | tr 'A-Z' 'a-z' | sed 's/^/com.deusald.deusaldsharp./' | sort | xargs)"
+            else
+              module="${name#com.deusald.deusaldsharp.}"
+              csproj="$(find src -maxdepth 2 -iname "DeusaldSharp.$module.csproj" | head -n 1)"
+              if [ -z "$csproj" ]; then
+                echo "::error file=$dir/package.json::No project src/DeusaldSharp.<module>/DeusaldSharp.<module>.csproj for $name"
+                failed=1
+                continue
+              fi
+              dll="$dir/$(basename "$csproj" .csproj).dll"
+              if [ ! -f "$dll" ]; then
+                echo "::error file=$dir/package.json::$name has no $(basename "$dll")"
+                failed=1
+              fi
+              expected="$(sed -n 's:.*Include="[^"]*DeusaldSharp\.\([A-Za-z0-9]*\)\.csproj".*:\1:p' "$csproj" | { grep -vx 'Analyzers' || true; } \
+                | tr 'A-Z' 'a-z' | sed 's/^/com.deusald.deusaldsharp./' | sort | xargs)"
+            fi
+            if [ "$actual" != "$expected" ]; then
+              echo "::error file=$dir/package.json::$name depends on [$actual], its project references give [$expected]"
+              failed=1
+            fi
+          done
+
+          if [ "$count" -ne "$EXPECTED_PACKAGES" ]; then
+            echo "::error::Found $count Unity packages, expected $EXPECTED_PACKAGES (update EXPECTED_PACKAGES when adding a module)"
+            failed=1
+          fi
+          [ "$failed" -eq 0 ] || exit 1
+
+          echo "packages=$(printf '%s\n' "${packages[@]}" | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
+
+      - name: 'Download Unity dlls (Git LFS)'
+        run: |
+          # LFS downloads occasionally stall: cap each attempt and retry.
+          for attempt in 1 2 3; do
+            if timeout --kill-after=10s 180s git lfs pull --include "$UNITY_PACKAGES_DIR/**/*.dll"; then
+              exit 0
+            fi
+            echo "::warning::git lfs pull failed (attempt $attempt/3), retrying"
+            sleep $((attempt * 10))
+          done
+          echo "::error::git lfs pull failed after 3 attempts"
+          exit 1
+
+      # The signed packages contain the committed dlls, not this run's build: they must come from a Release build of this version.
+      - name: 'Check Unity dll versions'
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $expected = ($env:VERSION -replace '[-+].*$', '') + '.0'
+          $failed   = $false
+          foreach ($dll in Get-ChildItem $env:UNITY_PACKAGES_DIR -Recurse -Filter *.dll) {
+            try {
+              $actual = [System.Reflection.AssemblyName]::GetAssemblyName($dll.FullName).Version.ToString()
+            } catch {
+              $actual = 'not an assembly (LFS pointer?)'
+            }
+            if ($actual -ne $expected) {
+              Write-Output "::error file=$($dll.FullName)::$($dll.Name) is $actual, expected $expected (run a Release build and commit the dlls)"
+              $failed = $true
+            } else {
+              Write-Output "$($dll.Name) $actual"
+            }
+          }
+          if ($failed) { exit 1 }
+
+  sign:
+    name: 'Sign'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: true
+      matrix:
+        package: ${{ fromJSON(needs.validate.outputs.packages) }}
+    env:
+      UPM_SERVICE_ACCOUNT_KEY_ID:     ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_ID }}
+      UPM_SERVICE_ACCOUNT_KEY_SECRET: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_SECRET }}
+      UPM_ORG_ID:                     ${{ secrets.UPM_ORG_ID }}
+      UPM_CLI_VERSION:                v10.0.0
+      PACKAGE_NAME:                   ${{ matrix.package }}
+      PACKAGE_DIR:                    UnityPackages/${{ matrix.package }}
+      VERSION:                        ${{ needs.validate.outputs.version }}
+      WORK_DIR:                       upm-work # no dot-folders: upload-artifact skips hidden files
+      DIST_DIR:                       upm-dist
+      PACK_TIMEOUT:                   180s
+      PACK_ATTEMPTS:                  3
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v7
+
+      - name: 'Download package dll (Git LFS)'
+        run: |
+          # Without this the package would contain the LFS pointer instead of the dll.
+          for attempt in 1 2 3; do
+            if timeout --kill-after=10s 180s git lfs pull --include "$PACKAGE_DIR/*"; then
+              exit 0
+            fi
+            echo "::warning::git lfs pull failed (attempt $attempt/3), retrying"
+            sleep $((attempt * 10))
+          done
+          echo "::error::git lfs pull failed after 3 attempts"
+          exit 1
+
+      - name: 'Install Unity UPM CLI'
+        run: |
+          # The CDN occasionally cuts the CLI download short: retry the whole install.
+          for attempt in 1 2 3 4; do
+            if curl -fsSL --retry 3 --retry-all-errors https://cdn.packages.unity.com/upm-cli/install.sh -o "$RUNNER_TEMP/upm-install.sh" \
+              && bash "$RUNNER_TEMP/upm-install.sh" "$UPM_CLI_VERSION"; then
+              echo "$HOME/.upm/bin" >> "$GITHUB_PATH"
+              exit 0
+            fi
+            echo "::warning::Installing UPM CLI failed (attempt $attempt/4), retrying"
+            sleep $((attempt * 10))
+          done
+          echo "::error::Installing UPM CLI failed after 4 attempts"
+          exit 1
+
+      - name: 'Pack and sign'
+        run: |
+          mkdir -p "$WORK_DIR" "$DIST_DIR"
+          upm --version
+
+          # upm pack has no timeout of its own and a signing call can hang: cap each attempt and retry.
+          attempt=1
+          until timeout --kill-after=10s "$PACK_TIMEOUT" upm pack "$PACKAGE_DIR" --organization-id "$UPM_ORG_ID" --destination "$WORK_DIR"; do
+            code=$?
+            if [ "$attempt" -ge "$PACK_ATTEMPTS" ]; then
+              echo "::error::Signing $PACKAGE_NAME failed after $attempt attempts (last exit code $code)"
+              exit 1
+            fi
+            echo "::warning::Signing $PACKAGE_NAME failed or timed out (exit code $code), retrying ($attempt/$PACK_ATTEMPTS)"
+            rm -rf "$WORK_DIR"
+            mkdir -p "$WORK_DIR"
+            attempt=$((attempt + 1))
+            sleep 10
+          done
+
+          shopt -s nullglob
+          archives=("$WORK_DIR"/*.tgz "$WORK_DIR"/*.tar.gz)
+          shopt -u nullglob
+          if [ "${#archives[@]}" -ne 1 ]; then
+            echo "::error::Expected one archive for $PACKAGE_NAME, found ${#archives[@]}"
+            exit 1
+          fi
+          archive="${archives[0]}"
+
+          listing="$(tar -tzf "$archive")"
+          echo "$listing"
+          for required in package/package.json package/.attestation.p7m; do
+            if ! grep -qx "$required" <<< "$listing"; then
+              echo "::error::$PACKAGE_NAME archive has no $required"
+              exit 1
+            fi
+          done
+
+          packed="$(tar -xOzf "$archive" package/package.json | jq -r '"\(.name)@\(.version)"')"
+          if [ "$packed" != "$PACKAGE_NAME@$VERSION" ]; then
+            echo "::error::Archive contains $packed, expected $PACKAGE_NAME@$VERSION"
+            exit 1
+          fi
+
+          # Every module package must carry a real dll, not a Git LFS pointer.
+          while read -r dll; do
+            [ -n "$dll" ] || continue
+            if [ "$(tar -xOzf "$archive" "$dll" | head -c 2)" != "MZ" ]; then
+              echo "::error::$dll in $PACKAGE_NAME is not a dll (Git LFS pointer?)"
+              exit 1
+            fi
+          done < <(grep '\.dll$' <<< "$listing")
+
+          # Stable "<name>-<version>.tgz" names: OpenUPM picks each package's asset by the "<name>-" prefix.
+          mv "$archive" "$DIST_DIR/$PACKAGE_NAME-$VERSION.tgz"
+          echo "Signed $PACKAGE_NAME-$VERSION.tgz"
+
+      - name: 'Upload signed package'
+        uses: actions/upload-artifact@v7
+        with:
+          name:              signed-${{ matrix.package }}
+          path:              upm-dist/*.tgz
+          if-no-files-found: error
+          retention-days:    1
+
+  build:
+    name: 'Build and test'
+    needs: validate
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v7
 
       - name: 'Install dotnet 10.0'
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
-
-      - name: 'Check version and patch notes'
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PROPS_VERSION=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Directory.Build.props)
-          if [ "$TAG_VERSION" != "$PROPS_VERSION" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match <Version>$PROPS_VERSION</Version> in Directory.Build.props"
-            exit 1
-          fi
-          if [ ! -s "PatchNotes/$TAG_VERSION.md" ]; then
-            echo "::error::Missing patch notes: PatchNotes/$TAG_VERSION.md"
-            exit 1
-          fi
-          echo "VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
 
       - name: 'Restore'
         run: dotnet restore "$SOLUTION"
@@ -61,6 +331,43 @@ jobs:
 
       - name: 'Pack'
         run: dotnet pack "$SOLUTION" --no-build --configuration Release --output "$OUTPUT"
+
+      - name: 'Upload NuGet packages'
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuget-packages
+          path: |
+            ${{ env.OUTPUT }}/*.nupkg
+            ${{ env.OUTPUT }}/*.snupkg
+          if-no-files-found: error
+          retention-days:    1
+
+  publish-nuget:
+    name: 'Publish NuGet packages'
+    needs: [validate, sign, build]
+    if: github.event_name == 'push'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write  # push the gh-pages feed branch
+      packages: write  # push to GitHub Packages
+      id-token: write  # NuGet.org Trusted Publishing (OIDC)
+    env:
+      VERSION: ${{ needs.validate.outputs.version }}
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v7
+
+      - name: 'Install dotnet 10.0'
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: 'Download NuGet packages'
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-packages
+          path: ${{ env.OUTPUT }}
 
       # GitHub Packages first: packages are available there within seconds, NuGet.org indexing can take much longer.
       # Only *.nupkg - GitHub Packages doesn't accept symbol packages.
@@ -111,7 +418,90 @@ jobs:
             dotnet nuget push "$package" --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --source "$NUGET_SOURCE" --skip-duplicate
           done
 
+  release:
+    name: 'GitHub Release'
+    needs: [validate, sign, publish-nuget]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write  # create the GitHub Release
+    env:
+      VERSION: ${{ needs.validate.outputs.version }}
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v7 # for the patch notes
+
+      - name: 'Download signed Unity packages'
+        uses: actions/download-artifact@v8
+        with:
+          pattern:        signed-*
+          path:           release-assets
+          merge-multiple: true
+
+      - name: 'Download NuGet packages'
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-packages
+          path: release-assets
+
+      - name: 'Check release assets'
+        run: |
+          shopt -s nullglob
+          archives=(release-assets/*.tgz)
+          nupkgs=(release-assets/*.nupkg)
+          ls -l release-assets
+          if [ "${#archives[@]}" -ne "$EXPECTED_PACKAGES" ]; then
+            echo "::error::Collected ${#archives[@]} signed Unity packages, expected $EXPECTED_PACKAGES"
+            exit 1
+          fi
+          if [ "${#nupkgs[@]}" -eq 0 ]; then
+            echo "::error::No NuGet packages collected"
+            exit 1
+          fi
+
+      # The action creates the release as a draft, uploads every asset and only then publishes it,
+      # so OpenUPM never sees a release with missing tarballs.
       - name: 'Create GitHub Release'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "$OUTPUT"/*.nupkg --verify-tag --title "DeusaldSharp $VERSION" --notes-file "PatchNotes/$VERSION.md"
+        uses: softprops/action-gh-release@v3
+        with:
+          name:                    DeusaldSharp ${{ env.VERSION }}
+          body_path:               PatchNotes/${{ env.VERSION }}.md
+          fail_on_unmatched_files: true
+          files: |
+            release-assets/*.nupkg
+            release-assets/*.tgz
+
+  dry-run:
+    name: 'Dry run artifact'
+    needs: [validate, sign, build]
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      VERSION: ${{ needs.validate.outputs.version }}
+    steps:
+      - name: 'Download signed Unity packages'
+        uses: actions/download-artifact@v8
+        with:
+          pattern:        signed-*
+          path:           upm-dist
+          merge-multiple: true
+
+      - name: 'Check signed Unity packages'
+        run: |
+          shopt -s nullglob
+          archives=(upm-dist/*.tgz)
+          ls -l upm-dist
+          if [ "${#archives[@]}" -ne "$EXPECTED_PACKAGES" ]; then
+            echo "::error::Collected ${#archives[@]} signed Unity packages, expected $EXPECTED_PACKAGES"
+            exit 1
+          fi
+
+      - name: 'Upload signed Unity packages'
+        uses: actions/upload-artifact@v7
+        with:
+          name:              signed-packages-${{ env.VERSION }}
+          path:              upm-dist/*.tgz
+          if-no-files-found: error
+          retention-days:    7

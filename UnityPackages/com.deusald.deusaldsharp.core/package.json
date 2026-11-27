@@ -1,0 +1,17 @@
+{
+  "name": "com.deusald.deusaldsharp.core",
+  "displayName": "Deusald Sharp - Core",
+  "version": "11.0.3",
+  "description": "Core DeusaldSharp utils: extensions, binary serialization helpers, math, flags memory and helpers.",
+  "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
+  "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
+  "licensesUrl": "https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE",
+  "dependencies": {
+  },
+  "author": {
+    "name": "Adam Deusald Orlinski",
+    "email": "deusald@gmail.com",
+    "url": "https://www.deusald.com"
+  },
+  "keywords": ["Tools", "Core"]
+}

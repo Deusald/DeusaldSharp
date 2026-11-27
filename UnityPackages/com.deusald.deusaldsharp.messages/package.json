@@ -1,0 +1,17 @@
+{
+  "name": "com.deusald.deusaldsharp.messages",
+  "displayName": "Deusald Sharp - Messages",
+  "version": "11.0.3",
+  "description": "Lightweight message bus with pooled messages.",
+  "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
+  "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
+  "licensesUrl": "https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE",
+  "dependencies": {
+  },
+  "author": {
+    "name": "Adam Deusald Orlinski",
+    "email": "deusald@gmail.com",
+    "url": "https://www.deusald.com"
+  },
+  "keywords": ["Tools", "Messages"]
+}

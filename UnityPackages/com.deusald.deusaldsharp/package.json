@@ -1,0 +1,26 @@
+{
+  "name": "com.deusald.deusaldsharp",
+  "displayName": "Deusald Sharp",
+  "version": "11.0.3",
+  "description": "Deusald Sharp meta-package: installs every Deusald Sharp module.",
+  "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
+  "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
+  "licensesUrl": "https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE",
+  "dependencies": {
+    "com.deusald.deusaldsharp.clock": "11.0.3",
+    "com.deusald.deusaldsharp.core": "11.0.3",
+    "com.deusald.deusaldsharp.coroutines": "11.0.3",
+    "com.deusald.deusaldsharp.glicko": "11.0.3",
+    "com.deusald.deusaldsharp.injector": "11.0.3",
+    "com.deusald.deusaldsharp.messages": "11.0.3",
+    "com.deusald.deusaldsharp.proto": "11.0.3",
+    "com.deusald.deusaldsharp.splines": "11.0.3",
+    "com.deusald.deusaldsharp.vectors": "11.0.3"
+  },
+  "author": {
+    "name": "Adam Deusald Orlinski",
+    "email": "deusald@gmail.com",
+    "url": "https://www.deusald.com"
+  },
+  "keywords": ["Tools"]
+}

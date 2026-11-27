@@ -1,0 +1,17 @@
+{
+  "name": "com.deusald.deusaldsharp.glicko",
+  "displayName": "Deusald Sharp - Glicko",
+  "version": "11.0.3",
+  "description": "Glicko-2 style player rating calculations.",
+  "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
+  "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
+  "licensesUrl": "https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE",
+  "dependencies": {
+  },
+  "author": {
+    "name": "Adam Deusald Orlinski",
+    "email": "deusald@gmail.com",
+    "url": "https://www.deusald.com"
+  },
+  "keywords": ["Tools", "Glicko"]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "com.deusald.deusaldsharp.coroutines",
+  "displayName": "Deusald Sharp - CoRoutines",
+  "version": "11.0.3",
+  "description": "Unity-style coroutines for plain C# game loops.",
+  "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
+  "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
+  "licensesUrl": "https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE",
+  "dependencies": {
+    "com.deusald.deusaldsharp.core": "11.0.3"
+  },
+  "author": {
+    "name": "Adam Deusald Orlinski",
+    "email": "deusald@gmail.com",
+    "url": "https://www.deusald.com"
+  },
+  "keywords": ["Tools", "CoRoutines"]
+}

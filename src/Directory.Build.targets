@@ -1,9 +1,27 @@
 <Project>
 
+    <!-- Set here, after the project file, so a project can override UnityPackageName. -->
+    <PropertyGroup>
+        <UnityPackageDir>$(UnityPackagesDir)$(UnityPackageName)/</UnityPackageDir>
+    </PropertyGroup>
+
     <Target Name="CopyToUnityPackage"
             AfterTargets="PostBuildEvent"
             Condition="'$(CopyToUnityPackage)' == 'true' And '$(Configuration)' == 'Release' And '$(TargetFramework)' == 'netstandard2.1'">
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(UnityPackageDir)" SkipUnchangedFiles="true" />
+    </Target>
+
+    <!-- Keeps the version of the Unity package.json, and of its dependencies on sibling DeusaldSharp packages, in step with $(Version). -->
+    <Target Name="SyncUnityPackageVersion"
+            AfterTargets="Build"
+            Condition="'$(Configuration)' == 'Release' And '$(TargetFramework)' == 'netstandard2.1' And Exists('$(UnityPackageDir)package.json')">
+        <PropertyGroup>
+            <_UnityJsonPath>$(UnityPackageDir)package.json</_UnityJsonPath>
+            <_UnityJson>$([System.IO.File]::ReadAllText('$(_UnityJsonPath)').TrimEnd())</_UnityJson>
+            <_UnityJsonNew>$([System.Text.RegularExpressions.Regex]::Replace('$(_UnityJson)', '"version":\s*"[^"]*"', '"version": "$(Version)"'))</_UnityJsonNew>
+            <_UnityJsonNew>$([System.Text.RegularExpressions.Regex]::Replace('$(_UnityJsonNew)', '("com\.deusald\.deusaldsharp[a-z0-9.]*":\s*)"[^"]*"', '$1"$(Version)"'))</_UnityJsonNew>
+        </PropertyGroup>
+        <WriteLinesToFile File="$(_UnityJsonPath)" Lines="$([MSBuild]::Escape('$(_UnityJsonNew)'))" Overwrite="true" WriteOnlyWhenDifferent="true" />
     </Target>
 
 </Project>

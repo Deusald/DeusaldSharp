@@ -18,9 +18,10 @@
         <!-- The repository readme is shown on every package page. -->
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
-        <!-- Copy the netstandard2.1 Release build of this module into the Unity package. -->
+        <!-- Copy the netstandard2.1 Release build of this module into its own Unity package (UnityPackages/<UnityPackageName>/). -->
         <CopyToUnityPackage>true</CopyToUnityPackage>
-        <UnityPackageDir>$(MSBuildThisFileDirectory)../UnityPackage.NetStandard2.1/</UnityPackageDir>
+        <UnityPackagesDir>$(MSBuildThisFileDirectory)../UnityPackages/</UnityPackagesDir>
+        <UnityPackageName>com.deusald.deusaldsharp.$(MSBuildProjectName.Replace('DeusaldSharp.', '').ToLowerInvariant())</UnityPackageName>
     </PropertyGroup>
 
     <ItemGroup>

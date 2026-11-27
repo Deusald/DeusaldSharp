@@ -1,0 +1,18 @@
+{
+  "name": "com.deusald.deusaldsharp.clock",
+  "displayName": "Deusald Sharp - Clock",
+  "version": "11.0.3",
+  "description": "Game server clocks with fixed tick rate (precision and standard).",
+  "documentationUrl": "https://github.com/Deusald/DeusaldSharp",
+  "changelogUrl": "https://github.com/Deusald/DeusaldSharp/tree/master/PatchNotes",
+  "licensesUrl": "https://github.com/Deusald/DeusaldSharp/blob/master/LICENSE",
+  "dependencies": {
+    "com.deusald.deusaldsharp.core": "11.0.3"
+  },
+  "author": {
+    "name": "Adam Deusald Orlinski",
+    "email": "deusald@gmail.com",
+    "url": "https://www.deusald.com"
+  },
+  "keywords": ["Tools", "Clock"]
+}
